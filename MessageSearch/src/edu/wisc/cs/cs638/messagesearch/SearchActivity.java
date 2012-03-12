@@ -1,4 +1,4 @@
-package com.messagesearch.ui;
+package edu.wisc.cs.cs638.messagesearch;
 
 import com.cs638.messagesearch.R;
 
