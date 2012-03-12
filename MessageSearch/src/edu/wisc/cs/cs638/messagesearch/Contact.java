@@ -3,10 +3,17 @@ package edu.wisc.cs.cs638.messagesearch;
 import android.graphics.Bitmap;
 
 public class Contact {
-	private int id;
-	private MessageSource source;
-	private String name;
-	private Bitmap picture;
+	private final int id;
+	private final MessageSource source;
+	private final String name;
+	private final Bitmap picture;
+	
+	public Contact(int id, MessageSource source, String name, Bitmap picture) {
+		this.id = id;
+		this.source = source;
+		this.name = name;
+		this.picture = picture;
+	}
 	
 	public int getId() {
 		return id;
