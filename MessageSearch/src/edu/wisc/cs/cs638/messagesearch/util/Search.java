@@ -1,7 +1,8 @@
-package edu.wisc.cs.cs638.messagesearch;
+package edu.wisc.cs.cs638.messagesearch.util;
 
 import java.util.Date;
 import java.util.List;
+
 
 public class Search {
 	private final String text;
