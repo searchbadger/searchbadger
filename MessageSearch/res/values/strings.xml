@@ -16,9 +16,17 @@
     <string name="after">After</string>
     <string name="from">From</string>
     <string name="to">To</string>
-    <string name="sample_date">12/12/2012</string>
+    <string name="sample_date_time">12/12/2012\n11:00 AM</string>
     <string name="sent_received">Sent/Received</string>
     <string name="contacts">Contacts</string>
     <string name="select_contacts">Select Contacts</string>
     <string name="contact_selection">This will display the list of contacts selected.</string>
+    <string name="sample_date">11/30/2012</string>
+    <string name="login">Log In</string>
+    <string name="logout">Log Out</string>
+    <string name="accounts">Accounts</string>
+    <string name="example_contact">John Doe</string>
+    <string name="result">Search Result</string>
+    <string name="sample_message">This is a sample message.</string>
+    <string name="thread">Conversation</string>
 </resources>

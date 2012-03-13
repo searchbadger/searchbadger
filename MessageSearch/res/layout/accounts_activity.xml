@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/scroll"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content" >
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
+
+        <LinearLayout
+            android:id="@+id/linearLayoutFacebook"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" >
+
+            <Button
+                android:id="@+id/buttonFacebookConnect"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:drawableLeft="@drawable/facebook_selected"
+                android:text="@string/login" />
+
+            <Button
+                android:id="@+id/buttonFacebookDisconnect"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:drawableLeft="@drawable/facebook_selected"
+                android:text="@string/logout" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/linearLayoutTwitter"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" >
+
+            <Button
+                android:id="@+id/buttonTwitterConnect"
+                android:layout_width="0dp"
+                android:layout_height="fill_parent"
+                android:layout_weight="1"
+                android:drawableLeft="@drawable/twitter_selected"
+                android:text="@string/login" />
+
+            <Button
+                android:id="@+id/buttonTwitterDisconnect"
+                android:layout_width="0dp"
+                android:layout_height="fill_parent"
+                android:layout_weight="1"
+                android:drawableLeft="@drawable/twitter_selected"
+                android:text="@string/logout" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+</ScrollView>

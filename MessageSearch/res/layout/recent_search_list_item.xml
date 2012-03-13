@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/LinearLayoutRecentSearchListItem"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:baselineAligned="true" >
+
+
+    <TextView
+        android:id="@+id/recent_search_text"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:paddingLeft="5dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:text="@string/contact_selection"
+        android:textAppearance="?android:attr/textAppearanceSmall" >
+
+    </TextView>
+
+    <TextView
+        android:id="@+id/recent_search_date"
+        android:layout_width="64dp"
+        android:layout_height="wrap_content"
+        android:paddingLeft="5dp"
+        android:paddingBottom="5dp" 
+        android:text="@string/sample_date_time"
+        android:textSize="10sp" >
+
+    </TextView>
+
+
+</LinearLayout>

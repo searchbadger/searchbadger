@@ -9,15 +9,46 @@
     <application
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name" >
-        <activity
-            android:name=".view.SearchActivity"
-            android:label="@string/app_name" >
+        
+        
+        <activity android:name=".view.SearchActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        
+        
+        <activity android:name=".view.RecentSearchActivity">
+        </activity>
+        
+        
+        
+        <activity android:name=".view.AccountsActivity"
+            android:label="@string/accounts" >  
+        </activity>
+        
+        
+        <activity android:name=".view.ContactsActivity"
+            android:label="@string/contacts" >
+        </activity>
+        
+        
+        
+        <activity android:name=".view.StarredMessagesActivity">
+        </activity>
+        
+        
+        <activity android:name=".view.SearchResultActivity"
+            android:label="@string/result">
+        </activity>
+        
+        
+        <activity android:name=".view.ThreadActivity"
+            android:label="@string/thread">
+        </activity>
+        
+        
     </application>
 
 </manifest>
