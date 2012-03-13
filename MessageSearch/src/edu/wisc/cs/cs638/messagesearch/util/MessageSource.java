@@ -4,5 +4,5 @@ public enum MessageSource {
 	SMS,
 	FACEBOOK,
 	TWITTER,
-	STARED
+	STARRED
 }
