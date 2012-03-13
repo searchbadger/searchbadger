@@ -1,6 +1,6 @@
 package edu.wisc.cs.cs638.messagesearch.view;
 
-import com.cs638.messagesearch.R;
+import edu.wisc.cs.cs638.messagesearch.R;
 
 import android.app.Activity;
 import android.os.Bundle;

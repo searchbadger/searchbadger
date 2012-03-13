@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.cs638.messagesearch"
+    package="edu.wisc.cs.cs638.messagesearch"
     android:versionCode="1"
     android:versionName="1.0" >
 
@@ -10,7 +10,7 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name" >
         <activity
-            android:name="com.messagesearch.ui.SearchActivity"
+            android:name="edu.wisc.cs.cs638.messagesearch.core.view.SearchActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
