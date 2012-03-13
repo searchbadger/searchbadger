@@ -1,0 +1,350 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/scroll"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content" >
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:orientation="vertical" >
+
+        <LinearLayout
+            android:id="@+id/linearLayoutSearch"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" >
+
+            <EditText
+                android:id="@+id/editTextSearch"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <Button
+                android:id="@+id/buttonSearch"
+                android:layout_width="wrap_content"
+                android:layout_height="fill_parent"
+                android:text="@string/search" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/linearLayoutButtonSymbols"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" >
+
+            <Button
+                android:id="@+id/buttonSymbolPound"
+                android:layout_width="45dp"
+                android:layout_height="wrap_content"
+                android:text="@string/symbol_pound" />
+
+            <Button
+                android:id="@+id/buttonSymbolStar"
+                android:layout_width="45dp"
+                android:layout_height="wrap_content"
+                android:text="@string/symbol_star" />
+
+            <Button
+                android:id="@+id/buttonSymbolUnderscore"
+                android:layout_width="45dp"
+                android:layout_height="wrap_content"
+                android:text="@string/symbol_underscore" />
+
+            <Button
+                android:id="@+id/buttonSearc23"
+                android:layout_width="wrap_content"
+                android:layout_height="fill_parent"
+                android:text="@string/search"
+                android:visibility="gone" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/linearLayoutButtonTypes"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" >
+
+            <ToggleButton
+                android:id="@+id/toggleButtonTypeSMS"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:background="@drawable/button_type_sms"
+                android:textOff=""
+                android:textOn="" />
+
+            <ToggleButton
+                android:id="@+id/toggleButtonTypeFacebook"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:background="@drawable/button_type_facebook"
+                android:textOff=""
+                android:textOn="" />
+
+            <ToggleButton
+                android:id="@+id/toggleButtonTypeTwitter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:background="@drawable/button_type_twitter"
+                android:textOff=""
+                android:textOn="" />
+
+            <ToggleButton
+                android:id="@+id/toggleButtonTypeStar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:background="@drawable/button_type_star"
+                android:textOff=""
+                android:textOn="" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/linearLayoutFilterDate"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" >
+
+            <TextView
+                android:id="@+id/textViewFilterDate"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingLeft="5dp"
+                android:text="@string/date"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
+
+            <CheckBox
+                android:id="@+id/checkBoxFilterDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/empty" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/linearFilterDateOptions"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="10dp" >
+
+            <RadioGroup
+                android:id="@+id/radioGroupDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
+
+                <RadioButton
+                    android:id="@+id/radioToday"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:text="@string/today"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                <RadioButton
+                    android:id="@+id/radioYesterday"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/yesterday"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                <RadioButton
+                    android:id="@+id/radioPaskWeek"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/past_week"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                <RadioButton
+                    android:id="@+id/radioPastMonth"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/past_month"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                <RadioButton
+                    android:id="@+id/radioBefore"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/before"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                <RadioButton
+                    android:id="@+id/radioAfter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/after"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                <RadioButton
+                    android:id="@+id/radioFrom"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/from"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                <TextView
+                    android:id="@+id/textView1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="37dp"
+                    android:paddingTop="15dp"
+                    android:text="@string/to"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+            </RadioGroup>
+
+            <LinearLayout
+                android:id="@+id/linearLayout2"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingLeft="10dp" >
+
+                <Button
+                    android:id="@+id/buttonDateToday"
+                    android:layout_width="wrap_content"
+                    android:layout_height="fill_parent"
+                    android:text="@string/empty"
+                    android:visibility="invisible" />
+
+                <Button
+                    android:id="@+id/buttonDateYesterday"
+                    android:layout_width="wrap_content"
+                    android:layout_height="fill_parent"
+                    android:text="@string/empty"
+                    android:visibility="invisible" />
+
+                <Button
+                    android:id="@+id/buttonDateLastWeek"
+                    android:layout_width="wrap_content"
+                    android:layout_height="fill_parent"
+                    android:text="@string/empty"
+                    android:visibility="invisible" />
+
+                <Button
+                    android:id="@+id/buttonDatePastMonth"
+                    android:layout_width="wrap_content"
+                    android:layout_height="fill_parent"
+                    android:text="@string/empty"
+                    android:visibility="invisible" />
+
+                <Button
+                    android:id="@+id/buttonBefore"
+                    android:layout_width="100dp"
+                    android:layout_height="fill_parent"
+                    android:text="@string/sample_date" />
+
+                <Button
+                    android:id="@+id/buttonAfter"
+                    android:layout_width="100dp"
+                    android:layout_height="fill_parent"
+                    android:text="@string/sample_date" />
+
+                <Button
+                    android:id="@+id/buttonFrom"
+                    android:layout_width="100dp"
+                    android:layout_height="fill_parent"
+                    android:text="@string/sample_date" />
+
+                <Button
+                    android:id="@+id/buttonTo"
+                    android:layout_width="100dp"
+                    android:layout_height="fill_parent"
+                    android:text="@string/sample_date" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/linearLayoutFilterContacts"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" >
+
+            <TextView
+                android:id="@+id/textViewFilterContacts"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingLeft="5dp"
+                android:text="@string/contacts"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
+
+            <CheckBox
+                android:id="@+id/checkBoxFilterContacts"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/empty" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/linearFilterContactsOptions"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+                android:orientation="vertical"
+            android:paddingLeft="10dp" >
+            
+                <Button
+                    android:id="@+id/buttonSelectContacts"
+                    android:layout_width="150dp"
+                    android:layout_height="fill_parent"
+                    android:text="@string/select_contacts" />
+
+                <TextView
+                    android:id="@+id/textViewSelectContacts"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="5dp"
+                    android:text="@string/contact_selection"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+            
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/linearLayoutFilterSentReceived"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" >
+
+            <TextView
+                android:id="@+id/textViewFilterSentReceived"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingLeft="5dp"
+                android:text="@string/sent_received"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
+
+            <CheckBox
+                android:id="@+id/checkBoxFilterSentReceived"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/empty" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/linearFilterSentReceivedOptions"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="10dp" >
+
+            <RadioGroup
+                android:id="@+id/radioGroupSentReceived"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
+
+                <RadioButton
+                    android:id="@+id/radioSent"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:text="@string/today"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                <RadioButton
+                    android:id="@+id/radioReceived"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/yesterday"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+            </RadioGroup>
+        </LinearLayout>
+    </LinearLayout>
+
+</ScrollView>
