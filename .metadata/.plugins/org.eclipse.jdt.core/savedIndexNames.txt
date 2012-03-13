@@ -1,2 +1,0 @@
-INDEX VERSION 1.126+C:\Users\Sarah\Documents\2011-2012\Software Engineering\MessageSearch\.metadata\.plugins\org.eclipse.jdt.core
-833397812.index
