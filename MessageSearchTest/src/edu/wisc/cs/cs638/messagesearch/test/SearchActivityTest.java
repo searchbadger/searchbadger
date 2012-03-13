@@ -1,6 +1,7 @@
 package edu.wisc.cs.cs638.messagesearch.test;
 
 import android.test.ActivityInstrumentationTestCase2;
+import android.view.View;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import edu.wisc.cs.cs638.messagesearch.R;
@@ -38,7 +39,12 @@ public class SearchActivityTest extends ActivityInstrumentationTestCase2<SearchA
 	}
 	
 	protected void testToggleDate() {
-		
+		testActivity.toggleFilterSentReceived();
+		assertTrue(sentCheck.isChecked());
+		assertEquals("Sent/received layout visibility",sentLayout.getVisibility(), View.VISIBLE);
+		testActivity.toggleFilterSentReceived();
+		assertTrue(!sentCheck.isChecked());
+		assertEquals("Sent/received layout visibility",sentLayout.getVisibility(), View.GONE);
 	}
 	
 	protected void testToggleContacts() {

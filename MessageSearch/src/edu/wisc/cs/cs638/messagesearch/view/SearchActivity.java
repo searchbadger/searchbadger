@@ -55,21 +55,21 @@ public class SearchActivity extends Activity {
      
     }
     
-    protected void toggleFilterSentReceived() {
+    public void toggleFilterSentReceived() {
     	if(checkBoxFilterSentReceived.isChecked())
     		layoutFilterSentReceived.setVisibility(View.VISIBLE);
         else
         	layoutFilterSentReceived.setVisibility(View.GONE);
 	}
 
-    protected void toggleFilterContacts() {
+    public void toggleFilterContacts() {
     	if(checkBoxFilterContacts.isChecked())
     		layoutFilterContacts.setVisibility(View.VISIBLE);
         else
         	layoutFilterContacts.setVisibility(View.GONE);
 	}
 
-	protected void toggleFilterDate()
+	public void toggleFilterDate()
     {
     	if(checkBoxFilterDate.isChecked())
         	layoutFilterDate.setVisibility(View.VISIBLE);
