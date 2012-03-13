@@ -1,11 +1,19 @@
 package edu.wisc.cs.cs638.messagesearch;
 
 public class Message {
-	Contact contact;
-	int Id;
-	int threadId;
-	String text;
-	boolean isStarred;
+	private final Contact contact;
+	private final int Id;
+	private final int threadId;
+	private final String text;
+	private final boolean isStarred;
+	
+	public Message(Contact contact, int Id, int threadId, String text, boolean isStarred){
+		this.contact = contact;
+		this.Id = Id;
+		this.threadId = threadId;
+		this.text = text;
+		this.isStarred = isStarred;
+	}
 	
 	public Contact getContact() {
 		return contact;
