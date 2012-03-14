@@ -41,7 +41,7 @@
         
         
         <activity android:name=".view.ThreadActivity"
-            android:label="@string/result">
+            android:label="@string/thread">
         </activity>
         
         
