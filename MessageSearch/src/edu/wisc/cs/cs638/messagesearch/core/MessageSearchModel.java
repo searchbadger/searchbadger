@@ -1,5 +1,6 @@
 package edu.wisc.cs.cs638.messagesearch.core;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import edu.wisc.cs.cs638.messagesearch.util.Contact;
@@ -8,8 +9,12 @@ import edu.wisc.cs.cs638.messagesearch.util.MessageSource;
 import edu.wisc.cs.cs638.messagesearch.util.Search;
 
 public class MessageSearchModel {
+	private final static MessageSearchModel instance = new MessageSearchModel();
+	private final List<MessageSource> _sources = new LinkedList<MessageSource>();
 	
-	List<MessageSource> _sources;
+	public static MessageSearchModel getInstance() {
+		return instance;
+	}
 	
 	public void search(Search filter) {
 		

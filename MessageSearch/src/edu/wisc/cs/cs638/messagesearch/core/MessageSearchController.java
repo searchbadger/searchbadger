@@ -1,11 +1,12 @@
 package edu.wisc.cs.cs638.messagesearch.core;
 
+import android.content.Context;
 import android.view.View;
 
 public class MessageSearchController {
-	private final MessageSearchController instance = new MessageSearchController();
+	private static final MessageSearchController instance = new MessageSearchController();
 	
-	public MessageSearchController getInstance() {
+	public static final MessageSearchController getInstance() {
 		return instance;
 	}
 	
@@ -15,17 +16,17 @@ public class MessageSearchController {
 		}
 	}
 	
-	public class StarredMessageListener implements View.OnClickListener {
+	public final class StarredMessageListener implements View.OnClickListener {
 		public void onClick(View v) {
 		}
 	}
 	
-	public class RecentSearchListener implements View.OnClickListener {
+	public final class RecentSearchListener implements View.OnClickListener {
 		public void onClick(View v) {
 		}
 	}
 	
-	public class ContactSourceListener implements View.OnClickListener {
+	public final class ContactSourceListener implements View.OnClickListener {
 		public void onClick(View v) {
 		}
 	}

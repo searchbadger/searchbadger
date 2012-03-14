@@ -3,9 +3,11 @@ package edu.wisc.cs.cs638.messagesearch.view;
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
-import edu.wisc.cs.cs638.messagesearch.R;
+import edu.wisc.cs.cs638.messagesearch.*;
+import edu.wisc.cs.cs638.messagesearch.core.*;
 
 
 public class SearchActivity extends Activity {
@@ -16,6 +18,9 @@ public class SearchActivity extends Activity {
 	private CheckBox checkBoxFilterDate;
 	private CheckBox checkBoxFilterContacts;
 	private CheckBox checkBoxFilterSentReceived;
+	private Button searchButton;
+	private MessageSearchController controller;
+	private MessageSearchModel model;
     
     /** Called when the activity is first created. */
     @Override
@@ -29,7 +34,7 @@ public class SearchActivity extends Activity {
          checkBoxFilterDate = (CheckBox) findViewById(R.id.checkBoxFilterDate);
          checkBoxFilterContacts = (CheckBox) findViewById(R.id.checkBoxFilterContacts);
          checkBoxFilterSentReceived = (CheckBox) findViewById(R.id.checkBoxFilterSentReceived);
-    	
+    	 searchButton = (Button) findViewById(R.id.buttonSearch);
         // set the onClick events
         checkBoxFilterDate.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -46,6 +51,10 @@ public class SearchActivity extends Activity {
             	toggleFilterSentReceived();
             }
         });
+        controller = MessageSearchController.getInstance();
+        MessageSearchController.SearchButtonListener c = 
+        	controller.new SearchButtonListener();
+        searchButton.setOnClickListener(c);
         
         
         // update the filters
@@ -76,7 +85,6 @@ public class SearchActivity extends Activity {
         else
         	layoutFilterDate.setVisibility(View.GONE);
     }
-
     
     
 }
