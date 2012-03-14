@@ -1,6 +1,11 @@
-package edu.wisc.cs.cs638.messagesearch;
+package edu.wisc.cs.cs638.messagesearch.core;
 
 import java.util.List;
+
+import edu.wisc.cs.cs638.messagesearch.util.Contact;
+import edu.wisc.cs.cs638.messagesearch.util.Message;
+import edu.wisc.cs.cs638.messagesearch.util.MessageSource;
+import edu.wisc.cs.cs638.messagesearch.util.Search;
 
 public class MessageSearchModel {
 	
@@ -55,7 +60,6 @@ public class MessageSearchModel {
 	public boolean removeSearchSource(MessageSource source) {
 		return _sources.remove(source);
 	}
-	
 	
 	public List<Message> getThread(Message msg) {
 		return null;
