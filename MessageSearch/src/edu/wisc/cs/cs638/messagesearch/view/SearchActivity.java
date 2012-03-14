@@ -26,7 +26,7 @@ public class SearchActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.search_activity);
+        setContentView(R.layout.search_layout);
         
          layoutFilterDate = (LinearLayout) findViewById(R.id.linearFilterDateOptions);
          layoutFilterContacts = (LinearLayout) findViewById(R.id.linearFilterContactsOptions);

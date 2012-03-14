@@ -9,7 +9,7 @@
     <string name="empty"></string>
     <string name="date">Date</string>
     <string name="today">Today</string>
-    <string name="yesterday">Yesterday</string>
+    <string name="yesterday">Since Yesterday</string>
     <string name="past_week">Past Week</string>
     <string name="past_month">Past Month</string>
     <string name="before">Before</string>
@@ -29,4 +29,6 @@
     <string name="result">Search Result</string>
     <string name="sample_message">This is a sample message.</string>
     <string name="thread">Conversation</string>
+    <string name="sent">Sent</string>
+    <string name="received">Received</string>
 </resources>

@@ -12,10 +12,6 @@
         
         
         <activity android:name=".view.SearchActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
         
         
@@ -46,6 +42,14 @@
         
         <activity android:name=".view.ThreadActivity"
             android:label="@string/thread">
+        </activity>
+        
+        
+        <activity android:name=".view.MainTabActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
         
         
