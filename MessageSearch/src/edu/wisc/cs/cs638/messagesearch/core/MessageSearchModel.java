@@ -11,6 +11,7 @@ import edu.wisc.cs.cs638.messagesearch.util.Search;
 public class MessageSearchModel {
 	private final static MessageSearchModel instance = new MessageSearchModel();
 	private final List<MessageSource> _sources = new LinkedList<MessageSource>();
+	private final List<Contact> _contacts = new LinkedList<Contact>();
 	
 	public static MessageSearchModel getInstance() {
 		return instance;
@@ -48,8 +49,17 @@ public class MessageSearchModel {
 	 * otherwise returns null
 	 */
 	public List<Contact> getContacts() {
-		return null;
+		return _contacts;
 	}
+	
+	public void addContact(Contact contact) {
+		_contacts.add(contact);
+	}
+	
+	public boolean removeContact(Contact contact) {
+		return _contacts.remove(contact);
+	}
+	
 	
 	/*
 	 * Returns the currently selected message sources
