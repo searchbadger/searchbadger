@@ -46,6 +46,9 @@ public class ContactsActivity extends ListActivity {
 	}
 
 	protected void setListAdapterSMS() {
+		
+		// TODO Do we need to move this to the model since it's accessing
+		//      the data?
 		// Get a cursor with all people
 		Cursor cursor = getContentResolver().query(Contacts.CONTENT_URI,
 				CONTACT_PROJECTION, null, null, null);
