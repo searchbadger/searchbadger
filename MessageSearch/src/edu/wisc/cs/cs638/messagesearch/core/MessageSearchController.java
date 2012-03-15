@@ -5,7 +5,10 @@ import android.content.Intent;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.Toast;
+import android.widget.ToggleButton;
+import edu.wisc.cs.cs638.messagesearch.R;
 import edu.wisc.cs.cs638.messagesearch.util.Contact;
+import edu.wisc.cs.cs638.messagesearch.util.MessageSource;
 import edu.wisc.cs.cs638.messagesearch.view.ContactsActivity;
 
 public class MessageSearchController {
@@ -65,6 +68,35 @@ public class MessageSearchController {
 	public class ResultSelected implements View.OnClickListener {
 		public void onClick(View v) {
 
+		}
+	}
+	
+	public class SearchSourceSelected implements View.OnClickListener {
+		public void onClick(View v) {
+			ToggleButton button = (ToggleButton) v;
+
+			// determine the search type
+			MessageSource searchSource = null;
+			switch (v.getId()) {
+			case R.id.toggleButtonTypeSMS:
+				searchSource = MessageSource.SMS;
+				break;
+			case R.id.toggleButtonTypeFacebook:
+				searchSource = MessageSource.FACEBOOK;
+				break;
+			case R.id.toggleButtonTypeTwitter:
+				searchSource = MessageSource.TWITTER;
+				break;
+			case R.id.toggleButtonTypeStar:
+				searchSource = MessageSource.STARRED;
+				break;
+			}
+			
+			// add/remove search type
+			if (button.isChecked())
+				model.addSearchSource(searchSource);
+			else
+				model.removeSearchSource(searchSource);
 		}
 	}
 

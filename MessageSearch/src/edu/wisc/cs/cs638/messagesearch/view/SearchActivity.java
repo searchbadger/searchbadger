@@ -7,11 +7,13 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 import edu.wisc.cs.cs638.messagesearch.R;
 import edu.wisc.cs.cs638.messagesearch.core.MessageSearchController;
+import edu.wisc.cs.cs638.messagesearch.core.MessageSearchController.SearchSourceSelected;
 import edu.wisc.cs.cs638.messagesearch.core.MessageSearchModel;
 import edu.wisc.cs.cs638.messagesearch.util.MessageSource;
 
@@ -29,8 +31,15 @@ public class SearchActivity extends Activity {
 	private ToggleButton facebookButton;
 	private ToggleButton twitterButton;
 	private ToggleButton starButton;
+	private Button symbolPoundButton;
+	private Button symbolStarButton;
+	private Button symbolUnderscoreButton;
+	private EditText searchInputText;
+	
 	private MessageSearchController controller;
 	private MessageSearchModel model;
+	
+	private SearchSourceSelected searchSourceSelectedListener;
 
 	/** Called when the activity is first created. */
 	@Override
@@ -53,7 +62,13 @@ public class SearchActivity extends Activity {
 		facebookButton = (ToggleButton) findViewById(R.id.toggleButtonTypeFacebook);
 		twitterButton = (ToggleButton) findViewById(R.id.toggleButtonTypeTwitter);
 		starButton = (ToggleButton) findViewById(R.id.toggleButtonTypeStar);
+		symbolPoundButton = (Button) findViewById(R.id.buttonSymbolPound);
+		symbolStarButton = (Button) findViewById(R.id.buttonSymbolStar);
+		symbolUnderscoreButton = (Button) findViewById(R.id.buttonSymbolUnderscore);
+		searchInputText = (EditText) findViewById(R.id.editTextSearch);
+		
 		// set the onClick events
+		searchSourceSelectedListener = controller.new SearchSourceSelected();
 		checkBoxFilterDate.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				toggleFilterDate();
@@ -70,7 +85,6 @@ public class SearchActivity extends Activity {
 						toggleFilterSentReceived();
 					}
 				});
-
 		searchButton.setOnClickListener(controller.new SearchButtonListener());
 		contactsButton
 				.setOnClickListener(controller.new ContactSourceListener());
@@ -93,6 +107,21 @@ public class SearchActivity extends Activity {
 		starButton.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				selectSearchSources(v);
+			}
+		});
+		symbolPoundButton.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				insertTextSymbol(v);
+			}
+		});
+		symbolStarButton.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				insertTextSymbol(v);
+			}
+		});
+		symbolUnderscoreButton.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				insertTextSymbol(v);
 			}
 		});
 
@@ -127,35 +156,10 @@ public class SearchActivity extends Activity {
 
 	public void selectSearchSources(View v) {
 
-		ToggleButton button = (ToggleButton) v;
+		// let the controller change the model
+		searchSourceSelectedListener.onClick(v);
 
-		// determine the search type
-		MessageSource searchSource = null;
-		switch (v.getId()) {
-		case R.id.toggleButtonTypeSMS:
-			searchSource = MessageSource.SMS;
-			break;
-		case R.id.toggleButtonTypeFacebook:
-			searchSource = MessageSource.FACEBOOK;
-			break;
-		case R.id.toggleButtonTypeTwitter:
-			searchSource = MessageSource.TWITTER;
-			break;
-		case R.id.toggleButtonTypeStar:
-			searchSource = MessageSource.STARRED;
-			break;
-		}
-		
-		
-		// TODO this is suppose to be done by the controller but
-		// how do we make the controller enable/disable the contact filter?
-		
-		// add/remove search type
-		if (button.isChecked())
-			model.addSearchSource(searchSource);
-		else
-			model.removeSearchSource(searchSource);
-
+		// disable/enable the contact filter
 		updateContactFilter();
 
 		// TODO remove this
@@ -186,4 +190,39 @@ public class SearchActivity extends Activity {
 
 	}
 
+	public void insertTextSymbol(View v) {
+
+		// determine the button type
+		String symbol = "";
+		switch (v.getId()) {
+		case R.id.buttonSymbolPound:
+			symbol = "#";
+			break;
+		case R.id.buttonSymbolStar:
+			symbol = "*";
+			break;
+		case R.id.buttonSymbolUnderscore:
+			symbol = "_";
+			break;
+		}
+				
+		// insert the symbol selected
+		// note: the selection start can be the end index if the
+		//       text was selected backward
+		int startSelection = searchInputText.getSelectionStart();
+		int endSelection = searchInputText.getSelectionEnd();
+		int start = startSelection;
+		int end = endSelection;
+		if(endSelection < startSelection) {
+			start = endSelection;
+			end = startSelection;
+		}
+		String searchText = searchInputText.getText().toString();
+		String leftOfSelection = searchText.substring(0, start);
+		String rightOfSelection = searchText.substring(end);
+		searchText = leftOfSelection + symbol + rightOfSelection;
+		searchInputText.setText(searchText);
+		searchInputText.setSelection(start+1);
+	
+	}
 }
