@@ -1,5 +1,8 @@
 package edu.wisc.cs.cs638.messagesearch.core;
 
+import java.util.Calendar;
+import java.util.Date;
+
 import android.content.Context;
 import android.content.Intent;
 import android.view.View;
@@ -124,6 +127,92 @@ public class MessageSearchController {
 				break;
 			}
 
+		}
+	}
+	
+	public class DateRangeSelected implements RadioGroup.OnCheckedChangeListener {
+		
+		private Date before;
+		private Date after;
+		private Date from;
+		private Date to;
+		
+		public DateRangeSelected(Date before, Date after, Date from, Date to){
+			this.before = before;
+			this.after = after;
+			this.from = from;
+			this.to = to;
+		}
+		
+		public void onCheckedChanged(RadioGroup group, int selectedId) {
+
+			// set the default begin and end date to be today
+			Calendar cal = Calendar.getInstance();
+			Date beginDate = new Date();
+			Date endDate = new Date();
+			beginDate.setHours(0);
+			beginDate.setMinutes(0);
+			beginDate.setSeconds(0);
+			endDate.setHours(23);
+			endDate.setMinutes(59);
+			endDate.setSeconds(59);
+			
+			// set the begin and end date
+			switch (selectedId) {
+			case R.id.radioToday:
+				break;
+
+			case R.id.radioYesterday:
+		        cal.setTime(beginDate);
+		        cal.add(Calendar.DATE, -1);
+		        beginDate = cal.getTime();
+				break;
+				
+			case R.id.radioPaskWeek:
+		        cal.setTime(beginDate);
+		        cal.add(Calendar.DATE, -7);
+		        beginDate = cal.getTime();
+				break;
+				
+			case R.id.radioPastMonth:
+		        cal.setTime(beginDate);
+		        cal.add(Calendar.DATE, beginDate.getDate() * -1 + 1);
+		        beginDate = cal.getTime();
+				break;
+				
+			case R.id.radioBefore:
+				beginDate = null;
+				endDate = before;
+				endDate.setHours(23);
+				endDate.setMinutes(59);
+				endDate.setSeconds(59);
+				break;
+				
+			case R.id.radioAfter:
+				beginDate = after;
+				endDate = null;
+				beginDate.setHours(0);
+				beginDate.setMinutes(0);
+				beginDate.setSeconds(0);
+				break;
+				
+			case R.id.radioFrom:
+				beginDate = from;
+				endDate = to;
+				beginDate.setHours(0);
+				beginDate.setMinutes(0);
+				beginDate.setSeconds(0);
+				endDate.setHours(23);
+				endDate.setMinutes(59);
+				endDate.setSeconds(59);
+				break;
+			}
+
+			// TODO remove this
+			String str1 = beginDate == null ? "before" : beginDate.toString();
+			String str2 = endDate == null ? "after" : endDate.toString();
+			Toast.makeText(group.getContext(), str1 + " | " + str2,
+					Toast.LENGTH_SHORT).show();
 		}
 	}
 }

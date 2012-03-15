@@ -91,6 +91,28 @@ public class MessageSearchModel {
 	public void setType(SendReceiveType type) {
 		_type = type;
 	}
+
+	/*
+	 * Returns the begin date
+	 */
+	public Date getBeginDate() {
+		return _begin;
+	}
+	
+	public void setBeginDate(Date date) {
+		_begin = date;
+	}
+
+	/*
+	 * Returns the end date
+	 */
+	public Date getEndDate() {
+		return _end;
+	}
+	
+	public void setEndDate(Date date) {
+		_end = date;
+	}
 	
 	
 	public List<Message> getThread(Message msg) {

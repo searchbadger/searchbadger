@@ -1,12 +1,18 @@
 package edu.wisc.cs.cs638.messagesearch.view;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import android.app.Activity;
+import android.app.DatePickerDialog;
+import android.app.Dialog;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RadioGroup;
@@ -20,6 +26,8 @@ import edu.wisc.cs.cs638.messagesearch.util.MessageSource;
 import edu.wisc.cs.cs638.messagesearch.util.SendReceiveType;
 
 public class SearchActivity extends Activity {
+
+	static final int DATE_DIALOG_ID = 0;
 
 	private LinearLayout layoutFilterDate;
 	private LinearLayout layoutFilterContacts;
@@ -38,11 +46,25 @@ public class SearchActivity extends Activity {
 	private Button symbolUnderscoreButton;
 	private EditText searchInputText;
 	private RadioGroup sendReceiveRadioGroup;
-	
+	private RadioGroup radioGroupDate;
+	private Button beforeButton;
+	private Button afterButton;
+	private Button fromButton;
+	private Button toButton;
+
 	private MessageSearchController controller;
 	private MessageSearchModel model;
-	
+
 	private SearchSourceSelected searchSourceSelectedListener;
+
+	private final SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
+	private final Date before = new Date();
+	private final Date after = new Date();
+	private final Date from = new Date();
+	private final Date to = new Date();
+	private int pickerButtonId;
+	private DatePickerDialog pickerDate;
+
 
 	/** Called when the activity is first created. */
 	@Override
@@ -52,6 +74,8 @@ public class SearchActivity extends Activity {
 
 		model = MessageSearchModel.getInstance();
 		controller = MessageSearchController.getInstance();
+		
+		pickerDate = new DatePickerDialog(this, pickerDateSetListener, 0, 0, 0);
 
 		layoutFilterDate = (LinearLayout) findViewById(R.id.linearFilterDateOptions);
 		layoutFilterContacts = (LinearLayout) findViewById(R.id.linearFilterContactsOptions);
@@ -70,7 +94,12 @@ public class SearchActivity extends Activity {
 		symbolUnderscoreButton = (Button) findViewById(R.id.buttonSymbolUnderscore);
 		searchInputText = (EditText) findViewById(R.id.editTextSearch);
 		sendReceiveRadioGroup = (RadioGroup) findViewById(R.id.radioGroupSentReceived);
-		
+		radioGroupDate = (RadioGroup) findViewById(R.id.radioGroupDate);
+		beforeButton = (Button) findViewById(R.id.buttonBefore);
+		afterButton = (Button) findViewById(R.id.buttonAfter);
+		fromButton = (Button) findViewById(R.id.buttonFrom);
+		toButton = (Button) findViewById(R.id.buttonTo);
+
 		// set the onClick events
 		searchSourceSelectedListener = controller.new SearchSourceSelected();
 		checkBoxFilterDate.setOnClickListener(new View.OnClickListener() {
@@ -128,15 +157,40 @@ public class SearchActivity extends Activity {
 				insertTextSymbol(v);
 			}
 		});
-		sendReceiveRadioGroup.setOnCheckedChangeListener(controller.new SendReceiveTypeSelected());
-
+		sendReceiveRadioGroup
+				.setOnCheckedChangeListener(controller.new SendReceiveTypeSelected());
+		radioGroupDate
+				.setOnCheckedChangeListener(controller.new DateRangeSelected(
+						before, after, from, to));
+		beforeButton.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				showDatePicker(v);
+			}
+		});
+		afterButton.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				showDatePicker(v);
+			}
+		});
+		fromButton.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				showDatePicker(v);
+			}
+		});
+		toButton.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				showDatePicker(v);
+			}
+		});
 
 		// update the filters
+		radioGroupDate.check(R.id.radioToday);
 		toggleFilterDate();
 		toggleFilterContacts();
 		toggleFilterSentReceived();
 		updateContactFilter();
 		updateSendReceiveFilter();
+		updateDates();
 
 	}
 
@@ -196,21 +250,29 @@ public class SearchActivity extends Activity {
 		checkBoxFilterContacts.setEnabled(enableFilterContact);
 
 	}
-	
+
 	public void updateSendReceiveFilter() {
-		
+
 		// select the correct type
 		SendReceiveType type = model.getType();
-		switch(type)
-		{
+		switch (type) {
 		case SENT:
 			sendReceiveRadioGroup.check(R.id.radioSent);
 			break;
-			
+
 		case RECEIVED:
 			sendReceiveRadioGroup.check(R.id.radioReceived);
 			break;
 		}
+	}
+
+	public void updateDates() {
+		
+		// update the dates shown on the buttons
+		beforeButton.setText(dateFormat.format(before));
+		afterButton.setText(dateFormat.format(after));
+		fromButton.setText(dateFormat.format(from));
+		toButton.setText(dateFormat.format(to));
 	}
 
 	public void insertTextSymbol(View v) {
@@ -228,15 +290,15 @@ public class SearchActivity extends Activity {
 			symbol = "_";
 			break;
 		}
-				
+
 		// insert the symbol selected
 		// note: the selection start can be the end index if the
-		//       text was selected backward
+		// text was selected backward
 		int startSelection = searchInputText.getSelectionStart();
 		int endSelection = searchInputText.getSelectionEnd();
 		int start = startSelection;
 		int end = endSelection;
-		if(endSelection < startSelection) {
+		if (endSelection < startSelection) {
 			start = endSelection;
 			end = startSelection;
 		}
@@ -245,9 +307,78 @@ public class SearchActivity extends Activity {
 		String rightOfSelection = searchText.substring(end);
 		searchText = leftOfSelection + symbol + rightOfSelection;
 		searchInputText.setText(searchText);
-		searchInputText.setSelection(start+1);
-	
+		searchInputText.setSelection(start + 1);
+
 	}
-	
+
+	@Override
+	protected Dialog onCreateDialog(int id) {
+		switch (id) {
+		case DATE_DIALOG_ID:
+			return pickerDate;
+		}
+		return null;
+	}
+
+	public void showDatePicker(View v) {
+
+		// determine the date picker type
+		Calendar cal = Calendar.getInstance();
+		switch (v.getId()) {
+		case R.id.buttonBefore:
+			pickerButtonId = R.id.buttonBefore;
+			cal.setTime(before);
+			break;
+		case R.id.buttonAfter:
+			pickerButtonId = R.id.buttonAfter;
+			cal.setTime(after);
+			break;
+		case R.id.buttonFrom:
+			pickerButtonId = R.id.buttonFrom;
+			cal.setTime(from);
+			break;
+		case R.id.buttonTo:
+			pickerButtonId = R.id.buttonTo;
+			cal.setTime(to);
+			break;
+		default:
+			return;
+		}
+
+		// update and show the date picker
+		pickerDate.updateDate(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH),
+				cal.get(Calendar.DATE));
+		showDialog(DATE_DIALOG_ID);
+	}
+
+	// the callback received when the user sets the date in the dialog
+	private DatePickerDialog.OnDateSetListener pickerDateSetListener = new DatePickerDialog.OnDateSetListener() {
+
+		public void onDateSet(DatePicker view, int year, int monthOfYear,
+				int dayOfMonth) {
+
+			// update with new date selected
+			Calendar cal = Calendar.getInstance();
+			cal.set(Calendar.YEAR, year);
+			cal.set(Calendar.MONTH, monthOfYear);
+			cal.set(Calendar.DATE, dayOfMonth);
+			switch (pickerButtonId) {
+			case R.id.buttonBefore:
+				before.setTime(cal.getTime().getTime());
+				break;
+			case R.id.buttonAfter:
+				after.setTime(cal.getTime().getTime());
+				break;
+			case R.id.buttonFrom:
+				from.setTime(cal.getTime().getTime());
+				break;
+			case R.id.buttonTo:
+				to.setTime(cal.getTime().getTime());
+				break;
+			}
+
+			updateDates();
+		}
+	};
 
 }

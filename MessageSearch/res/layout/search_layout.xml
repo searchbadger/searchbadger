@@ -131,7 +131,6 @@
                     android:id="@+id/radioToday"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:checked="true"
                     android:text="@string/today"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -328,7 +327,6 @@
                     android:id="@+id/radioSent"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:checked="true"
                     android:text="@string/sent"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
 
