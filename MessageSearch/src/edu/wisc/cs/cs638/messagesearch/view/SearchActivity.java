@@ -9,6 +9,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.RadioGroup;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 import edu.wisc.cs.cs638.messagesearch.R;
@@ -16,6 +17,7 @@ import edu.wisc.cs.cs638.messagesearch.core.MessageSearchController;
 import edu.wisc.cs.cs638.messagesearch.core.MessageSearchController.SearchSourceSelected;
 import edu.wisc.cs.cs638.messagesearch.core.MessageSearchModel;
 import edu.wisc.cs.cs638.messagesearch.util.MessageSource;
+import edu.wisc.cs.cs638.messagesearch.util.SendReceiveType;
 
 public class SearchActivity extends Activity {
 
@@ -35,6 +37,7 @@ public class SearchActivity extends Activity {
 	private Button symbolStarButton;
 	private Button symbolUnderscoreButton;
 	private EditText searchInputText;
+	private RadioGroup sendReceiveRadioGroup;
 	
 	private MessageSearchController controller;
 	private MessageSearchModel model;
@@ -66,6 +69,7 @@ public class SearchActivity extends Activity {
 		symbolStarButton = (Button) findViewById(R.id.buttonSymbolStar);
 		symbolUnderscoreButton = (Button) findViewById(R.id.buttonSymbolUnderscore);
 		searchInputText = (EditText) findViewById(R.id.editTextSearch);
+		sendReceiveRadioGroup = (RadioGroup) findViewById(R.id.radioGroupSentReceived);
 		
 		// set the onClick events
 		searchSourceSelectedListener = controller.new SearchSourceSelected();
@@ -124,12 +128,15 @@ public class SearchActivity extends Activity {
 				insertTextSymbol(v);
 			}
 		});
+		sendReceiveRadioGroup.setOnCheckedChangeListener(controller.new SendReceiveTypeSelected());
+
 
 		// update the filters
 		toggleFilterDate();
 		toggleFilterContacts();
 		toggleFilterSentReceived();
 		updateContactFilter();
+		updateSendReceiveFilter();
 
 	}
 
@@ -189,6 +196,22 @@ public class SearchActivity extends Activity {
 		checkBoxFilterContacts.setEnabled(enableFilterContact);
 
 	}
+	
+	public void updateSendReceiveFilter() {
+		
+		// select the correct type
+		SendReceiveType type = model.getType();
+		switch(type)
+		{
+		case SENT:
+			sendReceiveRadioGroup.check(R.id.radioSent);
+			break;
+			
+		case RECEIVED:
+			sendReceiveRadioGroup.check(R.id.radioReceived);
+			break;
+		}
+	}
 
 	public void insertTextSymbol(View v) {
 
@@ -225,4 +248,6 @@ public class SearchActivity extends Activity {
 		searchInputText.setSelection(start+1);
 	
 	}
+	
+
 }
