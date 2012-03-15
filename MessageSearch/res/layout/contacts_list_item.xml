@@ -6,13 +6,14 @@
     android:baselineAligned="true" >
 
     <CheckBox
-        android:id="@+id/checkBox1"
+        android:id="@+id/contact_checkBox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:focusable="true"
         android:text="@string/empty"/>
 
     <TextView
-        android:id="@+id/contacts_text"
+        android:id="@+id/contact_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
@@ -22,5 +23,6 @@
         android:text="@string/example_contact"
         android:textAppearance="?android:attr/textAppearanceMedium" >
     </TextView>
+
 
 </LinearLayout>

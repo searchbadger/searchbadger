@@ -1,46 +1,84 @@
 package edu.wisc.cs.cs638.messagesearch.view;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import android.app.Activity;
 import android.app.ListActivity;
+import android.content.Context;
+import android.database.Cursor;
 import android.os.Bundle;
-import android.widget.SimpleAdapter;
+import android.provider.ContactsContract.Contacts;
+import android.view.View;
+import android.widget.CheckBox;
+import android.widget.ListAdapter;
+import android.widget.SimpleCursorAdapter;
 import edu.wisc.cs.cs638.messagesearch.R;
+import edu.wisc.cs.cs638.messagesearch.core.MessageSearchController;
 
 public class ContactsActivity extends ListActivity {
-	
+
+	private static final String[] CONTACT_PROJECTION = new String[] {
+			Contacts._ID, Contacts.DISPLAY_NAME };
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-
 		super.onCreate(savedInstanceState);
 
-		// TODO Remove the following
-		List<Map<String, String>> dataList = new ArrayList<Map<String, String>>();
-
-		HashMap<String, String> dataMap;
-
-		dataMap = new HashMap<String, String>();
-		dataMap.put("Name", "John Doe");
-		dataMap.put("Search", "CS638-1");
-		dataList.add(dataMap);
-
-		dataMap = new HashMap<String, String>();
-		dataMap.put("Name", "Mr Incredibles");
-		dataMap.put("Search", "Apples");
-		dataList.add(dataMap);
+		// TODO fix this once the set search sources has been implemented
+		setListAdapterSMS();
+		/* 
+		// get the search sources
+		MessageSearchModel model = MessageSearchModel.getInstance();
+		List<MessageSource> searchSources = model.getSearchSources();
 		
-		dataMap = new HashMap<String, String>();
-		dataMap.put("Name", "Jane Doe");
-		dataList.add(dataMap);
+		// check if only one source is selected
+		if (searchSources.size() != 1)
+			return;
 
-		SimpleAdapter adapter = new SimpleAdapter(this, dataList,
-				R.layout.contacts_list_item, new String[] { "Name" },
-						new int[] { R.id.contacts_text });
+		// set the correct list adapter for the search type
+		switch (searchSources.get(0)) {
+		case SMS:
+			setListAdapterSMS();
+			break;
 
+		}
+		*/
+
+	}
+
+	protected void setListAdapterSMS() {
+		// Get a cursor with all people
+		Cursor cursor = getContentResolver().query(Contacts.CONTENT_URI,
+				CONTACT_PROJECTION, null, null, null);
+		startManagingCursor(cursor);
+
+		ListAdapter adapter = new SMSContactSimpleCursorAdapter(this,
+				R.layout.contacts_list_item, cursor,
+				new String[] { Contacts.DISPLAY_NAME },
+				new int[] { R.id.contact_name });
 		setListAdapter(adapter);
+	}
+
+	protected class SMSContactSimpleCursorAdapter extends SimpleCursorAdapter {
+
+		public SMSContactSimpleCursorAdapter(Activity context, int layout,
+				Cursor c, String[] from, int[] to) {
+			super(context, layout, c, from, to);
+			// TODO Auto-generated constructor stub
+		}
+
+		@Override
+		public void bindView(View view, Context context, Cursor cursor) {
+			// TODO Auto-generated method stub
+			super.bindView(view, context, cursor);
+
+			// save the contact id
+			view.setTag(cursor.getString(cursor.getColumnIndex(Contacts._ID)));
+
+			// set the click listener for the checkbox
+			CheckBox checkbox = (CheckBox) view
+					.findViewById(R.id.contact_checkBox);
+			checkbox.setOnClickListener(MessageSearchController.getInstance().new ContactSelector());
+
+		}
 
 	}
 

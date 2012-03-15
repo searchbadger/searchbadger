@@ -6,8 +6,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
-import edu.wisc.cs.cs638.messagesearch.*;
-import edu.wisc.cs.cs638.messagesearch.core.*;
+import edu.wisc.cs.cs638.messagesearch.R;
+import edu.wisc.cs.cs638.messagesearch.core.MessageSearchController;
+import edu.wisc.cs.cs638.messagesearch.core.MessageSearchModel;
 
 
 public class SearchActivity extends Activity {
@@ -19,6 +20,7 @@ public class SearchActivity extends Activity {
 	private CheckBox checkBoxFilterContacts;
 	private CheckBox checkBoxFilterSentReceived;
 	private Button searchButton;
+	private Button contactsButton;
 	private MessageSearchController controller;
 	private MessageSearchModel model;
     
@@ -35,6 +37,7 @@ public class SearchActivity extends Activity {
          checkBoxFilterContacts = (CheckBox) findViewById(R.id.checkBoxFilterContacts);
          checkBoxFilterSentReceived = (CheckBox) findViewById(R.id.checkBoxFilterSentReceived);
     	 searchButton = (Button) findViewById(R.id.buttonSearch);
+    	 contactsButton = (Button) findViewById(R.id.buttonSelectContacts);
         // set the onClick events
         checkBoxFilterDate.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -55,6 +58,8 @@ public class SearchActivity extends Activity {
         MessageSearchController.SearchButtonListener c = 
         	controller.new SearchButtonListener();
         searchButton.setOnClickListener(c);
+        
+        contactsButton.setOnClickListener(controller.new ContactSourceListener());
         
         
         // update the filters
