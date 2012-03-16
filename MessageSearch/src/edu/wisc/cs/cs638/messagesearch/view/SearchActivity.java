@@ -3,6 +3,7 @@ package edu.wisc.cs.cs638.messagesearch.view;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import android.app.Activity;
@@ -16,12 +17,14 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RadioGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 import edu.wisc.cs.cs638.messagesearch.R;
 import edu.wisc.cs.cs638.messagesearch.core.MessageSearchController;
 import edu.wisc.cs.cs638.messagesearch.core.MessageSearchController.SearchSourceSelected;
 import edu.wisc.cs.cs638.messagesearch.core.MessageSearchModel;
+import edu.wisc.cs.cs638.messagesearch.util.Contact;
 import edu.wisc.cs.cs638.messagesearch.util.MessageSource;
 import edu.wisc.cs.cs638.messagesearch.util.SendReceiveType;
 
@@ -51,6 +54,7 @@ public class SearchActivity extends Activity {
 	private Button afterButton;
 	private Button fromButton;
 	private Button toButton;
+	private TextView contactsText;
 
 	private MessageSearchController controller;
 	private MessageSearchModel model;
@@ -99,6 +103,7 @@ public class SearchActivity extends Activity {
 		afterButton = (Button) findViewById(R.id.buttonAfter);
 		fromButton = (Button) findViewById(R.id.buttonFrom);
 		toButton = (Button) findViewById(R.id.buttonTo);
+		contactsText = (TextView) findViewById(R.id.textViewSelectContacts);
 
 		// set the onClick events
 		searchSourceSelectedListener = controller.new SearchSourceSelected();
@@ -194,6 +199,14 @@ public class SearchActivity extends Activity {
 
 	}
 
+	@Override
+	protected void onResume() {
+		// TODO Auto-generated method stub
+		super.onResume();
+		
+		updateTextContacts();
+	}
+
 	public void toggleFilterSentReceived() {
 		if (checkBoxFilterSentReceived.isChecked())
 			layoutFilterSentReceived.setVisibility(View.VISIBLE);
@@ -273,6 +286,27 @@ public class SearchActivity extends Activity {
 		afterButton.setText(dateFormat.format(after));
 		fromButton.setText(dateFormat.format(from));
 		toButton.setText(dateFormat.format(to));
+	}
+	
+	public void updateTextContacts() {
+		
+		// create and show the list of selected contacts
+		List<Contact> contacts =  model.getContacts();
+		StringBuilder listNames = new StringBuilder();
+		listNames.append("Selected contacts: ");
+		if(contacts.size() == 0) {
+			listNames.append("None");
+		}
+		else {
+			Iterator<Contact> iterator = contacts.iterator();
+			while (iterator.hasNext()) {
+				listNames.append(iterator.next().getName());
+				if(iterator.hasNext())
+					listNames.append(", ");
+			} 
+		}
+		contactsText.setText(listNames);
+		
 	}
 
 	public void insertTextSymbol(View v) {
