@@ -32,4 +32,6 @@
     <string name="sent">Sent</string>
     <string name="received">Received</string>
     <string name="hint_search_text">Enter search here</string>
+    <string name="menu_done">Done</string>
+    <string name="menu_cancel">Cancel</string>
 </resources>

@@ -9,8 +9,10 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.provider.ContactsContract.Contacts;
 import android.view.View;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ListAdapter;
+import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import edu.wisc.cs.cs638.messagesearch.R;
 import edu.wisc.cs.cs638.messagesearch.core.MessageSearchController;
@@ -18,7 +20,7 @@ import edu.wisc.cs.cs638.messagesearch.core.MessageSearchModel;
 import edu.wisc.cs.cs638.messagesearch.util.Contact;
 import edu.wisc.cs.cs638.messagesearch.util.MessageSource;
 
-public class ContactsActivity extends ListActivity {
+public class ContactsActivity extends Activity {
 
 	private static final String[] CONTACT_PROJECTION = new String[] {
 			Contacts._ID, Contacts.DISPLAY_NAME };
@@ -27,7 +29,11 @@ public class ContactsActivity extends ListActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+        setContentView(R.layout.contacts_layout);
 
+        ListView list = (ListView) findViewById(R.id.listView_contact);
+        ListAdapter adapter = null;
+		
 		// get the search sources
 		List<MessageSource> searchSources = model.getSearchSources();
 
@@ -38,14 +44,22 @@ public class ContactsActivity extends ListActivity {
 		// set the correct list adapter for the search type
 		switch (searchSources.get(0)) {
 		case SMS:
-			setListAdapterSMS();
+			adapter = getListAdapterSMS();
 			break;
 
 		}
+        list.setAdapter(adapter);
 
+        // set the click event for the done button
+        Button buttonDone = (Button) findViewById(R.id.buttonDone);
+        buttonDone.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				finish();
+			}
+		});
 	}
 
-	protected void setListAdapterSMS() {
+	protected ListAdapter getListAdapterSMS() {
 		
 		// TODO Do we need to move this to the model since it's accessing
 		//      the data?
@@ -58,7 +72,7 @@ public class ContactsActivity extends ListActivity {
 				R.layout.contacts_list_item, cursor,
 				new String[] { Contacts.DISPLAY_NAME },
 				new int[] { R.id.contact_name });
-		setListAdapter(adapter);
+		return adapter;
 	}
 
 	protected class SMSContactSimpleCursorAdapter extends SimpleCursorAdapter {
@@ -92,6 +106,8 @@ public class ContactsActivity extends ListActivity {
 			List<Contact> contacts = model.getContacts();
 			if(contacts.contains(contact))
 				checkbox.setChecked(true);
+			else
+				checkbox.setChecked(false);
 		}
 	}
 
