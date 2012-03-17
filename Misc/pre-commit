@@ -1,0 +1,76 @@
+#!/bin/sh
+ 
+#set you emulator name here
+MY_AVD=my_avd
+
+STATUS=`adb get-state`
+if [ $STATUS != "device" ]; then
+
+  echo "------------------------------------------------------"
+  echo "No started emulator was detected."
+  echo "Please start the emulator first and make sure it has fully loaded."
+  echo "ie 'emulator @my_avd_name'"
+  echo "Aborting the commit. Run with --no-verify to ignore."
+  exit 1
+  
+: <<'END'
+  echo "No started emulator was detected."
+  echo "Trying to start emulator named:" $MY_AVD
+  emulator @$MY_AVD 2> avd.tmp
+  RESULT=`cat avd.tmp | grep -c PANIC`
+  rm -f avd.tmp
+  if [ "$RESULT" = "1" ]; then
+    echo "------------------------------------------------------"
+    echo "Please create an avd with the specified name or modify this script"
+    echo "Aborting the commit. Run with --no-verify to ignore."
+    echo ""
+    exit 1
+  fi
+  
+  # wait for the emulator to boot
+  echo "------------------------------------------------------"
+  echo "Waiting for emulator to start."
+  echo ""
+  adb wait-for-device
+END
+  
+else
+  echo "------------------------------------------------------"
+  echo "Emulator was detected."
+fi 
+
+
+# clean the projects
+echo "------------------------------------------------------"
+echo "Cleaning up projects."
+echo ""
+cd MessageSearch
+ant clean
+cd ..
+cd MessageSearchTest
+ant clean
+
+# build the projects
+ant debug
+if [ $? -eq 0 ]; then
+  echo "Building projects successful!."
+else
+  echo "------------------------------------------------------"
+  echo "Building projects failed."
+  echo "Aborting the commit. Run with --no-verify to ignore."
+  echo ""
+  exit 1
+fi
+
+
+# run the test suite
+ant test
+if [ $? -eq 0 ]; then
+  exit 0
+else
+  echo "------------------------------------------------------"
+  echo "Running the tests failed."
+  echo "Aborting the commit. Run with --no-verify to ignore."
+  echo ""
+  exit 1
+fi
