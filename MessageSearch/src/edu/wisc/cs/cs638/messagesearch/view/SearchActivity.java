@@ -59,10 +59,6 @@ public class SearchActivity extends Activity {
 
 
 	private final SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
-	private Date before = new Date();
-	private Date after = new Date();
-	private Date from = new Date();
-	private Date to = new Date();
 	private int pickerButtonId;
 	private DatePickerDialog pickerDate;
 
@@ -186,28 +182,28 @@ public class SearchActivity extends Activity {
 	}
 	
 	public Date getDateBefore() {
-		return before;
+		return model.getBeforeDate();
 	}
 	public Date getDateAfter() {
-		return after;
+		return model.getAfterDate();
 	}
 	public Date getDateFrom() {
-		return from;
+		return model.getBeginDate();
 	}
 	public Date getDateTo() {
-		return to;
+		return model.getEndDate();
 	}
 	public void setDateBefore(Date date) {
-		before = date;
+		model.setBeforeDate(date);
 	}
 	public void setDateAfter(Date date) {
-		after = date;
+		model.setAfterDate(date);
 	}
 	public void setDateFrom(Date date) {
-		from = date;
+		model.setBeginDate(date);
 	}
 	public void setDateTo(Date date) {
-		to = date;
+		model.setEndDate(date);
 	}
 	
 	public int getDatePickerId() {
@@ -275,10 +271,10 @@ public class SearchActivity extends Activity {
 	public void updateDates() {
 		
 		// update the dates shown on the buttons
-		beforeButton.setText(dateFormat.format(before));
-		afterButton.setText(dateFormat.format(after));
-		fromButton.setText(dateFormat.format(from));
-		toButton.setText(dateFormat.format(to));
+		beforeButton.setText(dateFormat.format(model.getBeforeDate()));
+		afterButton.setText(dateFormat.format(model.getAfterDate()));
+		fromButton.setText(dateFormat.format(model.getBeginDate()));
+		toButton.setText(dateFormat.format(model.getEndDate()));
 	}
 	
 	public void updateTextContacts() {
@@ -354,19 +350,19 @@ public class SearchActivity extends Activity {
 		switch (v.getId()) {
 		case R.id.buttonBefore:
 			pickerButtonId = R.id.buttonBefore;
-			cal.setTime(before);
+			cal.setTime(model.getBeforeDate());
 			break;
 		case R.id.buttonAfter:
 			pickerButtonId = R.id.buttonAfter;
-			cal.setTime(after);
+			cal.setTime(model.getAfterDate());
 			break;
 		case R.id.buttonFrom:
 			pickerButtonId = R.id.buttonFrom;
-			cal.setTime(from);
+			cal.setTime(model.getBeginDate());
 			break;
 		case R.id.buttonTo:
 			pickerButtonId = R.id.buttonTo;
-			cal.setTime(to);
+			cal.setTime(model.getEndDate());
 			break;
 		default:
 			return;

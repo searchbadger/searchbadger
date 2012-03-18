@@ -16,6 +16,8 @@ public class MessageSearchModel {
 	private final List<Contact> _contacts = new LinkedList<Contact>();
 	private Date _begin = new Date();
 	private Date _end = new Date();
+	private Date _before = new Date();
+	private Date _after = new Date();
 	private SendReceiveType _type = SendReceiveType.SENT;
 	
 	public static MessageSearchModel getInstance() {
@@ -112,6 +114,28 @@ public class MessageSearchModel {
 	
 	public void setEndDate(Date date) {
 		_end = date;
+	}
+
+	/*
+	 * Returns the before date
+	 */
+	public void setBeforeDate(Date date) {
+		this._before = date;
+	}
+
+	public Date getBeforeDate() {
+		return _before;
+	}
+
+	/*
+	 * Returns the after date
+	 */
+	public void setAfterDate(Date date) {
+		this._after = date;
+	}
+
+	public Date getAfterDate() {
+		return _after;
 	}
 	
 	
