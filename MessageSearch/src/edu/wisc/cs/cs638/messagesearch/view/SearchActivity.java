@@ -13,12 +13,10 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.ToggleButton;
 import edu.wisc.cs.cs638.messagesearch.R;
 import edu.wisc.cs.cs638.messagesearch.core.MessageSearchController;
@@ -59,13 +57,12 @@ public class SearchActivity extends Activity {
 	private MessageSearchController controller;
 	private MessageSearchModel model;
 
-	private SearchSourceSelected searchSourceSelectedListener;
 
 	private final SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
-	private final Date before = new Date();
-	private final Date after = new Date();
-	private final Date from = new Date();
-	private final Date to = new Date();
+	private Date before = new Date();
+	private Date after = new Date();
+	private Date from = new Date();
+	private Date to = new Date();
 	private int pickerButtonId;
 	private DatePickerDialog pickerDate;
 
@@ -79,7 +76,7 @@ public class SearchActivity extends Activity {
 		model = MessageSearchModel.getInstance();
 		controller = MessageSearchController.getInstance();
 		
-		pickerDate = new DatePickerDialog(this, pickerDateSetListener, 0, 0, 0);
+		pickerDate = new DatePickerDialog(this, controller.new DatePickerSelected(this), 0, 0, 0);
 
 		layoutFilterDate = (LinearLayout) findViewById(R.id.linearFilterDateOptions);
 		layoutFilterContacts = (LinearLayout) findViewById(R.id.linearFilterContactsOptions);
@@ -106,7 +103,6 @@ public class SearchActivity extends Activity {
 		contactsText = (TextView) findViewById(R.id.textViewSelectContacts);
 
 		// set the onClick events
-		searchSourceSelectedListener = controller.new SearchSourceSelected();
 		checkBoxFilterDate.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				toggleFilterDate();
@@ -117,36 +113,20 @@ public class SearchActivity extends Activity {
 				toggleFilterContacts();
 			}
 		});
-		checkBoxFilterSentReceived
-				.setOnClickListener(new View.OnClickListener() {
+		checkBoxFilterSentReceived.setOnClickListener(new View.OnClickListener() {
 					public void onClick(View v) {
 						toggleFilterSentReceived();
 					}
 				});
 		searchButton.setOnClickListener(controller.new SearchButtonListener());
-		contactsButton
-				.setOnClickListener(controller.new ContactSourceListener());
+		contactsButton.setOnClickListener(controller.new ContactSourceListener());
 
-		smsButton.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-				selectSearchSources(v);
-			}
-		});
-		facebookButton.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-				selectSearchSources(v);
-			}
-		});
-		twitterButton.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-				selectSearchSources(v);
-			}
-		});
-		starButton.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-				selectSearchSources(v);
-			}
-		});
+		SearchSourceSelected searchSourceSelected = controller.new SearchSourceSelected(this);
+		smsButton.setOnClickListener(searchSourceSelected);
+		facebookButton.setOnClickListener(searchSourceSelected);
+		twitterButton.setOnClickListener(searchSourceSelected);
+		starButton.setOnClickListener(searchSourceSelected);
+		
 		symbolPoundButton.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				insertTextSymbol(v);
@@ -162,11 +142,9 @@ public class SearchActivity extends Activity {
 				insertTextSymbol(v);
 			}
 		});
-		sendReceiveRadioGroup
-				.setOnCheckedChangeListener(controller.new SendReceiveTypeSelected());
-		radioGroupDate
-				.setOnCheckedChangeListener(controller.new DateRangeSelected(
-						before, after, from, to));
+		sendReceiveRadioGroup.setOnCheckedChangeListener(controller.new SendReceiveTypeSelected());
+		radioGroupDate.setOnCheckedChangeListener(controller.new DateRangeSelected(this));
+		
 		beforeButton.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				showDatePicker(v);
@@ -206,6 +184,35 @@ public class SearchActivity extends Activity {
 		
 		updateTextContacts();
 	}
+	
+	public Date getDateBefore() {
+		return before;
+	}
+	public Date getDateAfter() {
+		return after;
+	}
+	public Date getDateFrom() {
+		return from;
+	}
+	public Date getDateTo() {
+		return to;
+	}
+	public void setDateBefore(Date date) {
+		before = date;
+	}
+	public void setDateAfter(Date date) {
+		after = date;
+	}
+	public void setDateFrom(Date date) {
+		from = date;
+	}
+	public void setDateTo(Date date) {
+		to = date;
+	}
+	
+	public int getDatePickerId() {
+		return pickerButtonId;
+	}
 
 	public void toggleFilterSentReceived() {
 		if (checkBoxFilterSentReceived.isChecked())
@@ -226,20 +233,6 @@ public class SearchActivity extends Activity {
 			layoutFilterDate.setVisibility(View.VISIBLE);
 		else
 			layoutFilterDate.setVisibility(View.GONE);
-	}
-
-	public void selectSearchSources(View v) {
-
-		// let the controller change the model
-		searchSourceSelectedListener.onClick(v);
-
-		// disable/enable the contact filter
-		updateContactFilter();
-
-		// TODO remove this
-		List<MessageSource> searchSources = model.getSearchSources();
-		Toast.makeText(v.getContext(), searchSources.toString(),
-				Toast.LENGTH_SHORT).show();
 	}
 
 	public void updateContactFilter() {
@@ -385,34 +378,5 @@ public class SearchActivity extends Activity {
 		showDialog(DATE_DIALOG_ID);
 	}
 
-	// the callback received when the user sets the date in the dialog
-	private DatePickerDialog.OnDateSetListener pickerDateSetListener = new DatePickerDialog.OnDateSetListener() {
-
-		public void onDateSet(DatePicker view, int year, int monthOfYear,
-				int dayOfMonth) {
-
-			// update with new date selected
-			Calendar cal = Calendar.getInstance();
-			cal.set(Calendar.YEAR, year);
-			cal.set(Calendar.MONTH, monthOfYear);
-			cal.set(Calendar.DATE, dayOfMonth);
-			switch (pickerButtonId) {
-			case R.id.buttonBefore:
-				before.setTime(cal.getTime().getTime());
-				break;
-			case R.id.buttonAfter:
-				after.setTime(cal.getTime().getTime());
-				break;
-			case R.id.buttonFrom:
-				from.setTime(cal.getTime().getTime());
-				break;
-			case R.id.buttonTo:
-				to.setTime(cal.getTime().getTime());
-				break;
-			}
-
-			updateDates();
-		}
-	};
 
 }
