@@ -317,21 +317,27 @@ public class SearchActivity extends Activity {
 		// insert the symbol selected
 		// note: the selection start can be the end index if the
 		// text was selected backward
-		int startSelection = searchInputText.getSelectionStart();
-		int endSelection = searchInputText.getSelectionEnd();
-		int start = startSelection;
-		int end = endSelection;
-		if (endSelection < startSelection) {
-			start = endSelection;
-			end = startSelection;
+		if (searchInputText.hasSelection()) {
+			int startSelection = searchInputText.getSelectionStart();
+			int endSelection = searchInputText.getSelectionEnd();
+			int start = startSelection;
+			int end = endSelection;
+			if (endSelection < startSelection) {
+				start = endSelection;
+				end = startSelection;
+			}
+			String searchText = searchInputText.getText().toString();
+			String leftOfSelection = searchText.substring(0, start);
+			String rightOfSelection = searchText.substring(end);
+			searchText = leftOfSelection + symbol + rightOfSelection;
+			searchInputText.setText(searchText);
+			//searchInputText.setSelection(start + 1);
+			searchInputText.setSelected(false);
 		}
-		String searchText = searchInputText.getText().toString();
-		String leftOfSelection = searchText.substring(0, start);
-		String rightOfSelection = searchText.substring(end);
-		searchText = leftOfSelection + symbol + rightOfSelection;
-		searchInputText.setText(searchText);
-		searchInputText.setSelection(start + 1);
-
+		else {
+			searchInputText.setText(searchInputText.getText() + symbol);
+			searchInputText.setSelected(false);
+		}
 	}
 
 	@Override

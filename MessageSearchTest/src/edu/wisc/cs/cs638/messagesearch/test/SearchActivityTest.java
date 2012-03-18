@@ -131,6 +131,20 @@ public class SearchActivityTest extends
 	}
 	
 	@UiThreadTest
+	public void testInsertTextSymbol() {
+		searchInputText.setText("something to search");
+		searchInputText.setSelection(9, 13);
+		symbolPoundButton.performClick();
+		assertEquals("Search box text",  "something#search", searchInputText.getText().toString());
+		symbolStarButton.performClick();
+		assertEquals("Search box text",  "something#search*", searchInputText.getText().toString());
+		searchInputText.setSelection(0, 3);
+		symbolUnderscoreButton.performClick();
+		assertEquals("Search box text",  "_ething#search*", searchInputText.getText().toString());
+		
+	}
+	
+	@UiThreadTest
 	public void testShowDatePicker() {
 		beforeButton.performClick();
 		
