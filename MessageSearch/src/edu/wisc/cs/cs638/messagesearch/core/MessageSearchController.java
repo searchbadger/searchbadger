@@ -13,12 +13,9 @@ import android.widget.DatePicker;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 import android.widget.ToggleButton;
-import edu.wisc.cs.cs638.messagesearch.R;
-import edu.wisc.cs.cs638.messagesearch.util.Contact;
-import edu.wisc.cs.cs638.messagesearch.util.MessageSource;
-import edu.wisc.cs.cs638.messagesearch.util.SendReceiveType;
-import edu.wisc.cs.cs638.messagesearch.view.ContactsActivity;
-import edu.wisc.cs.cs638.messagesearch.view.SearchActivity;
+import edu.wisc.cs.cs638.messagesearch.*;
+import edu.wisc.cs.cs638.messagesearch.util.*;
+import edu.wisc.cs.cs638.messagesearch.view.*;
 
 public class MessageSearchController {
 	private static final MessageSearchController instance = new MessageSearchController();
@@ -29,8 +26,14 @@ public class MessageSearchController {
 	}
 
 	public class SearchButtonListener implements View.OnClickListener {
+		private SearchGenerator srchGen = null;
+		public SearchButtonListener(SearchGenerator srchGen) {
+			this.srchGen = srchGen;
+		}
 		public void onClick(View v) {
-
+			model.search(srchGen.generateSearch());
+			Intent resActIntent = new Intent(v.getContext(), SearchResultActivity.class);
+			v.getContext().startActivity(resActIntent);
 		}
 	}
 

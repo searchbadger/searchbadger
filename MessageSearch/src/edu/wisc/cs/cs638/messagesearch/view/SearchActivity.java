@@ -18,15 +18,11 @@ import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.ToggleButton;
-import edu.wisc.cs.cs638.messagesearch.R;
-import edu.wisc.cs.cs638.messagesearch.core.MessageSearchController;
-import edu.wisc.cs.cs638.messagesearch.core.MessageSearchController.SearchSourceSelected;
-import edu.wisc.cs.cs638.messagesearch.core.MessageSearchModel;
-import edu.wisc.cs.cs638.messagesearch.util.Contact;
-import edu.wisc.cs.cs638.messagesearch.util.MessageSource;
-import edu.wisc.cs.cs638.messagesearch.util.SendReceiveType;
+import edu.wisc.cs.cs638.messagesearch.*;
+import edu.wisc.cs.cs638.messagesearch.core.*;
+import edu.wisc.cs.cs638.messagesearch.util.*;
 
-public class SearchActivity extends Activity {
+public class SearchActivity extends Activity implements SearchGenerator {
 
 	static final int DATE_DIALOG_ID = 0;
 
@@ -56,7 +52,6 @@ public class SearchActivity extends Activity {
 
 	private MessageSearchController controller;
 	private MessageSearchModel model;
-
 
 	private final SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
 	private int pickerButtonId;
@@ -114,7 +109,7 @@ public class SearchActivity extends Activity {
 						toggleFilterSentReceived();
 					}
 				});
-		searchButton.setOnClickListener(controller.new SearchButtonListener());
+		searchButton.setOnClickListener(controller.new SearchButtonListener(this));
 		contactsButton.setOnClickListener(controller.new ContactSourceListener());
 
 		SearchSourceSelected searchSourceSelected = controller.new SearchSourceSelected(this);
@@ -378,6 +373,11 @@ public class SearchActivity extends Activity {
 		pickerDate.updateDate(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH),
 				cal.get(Calendar.DATE));
 		showDialog(DATE_DIALOG_ID);
+	}
+
+	public Search generateSearch() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 
