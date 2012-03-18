@@ -2,11 +2,14 @@ package edu.wisc.cs.cs638.messagesearch.core;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
+import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.view.View;
 import android.widget.CheckBox;
+import android.widget.DatePicker;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -15,6 +18,7 @@ import edu.wisc.cs.cs638.messagesearch.util.Contact;
 import edu.wisc.cs.cs638.messagesearch.util.MessageSource;
 import edu.wisc.cs.cs638.messagesearch.util.SendReceiveType;
 import edu.wisc.cs.cs638.messagesearch.view.ContactsActivity;
+import edu.wisc.cs.cs638.messagesearch.view.SearchActivity;
 
 public class MessageSearchController {
 	private static final MessageSearchController instance = new MessageSearchController();
@@ -83,6 +87,13 @@ public class MessageSearchController {
 	}
 	
 	public class SearchSourceSelected implements View.OnClickListener {
+		
+		private SearchActivity searchActiviy;
+		
+		public SearchSourceSelected(SearchActivity activity) {
+			searchActiviy = activity;
+		}
+		
 		public void onClick(View v) {
 			if (!(v instanceof ToggleButton))
 				return;
@@ -110,6 +121,15 @@ public class MessageSearchController {
 				model.addSearchSource(searchSource);
 			else
 				model.removeSearchSource(searchSource);
+			
+
+			// disable/enable the contact filter
+			searchActiviy.updateContactFilter();
+
+			// TODO remove this
+			List<MessageSource> searchSources = model.getSearchSources();
+			Toast.makeText(v.getContext(), searchSources.toString(),
+					Toast.LENGTH_SHORT).show();
 		}
 	}
 
@@ -132,19 +152,16 @@ public class MessageSearchController {
 	
 	public class DateRangeSelected implements RadioGroup.OnCheckedChangeListener {
 		
-		private Date before;
-		private Date after;
-		private Date from;
-		private Date to;
+		private SearchActivity searchActiviy;
 		
-		public DateRangeSelected(Date before, Date after, Date from, Date to){
-			this.before = before;
-			this.after = after;
-			this.from = from;
-			this.to = to;
+		public DateRangeSelected(SearchActivity activity){
+			searchActiviy = activity;
 		}
 		
 		public void onCheckedChanged(RadioGroup group, int selectedId) {
+			
+			// return if this is a clear check
+			if(selectedId == -1) return;
 
 			// set the default begin and end date to be today
 			Calendar cal = Calendar.getInstance();
@@ -182,14 +199,14 @@ public class MessageSearchController {
 				
 			case R.id.radioBefore:
 				beginDate = null;
-				endDate = before;
+				endDate = searchActiviy.getDateBefore();
 				endDate.setHours(23);
 				endDate.setMinutes(59);
 				endDate.setSeconds(59);
 				break;
 				
 			case R.id.radioAfter:
-				beginDate = after;
+				beginDate = searchActiviy.getDateAfter();
 				endDate = null;
 				beginDate.setHours(0);
 				beginDate.setMinutes(0);
@@ -197,8 +214,8 @@ public class MessageSearchController {
 				break;
 				
 			case R.id.radioFrom:
-				beginDate = from;
-				endDate = to;
+				beginDate = searchActiviy.getDateFrom();
+				endDate = searchActiviy.getDateTo();
 				beginDate.setHours(0);
 				beginDate.setMinutes(0);
 				beginDate.setSeconds(0);
@@ -206,13 +223,64 @@ public class MessageSearchController {
 				endDate.setMinutes(59);
 				endDate.setSeconds(59);
 				break;
+				
+			default:
+				return;
+			}
+			
+			// update the model
+			model.setBeginDate(beginDate);
+			model.setEndDate(endDate);
+
+		}
+	}
+	
+
+	// the callback received when the user sets the date in the dialog
+
+	public class DatePickerSelected implements DatePickerDialog.OnDateSetListener {
+		
+		private SearchActivity searchActiviy;
+		
+		public DatePickerSelected(SearchActivity activity){
+			searchActiviy = activity;
+		}
+
+		public void onDateSet(DatePicker view, int year, int monthOfYear,
+				int dayOfMonth) {
+
+			// update with new date selected
+			RadioGroup radioGroupDate  = (RadioGroup) searchActiviy.findViewById(R.id.radioGroupDate);
+			Calendar cal = Calendar.getInstance();
+			cal.set(Calendar.YEAR, year);
+			cal.set(Calendar.MONTH, monthOfYear);
+			cal.set(Calendar.DATE, dayOfMonth);
+			switch (searchActiviy.getDatePickerId()) {
+			case R.id.buttonBefore:
+				searchActiviy.setDateBefore(cal.getTime());
+				radioGroupDate.clearCheck();
+				radioGroupDate.check(R.id.radioBefore);
+				break;
+			case R.id.buttonAfter:
+				searchActiviy.setDateAfter(cal.getTime());
+				radioGroupDate.clearCheck();
+				radioGroupDate.check(R.id.radioAfter);
+				break;
+			case R.id.buttonFrom:
+				searchActiviy.setDateFrom(cal.getTime());
+				radioGroupDate.clearCheck();
+				radioGroupDate.check(R.id.radioFrom);
+				break;
+			case R.id.buttonTo:
+				searchActiviy.setDateTo(cal.getTime());
+				radioGroupDate.clearCheck();
+				radioGroupDate.check(R.id.radioFrom);
+				break;
 			}
 
-			// TODO remove this
-			String str1 = beginDate == null ? "before" : beginDate.toString();
-			String str2 = endDate == null ? "after" : endDate.toString();
-			Toast.makeText(group.getContext(), str1 + " | " + str2,
-					Toast.LENGTH_SHORT).show();
+			searchActiviy.updateDates();
+			
+
 		}
 	}
 }
