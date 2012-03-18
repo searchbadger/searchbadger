@@ -40,29 +40,47 @@ public class SearchActivityTest extends
 		assertNotNull(dateLayout);
 		assertNotNull(contactsLayout);
 		assertNotNull(sentLayout);
-		assertNotNull(dateCheck);
 		assertNotNull(contactsCheck);
 		assertNotNull(sentCheck);
 	}
 
 	@UiThreadTest
 	public void testToggleDate() {
+		assertNotNull(dateCheck);
+		dateCheck.performClick();
+		assertTrue(dateCheck.isChecked());
+		assertEquals("Date layout visibility",
+				dateLayout.getVisibility(), View.VISIBLE);
+		dateCheck.performClick();
+		assertTrue(!dateCheck.isChecked());
+		assertEquals("Date layout visibility",
+				dateLayout.getVisibility(), View.GONE);
+	}
+
+	@UiThreadTest
+	public void testToggleContacts() {
+		contactsCheck.performClick();
+		assertTrue(contactsCheck.isChecked());
+		assertEquals("Contacts layout visibility",
+				contactsLayout.getVisibility(), View.VISIBLE);
+		contactsCheck.performClick();
+		assertTrue(!contactsCheck.isChecked());
+		assertEquals("Contacts layout visibility",
+				contactsLayout.getVisibility(), View.GONE);
+	}
+
+	@UiThreadTest
+	public void testToggleSentReceived() {
 		sentCheck.performClick();
-		// testActivity.toggleFilterSentReceived();
 		assertTrue(sentCheck.isChecked());
 		assertEquals("Sent/received layout visibility",
 				sentLayout.getVisibility(), View.VISIBLE);
-		// testActivity.toggleFilterSentReceived();
 		sentCheck.performClick();
 		assertTrue(!sentCheck.isChecked());
 		assertEquals("Sent/received layout visibility",
 				sentLayout.getVisibility(), View.GONE);
 	}
-
-	public void testToggleContacts() {
-	}
-
-	public void testToggleSentReceived() {
-	}
+	
+	
 
 }
