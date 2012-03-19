@@ -12,133 +12,62 @@ import edu.wisc.cs.cs638.messagesearch.util.SendReceiveType;
 
 public class MessageSearchModel {
 	private final static MessageSearchModel instance = new MessageSearchModel();
-	private final List<MessageSource> _sources = new LinkedList<MessageSource>();
-	private final List<Contact> _contacts = new LinkedList<Contact>();
-	private Date _begin = new Date();
-	private Date _end = new Date();
-	private Date _before = new Date();
-	private Date _after = new Date();
-	private SendReceiveType _type = SendReceiveType.SENT;
+	private Search _currentSearch;
 	
 	public static MessageSearchModel getInstance() {
 		return instance;
 	}
 	
 	public void search(Search filter) {
-		
+		// TODO
 	}
 	
 	public Search getCurrentSearch() {
+		return _currentSearch;
+	}
+	
+	public void setCurrentSearch(Search srch) {
+		_currentSearch = srch;
+		// TODO: this should probably also add the search to the recent searches database...
+	}
+	
+	/*
+	 * A list of recent searches is returned. 
+	 * Note: not messages, these are actual searches.
+	 * The search can be performed again by the user, who sees the filters set
+	 * the searches are stored in a database so that we can access them again 
+	 * even if the user shuts off their phone
+	 */
+	public List<Search> getRecentSearches() {
 		
 		return null;
 	}
 	
+	/*
+	 * TODO: interface with database for persistent storage of starred msgs
+	 */
 	public List<Message> getStarredMessages() {
-		
 		return null;
 	}
 	
-	public List<Message> getRecentSearches() {
-		
-		return null;
-	}
-	
+	/*
+	 * TODO: interface with database for persistent storage of starred msgs
+	 */
 	public boolean addStarredMessage(Message msg) {
 		return true;
 	}
 	
+	/*
+	 * TODO: interface with database for persistent storage of starred msgs
+	 */
 	public boolean removeStarredMessage(Message msg) {
 		return true;
-	}
+	}	
 	
 	/*
-	 * if a single source is selected, returns list of contacts from that source
-	 * otherwise returns null
+	 * TODO Needs to access database. This probably will go through some other 
+	 * class for SMSSearch or other search type
 	 */
-	public List<Contact> getContacts() {
-		return _contacts;
-	}
-	
-	public void addContact(Contact contact) {
-		_contacts.add(contact);
-	}
-	
-	public boolean removeContact(Contact contact) {
-		return _contacts.remove(contact);
-	}
-	
-	
-	/*
-	 * Returns the currently selected message sources
-	 */
-	public List<MessageSource> getSearchSources() {
-		return _sources;
-	}
-	
-	public void addSearchSource(MessageSource source) {
-		_sources.add(source);
-	}
-	
-	public boolean removeSearchSource(MessageSource source) {
-		return _sources.remove(source);
-	}
-
-	/*
-	 * Returns the currently selected send/received type
-	 */
-	public SendReceiveType getType() {
-		return _type;
-	}
-	
-	public void setType(SendReceiveType type) {
-		_type = type;
-	}
-
-	/*
-	 * Returns the begin date
-	 */
-	public Date getBeginDate() {
-		return _begin;
-	}
-	
-	public void setBeginDate(Date date) {
-		_begin = date;
-	}
-
-	/*
-	 * Returns the end date
-	 */
-	public Date getEndDate() {
-		return _end;
-	}
-	
-	public void setEndDate(Date date) {
-		_end = date;
-	}
-
-	/*
-	 * Returns the before date
-	 */
-	public void setBeforeDate(Date date) {
-		this._before = date;
-	}
-
-	public Date getBeforeDate() {
-		return _before;
-	}
-
-	/*
-	 * Returns the after date
-	 */
-	public void setAfterDate(Date date) {
-		this._after = date;
-	}
-
-	public Date getAfterDate() {
-		return _after;
-	}
-	
-	
 	public List<Message> getThread(Message msg) {
 		return null;
 	}
