@@ -1,14 +1,9 @@
 package edu.wisc.cs.cs638.messagesearch.core;
 
-import java.util.Date;
-import java.util.LinkedList;
 import java.util.List;
 
-import edu.wisc.cs.cs638.messagesearch.util.Contact;
 import edu.wisc.cs.cs638.messagesearch.util.Message;
-import edu.wisc.cs.cs638.messagesearch.util.MessageSource;
 import edu.wisc.cs.cs638.messagesearch.util.Search;
-import edu.wisc.cs.cs638.messagesearch.util.SendReceiveType;
 
 public class MessageSearchModel {
 	private final static MessageSearchModel instance = new MessageSearchModel();
@@ -19,16 +14,12 @@ public class MessageSearchModel {
 	}
 	
 	public void search(Search filter) {
-		// TODO
+		_currentSearch = filter;
+		// TODO: actually search
 	}
 	
 	public Search getCurrentSearch() {
 		return _currentSearch;
-	}
-	
-	public void setCurrentSearch(Search srch) {
-		_currentSearch = srch;
-		// TODO: this should probably also add the search to the recent searches database...
 	}
 	
 	/*
