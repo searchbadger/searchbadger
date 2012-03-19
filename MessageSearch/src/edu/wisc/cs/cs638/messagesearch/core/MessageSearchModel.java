@@ -1,8 +1,15 @@
 package edu.wisc.cs.cs638.messagesearch.core;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+
+import android.app.Activity;
+import android.content.Context;
+import android.database.Cursor;
+import android.net.Uri;
 
 import edu.wisc.cs.cs638.messagesearch.util.Contact;
 import edu.wisc.cs.cs638.messagesearch.util.Message;
@@ -18,11 +25,74 @@ public class MessageSearchModel {
 	private Date _end = new Date();
 	private SendReceiveType _type = SendReceiveType.SENT;
 	
+	private Cursor currentSearch;
+	private final static String projectionList[] = {"_id", "person", "date", "body"};
+	
+	
 	public static MessageSearchModel getInstance() {
 		return instance;
 	}
 	
 	public void search(Search filter) {
+		// SMS content provider uri 
+		String url = "content://sms/inbox"; 
+		Uri uri = Uri.parse(url); 
+	
+		ArrayList<String> selectionArgList = new ArrayList<String>();
+		
+		String selection = "";
+		String arg = "";
+		
+		// Go through each possible search type, and build SQL query
+		if (filter.getText() != null){
+			selection += "body LIKE ?";
+			arg = "%" + filter.getText() + "&";
+			
+			selectionArgList.add(arg);
+		}
+		if (filter.getContacts() != null){
+			List<Contact> contacts = filter.getContacts();
+			Iterator<Contact> iter = contacts.iterator();
+			
+			if (selection.length() > 0)
+				selection += "and";
+				
+			selection += "(";
+			while (iter.hasNext()){
+				Contact c = iter.next();
+				selection += "person = ?";
+				arg = c.getName();
+				
+				selectionArgList.add(arg);
+			}
+			selection += ")";
+			
+		}
+		
+		if (filter.getBegin() != null){
+			if (selection.length() > 0)
+				selection += "and";
+			
+			selection += "date >= ?";
+			arg = filter.getBegin().toString();
+			
+			selectionArgList.add(arg);
+		}
+		
+		if (filter.getEnd() != null){
+			if (selection.length() > 0)
+				selection += "and";
+			
+			selection += "date <= ?";
+			arg = filter.getBegin().toString();
+			
+			selectionArgList.add(arg);
+		}
+		
+		String[] selectionArgArray = selectionArgList.toArray(new String[selectionArgList.size()]);
+		
+		// Make query to content provider and store cursor to table returned
+		currentSearch = Activity.managedQuery(uri, projectionList, selection, selectionArgArray, "");
 		
 	}
 	
