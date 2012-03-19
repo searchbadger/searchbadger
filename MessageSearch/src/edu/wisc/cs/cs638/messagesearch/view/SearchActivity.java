@@ -13,22 +13,16 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.ToggleButton;
-import edu.wisc.cs.cs638.messagesearch.R;
-import edu.wisc.cs.cs638.messagesearch.core.MessageSearchController;
-import edu.wisc.cs.cs638.messagesearch.core.MessageSearchController.SearchSourceSelected;
-import edu.wisc.cs.cs638.messagesearch.core.MessageSearchModel;
-import edu.wisc.cs.cs638.messagesearch.util.Contact;
-import edu.wisc.cs.cs638.messagesearch.util.MessageSource;
-import edu.wisc.cs.cs638.messagesearch.util.SendReceiveType;
+import edu.wisc.cs.cs638.messagesearch.*;
+import edu.wisc.cs.cs638.messagesearch.core.*;
+import edu.wisc.cs.cs638.messagesearch.util.*;
 
-public class SearchActivity extends Activity {
+public class SearchActivity extends Activity implements SearchGenerator {
 
 	static final int DATE_DIALOG_ID = 0;
 
@@ -59,13 +53,7 @@ public class SearchActivity extends Activity {
 	private MessageSearchController controller;
 	private MessageSearchModel model;
 
-	private SearchSourceSelected searchSourceSelectedListener;
-
 	private final SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
-	private final Date before = new Date();
-	private final Date after = new Date();
-	private final Date from = new Date();
-	private final Date to = new Date();
 	private int pickerButtonId;
 	private DatePickerDialog pickerDate;
 
@@ -79,7 +67,7 @@ public class SearchActivity extends Activity {
 		model = MessageSearchModel.getInstance();
 		controller = MessageSearchController.getInstance();
 		
-		pickerDate = new DatePickerDialog(this, pickerDateSetListener, 0, 0, 0);
+		pickerDate = new DatePickerDialog(this, controller.new DatePickerSelected(this), 0, 0, 0);
 
 		layoutFilterDate = (LinearLayout) findViewById(R.id.linearFilterDateOptions);
 		layoutFilterContacts = (LinearLayout) findViewById(R.id.linearFilterContactsOptions);
@@ -106,7 +94,6 @@ public class SearchActivity extends Activity {
 		contactsText = (TextView) findViewById(R.id.textViewSelectContacts);
 
 		// set the onClick events
-		searchSourceSelectedListener = controller.new SearchSourceSelected();
 		checkBoxFilterDate.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				toggleFilterDate();
@@ -117,36 +104,20 @@ public class SearchActivity extends Activity {
 				toggleFilterContacts();
 			}
 		});
-		checkBoxFilterSentReceived
-				.setOnClickListener(new View.OnClickListener() {
+		checkBoxFilterSentReceived.setOnClickListener(new View.OnClickListener() {
 					public void onClick(View v) {
 						toggleFilterSentReceived();
 					}
 				});
-		searchButton.setOnClickListener(controller.new SearchButtonListener());
-		contactsButton
-				.setOnClickListener(controller.new ContactSourceListener());
+		searchButton.setOnClickListener(controller.new SearchButtonListener(this));
+		contactsButton.setOnClickListener(controller.new ContactSourceListener());
 
-		smsButton.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-				selectSearchSources(v);
-			}
-		});
-		facebookButton.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-				selectSearchSources(v);
-			}
-		});
-		twitterButton.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-				selectSearchSources(v);
-			}
-		});
-		starButton.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-				selectSearchSources(v);
-			}
-		});
+		SearchSourceSelected searchSourceSelected = controller.new SearchSourceSelected(this);
+		smsButton.setOnClickListener(searchSourceSelected);
+		facebookButton.setOnClickListener(searchSourceSelected);
+		twitterButton.setOnClickListener(searchSourceSelected);
+		starButton.setOnClickListener(searchSourceSelected);
+		
 		symbolPoundButton.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				insertTextSymbol(v);
@@ -162,11 +133,9 @@ public class SearchActivity extends Activity {
 				insertTextSymbol(v);
 			}
 		});
-		sendReceiveRadioGroup
-				.setOnCheckedChangeListener(controller.new SendReceiveTypeSelected());
-		radioGroupDate
-				.setOnCheckedChangeListener(controller.new DateRangeSelected(
-						before, after, from, to));
+		sendReceiveRadioGroup.setOnCheckedChangeListener(controller.new SendReceiveTypeSelected());
+		radioGroupDate.setOnCheckedChangeListener(controller.new DateRangeSelected(this));
+		
 		beforeButton.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				showDatePicker(v);
@@ -206,6 +175,35 @@ public class SearchActivity extends Activity {
 		
 		updateTextContacts();
 	}
+	
+	public Date getDateBefore() {
+		return model.getBeforeDate();
+	}
+	public Date getDateAfter() {
+		return model.getAfterDate();
+	}
+	public Date getDateFrom() {
+		return model.getBeginDate();
+	}
+	public Date getDateTo() {
+		return model.getEndDate();
+	}
+	public void setDateBefore(Date date) {
+		model.setBeforeDate(date);
+	}
+	public void setDateAfter(Date date) {
+		model.setAfterDate(date);
+	}
+	public void setDateFrom(Date date) {
+		model.setBeginDate(date);
+	}
+	public void setDateTo(Date date) {
+		model.setEndDate(date);
+	}
+	
+	public int getDatePickerId() {
+		return pickerButtonId;
+	}
 
 	public void toggleFilterSentReceived() {
 		if (checkBoxFilterSentReceived.isChecked())
@@ -226,20 +224,6 @@ public class SearchActivity extends Activity {
 			layoutFilterDate.setVisibility(View.VISIBLE);
 		else
 			layoutFilterDate.setVisibility(View.GONE);
-	}
-
-	public void selectSearchSources(View v) {
-
-		// let the controller change the model
-		searchSourceSelectedListener.onClick(v);
-
-		// disable/enable the contact filter
-		updateContactFilter();
-
-		// TODO remove this
-		List<MessageSource> searchSources = model.getSearchSources();
-		Toast.makeText(v.getContext(), searchSources.toString(),
-				Toast.LENGTH_SHORT).show();
 	}
 
 	public void updateContactFilter() {
@@ -282,10 +266,10 @@ public class SearchActivity extends Activity {
 	public void updateDates() {
 		
 		// update the dates shown on the buttons
-		beforeButton.setText(dateFormat.format(before));
-		afterButton.setText(dateFormat.format(after));
-		fromButton.setText(dateFormat.format(from));
-		toButton.setText(dateFormat.format(to));
+		beforeButton.setText(dateFormat.format(model.getBeforeDate()));
+		afterButton.setText(dateFormat.format(model.getAfterDate()));
+		fromButton.setText(dateFormat.format(model.getBeginDate()));
+		toButton.setText(dateFormat.format(model.getEndDate()));
 	}
 	
 	public void updateTextContacts() {
@@ -328,21 +312,27 @@ public class SearchActivity extends Activity {
 		// insert the symbol selected
 		// note: the selection start can be the end index if the
 		// text was selected backward
-		int startSelection = searchInputText.getSelectionStart();
-		int endSelection = searchInputText.getSelectionEnd();
-		int start = startSelection;
-		int end = endSelection;
-		if (endSelection < startSelection) {
-			start = endSelection;
-			end = startSelection;
+		if (searchInputText.hasSelection()) {
+			int startSelection = searchInputText.getSelectionStart();
+			int endSelection = searchInputText.getSelectionEnd();
+			int start = startSelection;
+			int end = endSelection;
+			if (endSelection < startSelection) {
+				start = endSelection;
+				end = startSelection;
+			}
+			String searchText = searchInputText.getText().toString();
+			String leftOfSelection = searchText.substring(0, start);
+			String rightOfSelection = searchText.substring(end);
+			searchText = leftOfSelection + symbol + rightOfSelection;
+			searchInputText.setText(searchText);
+			//searchInputText.setSelection(start + 1);
+			searchInputText.setSelected(false);
 		}
-		String searchText = searchInputText.getText().toString();
-		String leftOfSelection = searchText.substring(0, start);
-		String rightOfSelection = searchText.substring(end);
-		searchText = leftOfSelection + symbol + rightOfSelection;
-		searchInputText.setText(searchText);
-		searchInputText.setSelection(start + 1);
-
+		else {
+			searchInputText.setText(searchInputText.getText() + symbol);
+			searchInputText.setSelected(false);
+		}
 	}
 
 	@Override
@@ -361,19 +351,19 @@ public class SearchActivity extends Activity {
 		switch (v.getId()) {
 		case R.id.buttonBefore:
 			pickerButtonId = R.id.buttonBefore;
-			cal.setTime(before);
+			cal.setTime(model.getBeforeDate());
 			break;
 		case R.id.buttonAfter:
 			pickerButtonId = R.id.buttonAfter;
-			cal.setTime(after);
+			cal.setTime(model.getAfterDate());
 			break;
 		case R.id.buttonFrom:
 			pickerButtonId = R.id.buttonFrom;
-			cal.setTime(from);
+			cal.setTime(model.getBeginDate());
 			break;
 		case R.id.buttonTo:
 			pickerButtonId = R.id.buttonTo;
-			cal.setTime(to);
+			cal.setTime(model.getEndDate());
 			break;
 		default:
 			return;
@@ -385,34 +375,10 @@ public class SearchActivity extends Activity {
 		showDialog(DATE_DIALOG_ID);
 	}
 
-	// the callback received when the user sets the date in the dialog
-	private DatePickerDialog.OnDateSetListener pickerDateSetListener = new DatePickerDialog.OnDateSetListener() {
+	public Search generateSearch() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
-		public void onDateSet(DatePicker view, int year, int monthOfYear,
-				int dayOfMonth) {
-
-			// update with new date selected
-			Calendar cal = Calendar.getInstance();
-			cal.set(Calendar.YEAR, year);
-			cal.set(Calendar.MONTH, monthOfYear);
-			cal.set(Calendar.DATE, dayOfMonth);
-			switch (pickerButtonId) {
-			case R.id.buttonBefore:
-				before.setTime(cal.getTime().getTime());
-				break;
-			case R.id.buttonAfter:
-				after.setTime(cal.getTime().getTime());
-				break;
-			case R.id.buttonFrom:
-				from.setTime(cal.getTime().getTime());
-				break;
-			case R.id.buttonTo:
-				to.setTime(cal.getTime().getTime());
-				break;
-			}
-
-			updateDates();
-		}
-	};
 
 }
