@@ -20,15 +20,16 @@ import edu.wisc.cs.cs638.messagesearch.view.*;
 public class MessageSearchController {
 	private static final MessageSearchController instance = new MessageSearchController();
 	private final MessageSearchModel model = MessageSearchModel.getInstance();
+	public SearchGenerator srchGen;
+	
 
 	public static final MessageSearchController getInstance() {
 		return instance;
 	}
 
 	public class SearchButtonListener implements View.OnClickListener {
-		private SearchGenerator srchGen = null;
-		public SearchButtonListener(SearchGenerator srchGen) {
-			this.srchGen = srchGen;
+		
+		public SearchButtonListener() {
 		}
 		public void onClick(View v) {
 			model.search(srchGen.generateSearch());
@@ -73,12 +74,12 @@ public class MessageSearchController {
 				return;
 			CheckBox checkbox = (CheckBox) v;
 			if (checkbox.isChecked())
-				model.addContact(contact);
+				srchGen.addContact(contact);
 			else
-				model.removeContact(contact);
+				srchGen.removeContact(contact);
 
 			// TODO remove this
-			Toast.makeText(v.getContext(), model.getContacts().toString(),
+			Toast.makeText(v.getContext(), srchGen.getContacts().toString(),
 					Toast.LENGTH_SHORT).show();
 		}
 	}
@@ -121,16 +122,16 @@ public class MessageSearchController {
 			
 			// add/remove search type
 			if (button.isChecked())
-				model.addSearchSource(searchSource);
+				srchGen.addSearchSource(searchSource);
 			else
-				model.removeSearchSource(searchSource);
+				srchGen.removeSearchSource(searchSource);
 			
 
 			// disable/enable the contact filter
 			searchActiviy.updateContactFilter();
 
 			// TODO remove this
-			List<MessageSource> searchSources = model.getSearchSources();
+			List<MessageSource> searchSources = srchGen.getSearchSources();
 			Toast.makeText(v.getContext(), searchSources.toString(),
 					Toast.LENGTH_SHORT).show();
 		}
@@ -142,11 +143,11 @@ public class MessageSearchController {
 			// set the send/receive type
 			switch (selectedId) {
 			case R.id.radioSent:
-				model.setType(SendReceiveType.SENT);
+				srchGen.setType(SendReceiveType.SENT);
 				break;
 
 			case R.id.radioReceived:
-				model.setType(SendReceiveType.RECEIVED);
+				srchGen.setType(SendReceiveType.RECEIVED);
 				break;
 			}
 
@@ -232,8 +233,8 @@ public class MessageSearchController {
 			}
 			
 			// update the model
-			model.setBeginDate(beginDate);
-			model.setEndDate(endDate);
+			srchGen.setDateBefore(beginDate);
+			srchGen.setDateTo(endDate);
 
 		}
 	}
