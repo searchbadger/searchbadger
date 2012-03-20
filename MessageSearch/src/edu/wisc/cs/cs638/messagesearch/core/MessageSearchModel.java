@@ -1,5 +1,6 @@
 package edu.wisc.cs.cs638.messagesearch.core;
 
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -12,10 +13,11 @@ import android.database.Cursor;
 import android.net.Uri;
 
 import edu.wisc.cs.cs638.messagesearch.util.Contact;
-import java.util.List;
 
 import edu.wisc.cs.cs638.messagesearch.util.Message;
+import edu.wisc.cs.cs638.messagesearch.util.MessageSource;
 import edu.wisc.cs.cs638.messagesearch.util.Search;
+import edu.wisc.cs.cs638.messagesearch.util.SendReceiveType;
 
 public class MessageSearchModel {
 	private final static MessageSearchModel instance = new MessageSearchModel();
@@ -30,6 +32,7 @@ public class MessageSearchModel {
 	}
 	
 	public void search(Search filter) {
+
 		// SMS content provider uri 
 		String url = "content://sms/inbox"; 
 		Uri uri = Uri.parse(url); 
@@ -89,10 +92,16 @@ public class MessageSearchModel {
 		
 		// Make query to content provider and store cursor to table returned
 		currentSearch = Activity.managedQuery(uri, projectionList, selection, selectionArgArray, "");
+
 	}
 	
 	public Search getCurrentSearch() {
 		return _currentSearch;
+	}
+	
+	public void setCurrentSearch(Search srch) {
+		_currentSearch = srch;
+		// TODO: this should probably also add the search to the recent searches database...
 	}
 	
 	/*
