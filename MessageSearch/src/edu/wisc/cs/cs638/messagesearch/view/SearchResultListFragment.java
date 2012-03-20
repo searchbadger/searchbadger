@@ -6,29 +6,33 @@ import java.util.List;
 import java.util.Map;
 
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.ListFragment;
 import android.view.View;
+import android.widget.CursorAdapter;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
+import android.widget.SimpleCursorAdapter;
 import edu.wisc.cs.cs638.messagesearch.R;
+import edu.wisc.cs.cs638.messagesearch.core.MessageSearchModel;
 
 public class SearchResultListFragment extends ListFragment {
 
 	private boolean mDualPane;
     private int mCurCheckPosition = 0;
+    private MessageSearchModel model = MessageSearchModel.getInstance();
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		
-		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
 
 
 		
-		// TODO Remove the following
-		List<Map<String, String>> dataList = new ArrayList<Map<String, String>>();
+		// sample code
+		/*List<Map<String, String>> dataList = new ArrayList<Map<String, String>>();
 
 		HashMap<String, String> dataMap;
 
@@ -53,7 +57,16 @@ public class SearchResultListFragment extends ListFragment {
 						"Date" }, new int[] { R.id.search_result_text,
 						R.id.search_result_date });
 
-		setListAdapter(adapter);
+		setListAdapter(adapter);*/
+		
+		//TODO: cursor code
+		
+		Cursor resultCursor = model.getResultCursor();
+		CursorAdapter resultsAdapter = new SimpleCursorAdapter(getActivity(), 
+				R.layout.search_result_list_item,
+				resultCursor,new String[] { "Message", "Date" }, 
+				new int[] { R.id.search_result_text, R.id.search_result_date });
+		setListAdapter(resultsAdapter);
 		
 	
 		/*

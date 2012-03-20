@@ -23,7 +23,7 @@ public class MessageSearchModel {
 	private final static MessageSearchModel instance = new MessageSearchModel();
 	private Search _currentSearch;
 	
-	private Cursor currentSearch;
+	private Cursor searchResultCursor;
 	private final static String projectionList[] = {"_id", "person", "date", "body"};
 	
 	
@@ -91,8 +91,12 @@ public class MessageSearchModel {
 		String[] selectionArgArray = selectionArgList.toArray(new String[selectionArgList.size()]);
 		
 		// Make query to content provider and store cursor to table returned
-		currentSearch = Activity.managedQuery(uri, projectionList, selection, selectionArgArray, "");
+		searchResultCursor = Activity.managedQuery(uri, projectionList, selection, selectionArgArray, "");
 
+	}
+	
+	public Cursor getResultCursor() {
+		return searchResultCursor;
 	}
 	
 	public Search getCurrentSearch() {
