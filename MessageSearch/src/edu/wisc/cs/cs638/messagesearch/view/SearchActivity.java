@@ -20,6 +20,7 @@ import android.widget.TextView;
 import android.widget.ToggleButton;
 import edu.wisc.cs.cs638.messagesearch.*;
 import edu.wisc.cs.cs638.messagesearch.core.*;
+import edu.wisc.cs.cs638.messagesearch.core.MessageSearchController.SearchSourceSelected;
 import edu.wisc.cs.cs638.messagesearch.util.*;
 
 public class SearchActivity extends Activity implements SearchGenerator {
@@ -109,8 +110,10 @@ public class SearchActivity extends Activity implements SearchGenerator {
 						toggleFilterSentReceived();
 					}
 				});
-		searchButton.setOnClickListener(controller.new SearchButtonListener(this));
-		contactsButton.setOnClickListener(controller.new ContactSourceListener());
+		searchButton.setOnClickListener(controller.new 
+				SearchButtonListener(this));
+		contactsButton.setOnClickListener(controller.new 
+				ContactButtonListener(this));
 
 		SearchSourceSelected searchSourceSelected = controller.new SearchSourceSelected(this);
 		smsButton.setOnClickListener(searchSourceSelected);
@@ -175,31 +178,7 @@ public class SearchActivity extends Activity implements SearchGenerator {
 		
 		updateTextContacts();
 	}
-	
-	public Date getDateBefore() {
-		return model.getBeforeDate();
-	}
-	public Date getDateAfter() {
-		return model.getAfterDate();
-	}
-	public Date getDateFrom() {
-		return model.getBeginDate();
-	}
-	public Date getDateTo() {
-		return model.getEndDate();
-	}
-	public void setDateBefore(Date date) {
-		model.setBeforeDate(date);
-	}
-	public void setDateAfter(Date date) {
-		model.setAfterDate(date);
-	}
-	public void setDateFrom(Date date) {
-		model.setBeginDate(date);
-	}
-	public void setDateTo(Date date) {
-		model.setEndDate(date);
-	}
+
 	
 	public int getDatePickerId() {
 		return pickerButtonId;
@@ -226,72 +205,10 @@ public class SearchActivity extends Activity implements SearchGenerator {
 			layoutFilterDate.setVisibility(View.GONE);
 	}
 
-	public void updateContactFilter() {
 
-		// disable/enable the contact filter
-		List<MessageSource> searchSources = model.getSearchSources();
-		boolean enableFilterContact = false;
-		if (searchSources.size() == 1) {
-			switch (searchSources.get(0)) {
-			case SMS:
-			case FACEBOOK:
-			case TWITTER:
-				enableFilterContact = true;
-				break;
-			}
-		}
-		if (enableFilterContact == false) {
-			checkBoxFilterContacts.setChecked(false);
-			toggleFilterContacts();
-		}
-		checkBoxFilterContacts.setEnabled(enableFilterContact);
 
-	}
-
-	public void updateSendReceiveFilter() {
-
-		// select the correct type
-		SendReceiveType type = model.getType();
-		switch (type) {
-		case SENT:
-			sendReceiveRadioGroup.check(R.id.radioSent);
-			break;
-
-		case RECEIVED:
-			sendReceiveRadioGroup.check(R.id.radioReceived);
-			break;
-		}
-	}
-
-	public void updateDates() {
-		
-		// update the dates shown on the buttons
-		beforeButton.setText(dateFormat.format(model.getBeforeDate()));
-		afterButton.setText(dateFormat.format(model.getAfterDate()));
-		fromButton.setText(dateFormat.format(model.getBeginDate()));
-		toButton.setText(dateFormat.format(model.getEndDate()));
-	}
 	
-	public void updateTextContacts() {
-		
-		// create and show the list of selected contacts
-		List<Contact> contacts =  model.getContacts();
-		StringBuilder listNames = new StringBuilder();
-		listNames.append("Selected contacts: ");
-		if(contacts.size() == 0) {
-			listNames.append("None");
-		}
-		else {
-			Iterator<Contact> iterator = contacts.iterator();
-			while (iterator.hasNext()) {
-				listNames.append(iterator.next().getName());
-				if(iterator.hasNext())
-					listNames.append(", ");
-			} 
-		}
-		contactsText.setText(listNames);
-		
-	}
+
 
 	public void insertTextSymbol(View v) {
 
@@ -343,7 +260,8 @@ public class SearchActivity extends Activity implements SearchGenerator {
 		}
 		return null;
 	}
-
+	
+	// TODO: don't get data from the model
 	public void showDatePicker(View v) {
 
 		// determine the date picker type
