@@ -18,22 +18,23 @@ import edu.wisc.cs.cs638.messagesearch.util.*;
 import edu.wisc.cs.cs638.messagesearch.view.*;
 
 public class MessageSearchController {
-	private static final MessageSearchController instance = new MessageSearchController();
+	private static final MessageSearchController instance = 
+		new MessageSearchController();
 	private final MessageSearchModel model = MessageSearchModel.getInstance();
-	public SearchGenerator srchGen;
-	
 
 	public static final MessageSearchController getInstance() {
 		return instance;
 	}
 
 	public class SearchButtonListener implements View.OnClickListener {
-		
-		public SearchButtonListener() {
+		private SearchGenerator srchGen;
+		public SearchButtonListener(SearchGenerator srchGen) {
+			this.srchGen = srchGen;
 		}
 		public void onClick(View v) {
 			model.search(srchGen.generateSearch());
-			Intent resActIntent = new Intent(v.getContext(), SearchResultActivity.class);
+			Intent resActIntent = new Intent(v.getContext(), 
+					SearchResultActivity.class);
 			v.getContext().startActivity(resActIntent);
 		}
 	}
@@ -48,12 +49,20 @@ public class MessageSearchController {
 		}
 	}
 
-	public final class ContactSourceListener implements View.OnClickListener {
+	public final class ContactButtonListener implements View.OnClickListener {
+		private SearchGenerator srchGen;
+		public ContactButtonListener(SearchGenerator gen) {
+			srchGen = gen;
+		}
 		public void onClick(View v) {
+			// get the Message sources to pass to ContactsActivity
+			List<MessageSource> sources = srchGen.getMessageSources();
+			
 			// start the select contact activity
 			Context context = v.getContext();
 			Intent intent = new Intent();
 			intent.setClass(context, ContactsActivity.class);
+			// TODO: need to put the Message Source list in the intent
 			context.startActivity(intent);
 		}
 	}
@@ -73,13 +82,14 @@ public class MessageSearchController {
 			if (!(v instanceof CheckBox))
 				return;
 			CheckBox checkbox = (CheckBox) v;
+			// TODO remove this
 			if (checkbox.isChecked())
-				srchGen.addContact(contact);
+				model.addContact(contact);
 			else
-				srchGen.removeContact(contact);
+				model.removeContact(contact);
 
 			// TODO remove this
-			Toast.makeText(v.getContext(), srchGen.getContacts().toString(),
+			Toast.makeText(v.getContext(), model.getContacts().toString(),
 					Toast.LENGTH_SHORT).show();
 		}
 	}
@@ -119,19 +129,19 @@ public class MessageSearchController {
 				searchSource = MessageSource.STARRED;
 				break;
 			}
-			
+			// TODO: remove this
 			// add/remove search type
 			if (button.isChecked())
-				srchGen.addSearchSource(searchSource);
+				model.addSearchSource(searchSource);
 			else
-				srchGen.removeSearchSource(searchSource);
+				model.removeSearchSource(searchSource);
 			
 
 			// disable/enable the contact filter
 			searchActiviy.updateContactFilter();
 
 			// TODO remove this
-			List<MessageSource> searchSources = srchGen.getSearchSources();
+			List<MessageSource> searchSources = model.getSearchSources();
 			Toast.makeText(v.getContext(), searchSources.toString(),
 					Toast.LENGTH_SHORT).show();
 		}
@@ -143,11 +153,11 @@ public class MessageSearchController {
 			// set the send/receive type
 			switch (selectedId) {
 			case R.id.radioSent:
-				srchGen.setType(SendReceiveType.SENT);
+				model.setType(SendReceiveType.SENT);
 				break;
 
 			case R.id.radioReceived:
-				srchGen.setType(SendReceiveType.RECEIVED);
+				model.setType(SendReceiveType.RECEIVED);
 				break;
 			}
 
@@ -233,8 +243,8 @@ public class MessageSearchController {
 			}
 			
 			// update the model
-			srchGen.setDateBefore(beginDate);
-			srchGen.setDateTo(endDate);
+			model.setBeginDate(beginDate);
+			model.setEndDate(endDate);
 
 		}
 	}

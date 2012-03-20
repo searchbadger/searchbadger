@@ -35,8 +35,7 @@ public class ContactsActivity extends Activity {
         ListAdapter adapter = null;
 		
 		// get the search sources
-		List<MessageSource> searchSources = 
-			model.getCurrentSearch().getSources();
+		List<MessageSource> searchSources = model.getSearchSources();
 
 		// check if only one source is selected
 		if (searchSources.size() != 1)
@@ -104,7 +103,7 @@ public class ContactsActivity extends Activity {
 			checkbox.setOnClickListener(MessageSearchController.getInstance().new ContactSelector());
 
 			// check the box if the contact is in the list
-			List<Contact> contacts = model.getCurrentSearch().getContacts();
+			List<Contact> contacts = model.getContacts();
 			if(contacts.contains(contact))
 				checkbox.setChecked(true);
 			else
