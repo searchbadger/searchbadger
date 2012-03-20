@@ -20,10 +20,9 @@ import android.widget.TextView;
 import android.widget.ToggleButton;
 import edu.wisc.cs.cs638.messagesearch.*;
 import edu.wisc.cs.cs638.messagesearch.core.*;
-import edu.wisc.cs.cs638.messagesearch.core.MessageSearchController.SearchSourceSelected;
 import edu.wisc.cs.cs638.messagesearch.util.*;
 
-public class SearchActivity extends Activity {
+public class SearchActivity extends Activity implements SearchGenerator {
 
 	static final int DATE_DIALOG_ID = 0;
 
@@ -53,6 +52,7 @@ public class SearchActivity extends Activity {
 
 	private MessageSearchController controller;
 	private MessageSearchModel model;
+	private SearchBuilder searchBuilder;
 
 	private final SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
 	private int pickerButtonId;
@@ -110,7 +110,7 @@ public class SearchActivity extends Activity {
 						toggleFilterSentReceived();
 					}
 				});
-		searchButton.setOnClickListener(controller.new SearchButtonListener());
+		searchButton.setOnClickListener(controller.new SearchButtonListener(this));
 		contactsButton.setOnClickListener(controller.new ContactSourceListener());
 
 		SearchSourceSelected searchSourceSelected = controller.new SearchSourceSelected(this);
@@ -178,28 +178,28 @@ public class SearchActivity extends Activity {
 	}
 	
 	public Date getDateBefore() {
-		return controller.srchGen.getDateBefore();
+		return searchBuilder.getDateBefore();
 	}
 	public Date getDateAfter() {
-		return controller.srchGen.getDateAfter();
+		return searchBuilder.getDateAfter();
 	}
 	public Date getDateFrom() {
-		return controller.srchGen.getDateFrom();
+		return searchBuilder.getDateFrom();
 	}
 	public Date getDateTo() {
-		return controller.srchGen.getDateTo();
+		return searchBuilder.getDateTo();
 	}
 	public void setDateBefore(Date date) {
-		controller.srchGen.setDateBefore(date);
+		searchBuilder.setDateBefore(date);
 	}
 	public void setDateAfter(Date date) {
-		controller.srchGen.setDateAfter(date);
+		searchBuilder.setDateAfter(date);
 	}
 	public void setDateFrom(Date date) {
-		controller.srchGen.setDateFrom(date);
+		searchBuilder.setDateFrom(date);
 	}
 	public void setDateTo(Date date) {
-		controller.srchGen.setDateTo(date);
+		searchBuilder.setDateTo(date);
 	}
 	
 	public int getDatePickerId() {
@@ -230,7 +230,7 @@ public class SearchActivity extends Activity {
 	public void updateContactFilter() {
 
 		// disable/enable the contact filter
-		List<MessageSource> searchSources = controller.srchGen.getSearchSources();
+		List<MessageSource> searchSources = searchBuilder.getSearchSources();
 		boolean enableFilterContact = false;
 		if (searchSources.size() == 1) {
 			switch (searchSources.get(0)) {
@@ -252,7 +252,7 @@ public class SearchActivity extends Activity {
 	public void updateSendReceiveFilter() {
 
 		// select the correct type
-		SendReceiveType type = controller.srchGen.getType();
+		SendReceiveType type = searchBuilder.getType();
 		switch (type) {
 		case SENT:
 			sendReceiveRadioGroup.check(R.id.radioSent);
@@ -267,16 +267,16 @@ public class SearchActivity extends Activity {
 	public void updateDates() {
 		
 		// update the dates shown on the buttons
-		beforeButton.setText(dateFormat.format(controller.srchGen.getDateBefore()));
-		afterButton.setText(dateFormat.format(controller.srchGen.getDateAfter()));
-		fromButton.setText(dateFormat.format(controller.srchGen.getDateFrom()));
-		toButton.setText(dateFormat.format(controller.srchGen.getDateTo()));
+		beforeButton.setText(dateFormat.format(searchBuilder.getDateBefore()));
+		afterButton.setText(dateFormat.format(searchBuilder.getDateAfter()));
+		fromButton.setText(dateFormat.format(searchBuilder.getDateFrom()));
+		toButton.setText(dateFormat.format(searchBuilder.getDateTo()));
 	}
 	
 	public void updateTextContacts() {
 		
 		// create and show the list of selected contacts
-		List<Contact> contacts =  controller.srchGen.getContacts();
+		List<Contact> contacts =  searchBuilder.getContacts();
 		StringBuilder listNames = new StringBuilder();
 		listNames.append("Selected contacts: ");
 		if(contacts.size() == 0) {
@@ -352,19 +352,19 @@ public class SearchActivity extends Activity {
 		switch (v.getId()) {
 		case R.id.buttonBefore:
 			pickerButtonId = R.id.buttonBefore;
-			cal.setTime(controller.srchGen.getDateBefore());
+			cal.setTime(searchBuilder.getDateBefore());
 			break;
 		case R.id.buttonAfter:
 			pickerButtonId = R.id.buttonAfter;
-			cal.setTime(controller.srchGen.getDateAfter());
+			cal.setTime(searchBuilder.getDateAfter());
 			break;
 		case R.id.buttonFrom:
 			pickerButtonId = R.id.buttonFrom;
-			cal.setTime(controller.srchGen.getDateFrom());
+			cal.setTime(searchBuilder.getDateFrom());
 			break;
 		case R.id.buttonTo:
 			pickerButtonId = R.id.buttonTo;
-			cal.setTime(controller.srchGen.getDateTo());
+			cal.setTime(searchBuilder.getDateTo());
 			break;
 		default:
 			return;
@@ -375,5 +375,12 @@ public class SearchActivity extends Activity {
 				cal.get(Calendar.DATE));
 		showDialog(DATE_DIALOG_ID);
 	}
+
+	public Search generateSearch() {
+		// TODO This can tell the SearchBuilder to generate the final search,
+		// and pass this search to the model as it's current search
+		return searchBuilder.genSearch();
+	}
+
 
 }
