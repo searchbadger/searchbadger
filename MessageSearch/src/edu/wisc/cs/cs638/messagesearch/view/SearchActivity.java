@@ -52,7 +52,6 @@ public class SearchActivity extends Activity implements SearchGenerator {
 
 	private MessageSearchController controller;
 	private MessageSearchModel model;
-	private SearchBuilder searchBuilder;
 
 	private final SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
 	private int pickerButtonId;
@@ -178,28 +177,28 @@ public class SearchActivity extends Activity implements SearchGenerator {
 	}
 	
 	public Date getDateBefore() {
-		return searchBuilder.getDateBefore();
+		return model.getBeforeDate();
 	}
 	public Date getDateAfter() {
-		return searchBuilder.getDateAfter();
+		return model.getAfterDate();
 	}
 	public Date getDateFrom() {
-		return searchBuilder.getDateFrom();
+		return model.getBeginDate();
 	}
 	public Date getDateTo() {
-		return searchBuilder.getDateTo();
+		return model.getEndDate();
 	}
 	public void setDateBefore(Date date) {
-		searchBuilder.setDateBefore(date);
+		model.setBeforeDate(date);
 	}
 	public void setDateAfter(Date date) {
-		searchBuilder.setDateAfter(date);
+		model.setAfterDate(date);
 	}
 	public void setDateFrom(Date date) {
-		searchBuilder.setDateFrom(date);
+		model.setBeginDate(date);
 	}
 	public void setDateTo(Date date) {
-		searchBuilder.setDateTo(date);
+		model.setEndDate(date);
 	}
 	
 	public int getDatePickerId() {
@@ -230,7 +229,7 @@ public class SearchActivity extends Activity implements SearchGenerator {
 	public void updateContactFilter() {
 
 		// disable/enable the contact filter
-		List<MessageSource> searchSources = searchBuilder.getSearchSources();
+		List<MessageSource> searchSources = model.getSearchSources();
 		boolean enableFilterContact = false;
 		if (searchSources.size() == 1) {
 			switch (searchSources.get(0)) {
@@ -252,7 +251,7 @@ public class SearchActivity extends Activity implements SearchGenerator {
 	public void updateSendReceiveFilter() {
 
 		// select the correct type
-		SendReceiveType type = searchBuilder.getType();
+		SendReceiveType type = model.getType();
 		switch (type) {
 		case SENT:
 			sendReceiveRadioGroup.check(R.id.radioSent);
@@ -267,16 +266,16 @@ public class SearchActivity extends Activity implements SearchGenerator {
 	public void updateDates() {
 		
 		// update the dates shown on the buttons
-		beforeButton.setText(dateFormat.format(searchBuilder.getDateBefore()));
-		afterButton.setText(dateFormat.format(searchBuilder.getDateAfter()));
-		fromButton.setText(dateFormat.format(searchBuilder.getDateFrom()));
-		toButton.setText(dateFormat.format(searchBuilder.getDateTo()));
+		beforeButton.setText(dateFormat.format(model.getBeforeDate()));
+		afterButton.setText(dateFormat.format(model.getAfterDate()));
+		fromButton.setText(dateFormat.format(model.getBeginDate()));
+		toButton.setText(dateFormat.format(model.getEndDate()));
 	}
 	
 	public void updateTextContacts() {
 		
 		// create and show the list of selected contacts
-		List<Contact> contacts =  searchBuilder.getContacts();
+		List<Contact> contacts =  model.getContacts();
 		StringBuilder listNames = new StringBuilder();
 		listNames.append("Selected contacts: ");
 		if(contacts.size() == 0) {
@@ -352,19 +351,19 @@ public class SearchActivity extends Activity implements SearchGenerator {
 		switch (v.getId()) {
 		case R.id.buttonBefore:
 			pickerButtonId = R.id.buttonBefore;
-			cal.setTime(searchBuilder.getDateBefore());
+			cal.setTime(model.getBeforeDate());
 			break;
 		case R.id.buttonAfter:
 			pickerButtonId = R.id.buttonAfter;
-			cal.setTime(searchBuilder.getDateAfter());
+			cal.setTime(model.getAfterDate());
 			break;
 		case R.id.buttonFrom:
 			pickerButtonId = R.id.buttonFrom;
-			cal.setTime(searchBuilder.getDateFrom());
+			cal.setTime(model.getBeginDate());
 			break;
 		case R.id.buttonTo:
 			pickerButtonId = R.id.buttonTo;
-			cal.setTime(searchBuilder.getDateTo());
+			cal.setTime(model.getEndDate());
 			break;
 		default:
 			return;
@@ -377,9 +376,8 @@ public class SearchActivity extends Activity implements SearchGenerator {
 	}
 
 	public Search generateSearch() {
-		// TODO This can tell the SearchBuilder to generate the final search,
-		// and pass this search to the model as it's current search
-		return searchBuilder.genSearch();
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 
