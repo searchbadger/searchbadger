@@ -1,5 +1,6 @@
 package com.github.searchbadger.core;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -17,7 +18,9 @@ import com.github.searchbadger.util.SendReceiveType;
 import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.net.Uri;
+import android.util.Log;
 
 import com.github.searchbadger.R;
 
@@ -28,7 +31,7 @@ public class MessageSearchModel {
 	//private Cursor searchResultCursor;
 	private List<Map<String,String>> searchResults;
 	private List<Message> searchResultMessages;
-	private final static String projectionList[] = {"_id", "thread_id", "address", "person", "date", "body", "type"};
+	private final static String projectionList[] = {"_id", "thread_id", "address", "date", "body", "type"};
 	
 	
 	public static MessageSearchModel getInstance() {
@@ -36,38 +39,35 @@ public class MessageSearchModel {
 	}
 	
 	public void search(Search filter) {
-
+		this._currentSearch = filter;
 		// SMS content provider uri 
 		String url = "content://sms/inbox"; 
 		Uri uri = Uri.parse(url); 
 	
-		String [] selectionArgList = new String[] { "_id", "thread_id", "address", "person", "date", "body", "type" };
+		List<String> selectionArgList = new LinkedList<String>();
 		String selection = "";
 		String arg = "";
 		
 		// Go through each possible search type, and build SQL query
-		if (filter.getText() != null){
-			selection += "body LIKE '%" + filter.getText() + "%'";
-			//arg = "%" + filter.getText() + "&";
-			
-			//selectionArgList.add(arg);
+		if (filter.getText() != null && filter.getText().length() != 0) {
+			selection += "body LIKE ?";
+			arg = DatabaseUtils.sqlEscapeString("'%" + filter.getText() + "%'");
+			selectionArgList.add(arg);
 		}
 		if (filter.getContacts() != null){
 			List<Contact> contacts = filter.getContacts();
 			Iterator<Contact> iter = contacts.iterator();
 			
 			if (selection.length() > 0)
-				selection += "AND";
+				selection += " AND ";
 				
 			selection += "(";
 			while (iter.hasNext()){
 				Contact c = iter.next();
-				selection += "address = " + ((Long)c.getId()).toString();
-				selection += "person = " + c.getName();
+				selection += "address = ?";
+				arg = ((Long)c.getId()).toString();
+				selectionArgList.add(arg);
 				if (iter.hasNext()) selection += " OR ";
-				//arg = ((Integer)c.getId()).toString();
-				
-				//selectionArgList.add(arg);
 			}
 			selection += ")";
 			
@@ -75,30 +75,30 @@ public class MessageSearchModel {
 		
 		if (filter.getBegin() != null){
 			if (selection.length() > 0)
-				selection += "AND";
+				selection += " AND ";
 			
-			selection += "date >= " + filter.getBegin().toString();
-			//arg = filter.getBegin().toString();
+			selection += "date >= ?";
+			arg = ((Long)(filter.getBegin().getTime())).toString();
 			
-			//selectionArgList.add(arg);
+			selectionArgList.add(arg);
 		}
 		
 		if (filter.getEnd() != null){
 			if (selection.length() > 0)
-				selection += "AND";
+				selection += " AND ";
 			
-			selection += "date <= " + filter.getBegin().toString();
-			//arg = filter.getBegin().toString();
+			selection += "date <= ?";
+			arg = ((Long)(filter.getEnd().getTime())).toString();
 			
-			//selectionArgList.add(arg);
+			selectionArgList.add(arg);
 		}
-		
+		/*
 		if (filter.getType() != null){
 			
 			//TODO: Figure out what the types are actually supposed to be. probably not "sent" and "received"
 			if (filter.getType()==SendReceiveType.SENT) {
 				if (selection.length() > 0)
-					selection += "AND";
+					selection += " AND ";
 				selection += "type = " + "sent";
 			}
 			else if (filter.getType()==SendReceiveType.RECEIVED) {
@@ -110,14 +110,14 @@ public class MessageSearchModel {
 			
 			//selectionArgList.add(arg);
 		}
-		
+		*/
 		// Make query to content provider and store cursor to table returned
-		//searchResultCursor = Activity.managedQuery(uri, projectionList, selection, selectionArgArray, "");
-		Cursor searchResultCursor = MessageSearchApplication.getAppContext().getContentResolver().query(uri, projectionList, selection, null, "date DESC");
+		String[] selectionArgsArray = new String[selectionArgList.size()];
+		selectionArgList.toArray(selectionArgsArray);
+		Cursor searchResultCursor = MessageSearchApplication.getAppContext().getContentResolver().query(uri, projectionList, selection, selectionArgsArray, "date DESC");
 		
 		searchResults = new ArrayList<Map<String,String>>();
 		searchResultMessages = new ArrayList<Message>();
-
 		if (searchResultCursor != null) {
 			try {
 				int count = searchResultCursor.getCount();
@@ -125,11 +125,11 @@ public class MessageSearchModel {
 					searchResultCursor.moveToFirst();
 					do {
 
-						// String[] columns = cursor.getColumnNames();
-						// for (int i=0; i<columns.length; i++) {
-						// Log.v("columns " + i + ": " + columns[i] + ": "
-						// + cursor.getString(i));
-						// }
+						String[] columns = searchResultCursor.getColumnNames();
+						for (int i=0; i<columns.length; i++) {
+						Log.v("SearchBadger","columns " + i + ": " + columns[i] + ": "
+								+ searchResultCursor.getString(i));
+						}
 
 						long messageId = searchResultCursor.getLong(0);
 						long threadId = searchResultCursor.getLong(1);
@@ -138,17 +138,18 @@ public class MessageSearchModel {
 						String contactId_string = String.valueOf(contactId);
 						long timestamp = searchResultCursor.getLong(4);
 						String body = searchResultCursor.getString(5);
-
+						
 						Contact c = new Contact(contactId, MessageSource.SMS,
 								contactId_string, null);
-
-						Message msg = new Message(c, messageId, threadId, body,
-								false);
+						
+						Message msg = new Message(c, messageId, threadId, new Date (timestamp),
+								body, false);
 						searchResultMessages.add(msg);
 
 						HashMap<String, String> map = new HashMap<String, String>();
 						map.put("Message", body);
-						map.put("Time", ((Long) timestamp).toString());
+						String date = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss").format(new Date (timestamp));
+						map.put("Date", date);
 						map.put("FromAddress", address);
 						map.put("ID", ((Long) messageId).toString());
 						map.put("ThreadID", ((Long) threadId).toString());
@@ -164,21 +165,16 @@ public class MessageSearchModel {
 
 	}
 	
-	public List<Map<String,String>> getSearchResults() {
+	public List<Map<String,String>> getSearchResultsMap() {
 		return searchResults;
 	}
 	
-	public List<Message> getSearchResultMessages() {
+	public List<Message> getSearchResults() {
 		return searchResultMessages;
 	}
 	
 	public Search getCurrentSearch() {
 		return _currentSearch;
-	}
-	
-	public void setCurrentSearch(Search srch) {
-		_currentSearch = srch;
-		// TODO: this should probably also add the search to the recent searches database...
 	}
 	
 	/*
@@ -189,7 +185,6 @@ public class MessageSearchModel {
 	 * even if the user shuts off their phone
 	 */
 	public List<Search> getRecentSearches() {
-		
 		return null;
 	}
 	
@@ -219,6 +214,13 @@ public class MessageSearchModel {
 	 * class for SMSSearch or other search type
 	 */
 	public List<Message> getThread(Message msg) {
+		return null;
+	}
+	
+	/*
+	 * Given a message source this gets the contacts for that source.§
+	 */
+	public List<Contact> getContacts(MessageSource source) {
 		return null;
 	}
 	
