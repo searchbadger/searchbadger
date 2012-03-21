@@ -13,7 +13,8 @@
 
     <application
         android:icon="@drawable/ic_launcher"
-        android:label="@string/app_name" >
+        android:label="@string/app_name"
+        android:name=".core.MessageSearchApplication" >
         
         
         <activity android:name=".view.SearchActivity">
