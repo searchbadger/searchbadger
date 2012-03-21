@@ -169,6 +169,11 @@ public class SearchActivity extends Activity implements SearchGenerator {
 		toggleFilterDate();
 		toggleFilterContacts();
 		toggleFilterSentReceived();
+		
+		beforeDate = new Date();
+		afterDate = new Date();
+		fromDate = new Date();
+		toDate = new Date();
 		updateDateButtons();
 	}
 
@@ -307,10 +312,10 @@ public class SearchActivity extends Activity implements SearchGenerator {
 	 * to match the date picked
 	 */
 	public void updateDateButtons() {
-		beforeButton.setText(beforeDate.toString());
-		afterButton.setText(afterDate.toString());
-		fromButton.setText(fromDate.toString());
-		toButton.setText(toDate.toString());
+		beforeButton.setText(dateFormat.format(beforeDate));
+		afterButton.setText(dateFormat.format(afterDate));
+		fromButton.setText(dateFormat.format(fromDate));
+		toButton.setText(dateFormat.format(toDate));
 	}
 
 
