@@ -38,5 +38,9 @@ public class MainTabActivity extends TabActivity {
 	        tabHost.addTab(spec);
 
 	        tabHost.setCurrentTab(0);
+	        
+	        // TODO Disable tabs
+	        tabHost.getTabWidget().getChildTabViewAt(1).setEnabled(false);
+	        tabHost.getTabWidget().getChildTabViewAt(2).setEnabled(false);
 	    }
 }
