@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="hello">Hello, Android! I am a string resource!</string>
-    <string name="app_name">Message Search</string>
+    <string name="app_name">Search Badger</string>
     <string name="search">Search</string>
     <string name="symbol_pound">#</string>
     <string name="symbol_star">*</string>
