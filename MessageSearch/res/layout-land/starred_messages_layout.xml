@@ -5,7 +5,7 @@
     android:orientation="horizontal" >
 
     <fragment
-        class="edu.wisc.cs.cs638.messagesearch.view.StarredMessagesListFragment"
+        class="com.github.searchbadger.view.StarredMessagesListFragment"
         android:id="@+id/message_list"
         android:layout_width="0px"
         android:layout_height="fill_parent"
