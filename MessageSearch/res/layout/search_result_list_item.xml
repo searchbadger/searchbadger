@@ -13,6 +13,7 @@
         android:paddingLeft="5dp"
         android:checked="false"
         android:focusable="false"
+        android:visibility="gone"
         android:text="" >
     </CheckBox>
 
