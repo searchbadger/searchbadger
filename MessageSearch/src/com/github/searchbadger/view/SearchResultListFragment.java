@@ -32,29 +32,7 @@ public class SearchResultListFragment extends ListFragment {
 		
 		super.onCreate(savedInstanceState);
 
-
-		
-		// sample code
-		/*List<Map<String, String>> dataList = new ArrayList<Map<String, String>>();
-
-		HashMap<String, String> dataMap;
-
-		dataMap = new HashMap<String, String>();
-		dataMap.put("Date", "12/25/2009\n11:00 AM");
-		dataMap.put("Message", "This is a test message");
-		dataList.add(dataMap);
-
-		dataMap = new HashMap<String, String>();
-		dataMap.put("Date", "1/1/2010\n11:00 AM");
-		dataMap.put("Message", "This is yet another test message");
-		dataList.add(dataMap);
-		
-		dataMap = new HashMap<String, String>();
-		dataMap.put("Date", "1/1/2010\n11:00 AM");
-		dataMap.put("Message", "This is a very very very very very very very very very very very very very long message");
-		dataList.add(dataMap);*/
-		
-		List<Map<String,String>> results = model.getSearchResults();
+		List<Map<String,String>> results = model.getSearchResultsMap();
 
 		SimpleAdapter adapter = new SimpleAdapter(getActivity(), results,
 				R.layout.search_result_list_item, new String[] { "Message",
@@ -62,37 +40,13 @@ public class SearchResultListFragment extends ListFragment {
 						R.id.search_result_date });
 
 		setListAdapter(adapter);
-		
+
 		/*Cursor resultCursor = model.getResultCursor();
 		CursorAdapter resultsAdapter = new SimpleCursorAdapter(getActivity(), 
 				R.layout.search_result_list_item,
 				resultCursor,new String[] { "Message", "Date" }, 
 				new int[] { R.id.search_result_text, R.id.search_result_date });
 		setListAdapter(resultsAdapter);*/
-		
-	
-		/*
-		// Check to see if we have a frame in which to embed the details
-        // fragment directly in the containing UI.
-        View threadFrame = getActivity().findViewById(R.id.thread_view);
-        mDualPane = threadFrame != null && threadFrame.getVisibility() == View.VISIBLE;
-
-        if (savedInstanceState != null) {
-            // Restore last state for checked position.
-            mCurCheckPosition = savedInstanceState.getInt("curChoice", 0);
-        }
-
-        if (mDualPane) {
-            // In dual-pane mode, the list view highlights the selected item.
-            getListView().setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-            
-            
-            // Make sure our UI is in the correct state.
-            showDetails(mCurCheckPosition);
-        }
-        
-        */
-
 	}
 	
 
