@@ -27,6 +27,7 @@ import com.github.searchbadger.util.Contact;
 import com.github.searchbadger.util.MessageSource;
 import com.github.searchbadger.util.Search;
 import com.github.searchbadger.util.SearchGenerator;
+import com.github.searchbadger.util.SelectedContacts;
 import com.github.searchbadger.util.SendReceiveType;
 
 public class SearchActivity extends Activity implements SearchGenerator {
@@ -446,8 +447,7 @@ public class SearchActivity extends Activity implements SearchGenerator {
 		// get selectedContacts
 		contacts = null;
 		if (checkBoxFilterContacts.isChecked()) {
-			
-			
+			contacts = SelectedContacts.getInstance().getSelectedContacts();			
 		}
 
 		// get type

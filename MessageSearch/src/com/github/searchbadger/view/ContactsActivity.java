@@ -58,7 +58,7 @@ public class ContactsActivity extends Activity {
 
 		// set the correct list adapter for the search type
 		switch (sources[0]) {
-		case 0: // TODO
+		case 0: // TODO how do you convert enums to ints?
 			adapter = getListAdapterSMS();
 			break;
 
