@@ -27,6 +27,7 @@ public class MessageSearchModel {
 	
 	//private Cursor searchResultCursor;
 	private List<Map<String,String>> searchResults;
+	private List<Message> searchResultMessages;
 	private final static String projectionList[] = {"_id", "person", "date", "body"};
 	
 	
@@ -115,6 +116,7 @@ public class MessageSearchModel {
 		Cursor searchResultCursor = MessageSearchApplication.getAppContext().getContentResolver().query(uri, projectionList, selection, selectionArgList, "date DESC");
 		
 		searchResults = new ArrayList<Map<String,String>>();
+		searchResultMessages = new ArrayList<Message>();
 		
 		if (searchResultCursor != null) {
             try {
@@ -139,6 +141,7 @@ public class MessageSearchModel {
                             Contact c = new Contact(contactId, MessageSource.SMS, contactId_string, null);
 
                             Message msg = new Message(c, messageId, threadId, body, false);
+                            searchResultMessages.add(msg);
                             
                             HashMap<String, String> map = new HashMap<String,String>();
                             map.put("Message", body);
@@ -159,6 +162,10 @@ public class MessageSearchModel {
 	
 	public List<Map<String,String>> getSearchResults() {
 		return searchResults;
+	}
+	
+	public List<Message> getSearchResultMessages() {
+		return searchResultMessages;
 	}
 	
 	public Search getCurrentSearch() {
