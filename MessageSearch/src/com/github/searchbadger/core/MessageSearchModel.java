@@ -2,9 +2,11 @@ package com.github.searchbadger.core;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import com.github.searchbadger.util.Contact;
 import com.github.searchbadger.util.Message;
@@ -23,7 +25,8 @@ public class MessageSearchModel {
 	private final static MessageSearchModel instance = new MessageSearchModel();
 	private Search _currentSearch;
 	
-	private Cursor searchResultCursor;
+	//private Cursor searchResultCursor;
+	private List<Map<String,String>> searchResults;
 	private final static String projectionList[] = {"_id", "person", "date", "body"};
 	
 	
@@ -37,32 +40,33 @@ public class MessageSearchModel {
 		String url = "content://sms/inbox"; 
 		Uri uri = Uri.parse(url); 
 	
-		ArrayList<String> selectionArgList = new ArrayList<String>();
-		
+		String [] selectionArgList = new String[] { "_id", "thread_id", "address", "person", "date", "body", "type" };
 		String selection = "";
 		String arg = "";
 		
 		// Go through each possible search type, and build SQL query
 		if (filter.getText() != null){
-			selection += "body LIKE ?";
-			arg = "%" + filter.getText() + "&";
+			selection += "body LIKE '%" + filter.getText() + "%'";
+			//arg = "%" + filter.getText() + "&";
 			
-			selectionArgList.add(arg);
+			//selectionArgList.add(arg);
 		}
 		if (filter.getContacts() != null){
 			List<Contact> contacts = filter.getContacts();
 			Iterator<Contact> iter = contacts.iterator();
 			
 			if (selection.length() > 0)
-				selection += "and";
+				selection += "AND";
 				
 			selection += "(";
 			while (iter.hasNext()){
 				Contact c = iter.next();
-				selection += "person = ?";
-				arg = c.getName();
+				selection += "address = " + ((Long)c.getId()).toString();
+				selection += "person = " + c.getName();
+				if (iter.hasNext()) selection += " OR ";
+				//arg = ((Integer)c.getId()).toString();
 				
-				selectionArgList.add(arg);
+				//selectionArgList.add(arg);
 			}
 			selection += ")";
 			
@@ -70,33 +74,91 @@ public class MessageSearchModel {
 		
 		if (filter.getBegin() != null){
 			if (selection.length() > 0)
-				selection += "and";
+				selection += "AND";
 			
-			selection += "date >= ?";
-			arg = filter.getBegin().toString();
+			selection += "date >= " + filter.getBegin().toString();
+			//arg = filter.getBegin().toString();
 			
-			selectionArgList.add(arg);
+			//selectionArgList.add(arg);
 		}
 		
 		if (filter.getEnd() != null){
 			if (selection.length() > 0)
-				selection += "and";
+				selection += "AND";
 			
-			selection += "date <= ?";
-			arg = filter.getBegin().toString();
+			selection += "date <= " + filter.getBegin().toString();
+			//arg = filter.getBegin().toString();
 			
-			selectionArgList.add(arg);
+			//selectionArgList.add(arg);
 		}
 		
-		String[] selectionArgArray = selectionArgList.toArray(new String[selectionArgList.size()]);
+		if (filter.getType() != null){
+			
+			//TODO: Figure out what the types are actually supposed to be. probably not "sent" and "received"
+			if (filter.getType()==SendReceiveType.SENT) {
+				if (selection.length() > 0)
+					selection += "AND";
+				selection += "type = " + "sent";
+			}
+			else if (filter.getType()==SendReceiveType.RECEIVED) {
+				if (selection.length() > 0)
+					selection += "AND";
+				selection += "type = " + "received";
+			}
+			//arg = filter.getBegin().toString();
+			
+			//selectionArgList.add(arg);
+		}
 		
 		// Make query to content provider and store cursor to table returned
-		searchResultCursor = Activity.managedQuery(uri, projectionList, selection, selectionArgArray, "");
+		//searchResultCursor = Activity.managedQuery(uri, projectionList, selection, selectionArgArray, "");
+		Cursor searchResultCursor = MessageSearchApplication.getAppContext().getContentResolver().query(uri, projectionList, selection, selectionArgList, "date DESC");
+		
+		searchResults = new ArrayList<Map<String,String>>();
+		
+		if (searchResultCursor != null) {
+            try {
+                    int count = searchResultCursor.getCount();
+                    if (count > 0) {
+                    	searchResultCursor.moveToFirst();
+
+//                          String[] columns = cursor.getColumnNames();
+//                          for (int i=0; i<columns.length; i++) {
+//                                  Log.v("columns " + i + ": " + columns[i] + ": "
+//                                                  + cursor.getString(i));
+//                          }
+
+                            long messageId = searchResultCursor.getLong(0);
+                            long threadId = searchResultCursor.getLong(1);
+                            String address = searchResultCursor.getString(2);
+                            long contactId = searchResultCursor.getLong(3);
+                            String contactId_string = String.valueOf(contactId);
+                            long timestamp = searchResultCursor.getLong(4);
+                            String body = searchResultCursor.getString(5);
+                            
+                            Contact c = new Contact(contactId, MessageSource.SMS, contactId_string, null);
+
+                            Message msg = new Message(c, messageId, threadId, body, false);
+                            
+                            HashMap<String, String> map = new HashMap<String,String>();
+                            map.put("Message", body);
+                            map.put("Time", ((Long)timestamp).toString());
+                            map.put("FromAddress", address);
+                            map.put("ID", ((Long)messageId).toString());
+                            map.put("ThreadID", ((Long)threadId).toString());
+                            map.put("ContactID", contactId_string);
+                            searchResults.add(map);
+
+                    }
+            } finally {
+                    searchResultCursor.close();
+            }
+    }          
 
 	}
 	
-	public Cursor getResultCursor() {
-		return searchResultCursor;
+	public List<Map<String,String>> getSearchResults() {
+		return searchResults;
 	}
 	
 	public Search getCurrentSearch() {

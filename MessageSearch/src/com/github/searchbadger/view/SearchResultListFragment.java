@@ -52,24 +52,23 @@ public class SearchResultListFragment extends ListFragment {
 		dataMap = new HashMap<String, String>();
 		dataMap.put("Date", "1/1/2010\n11:00 AM");
 		dataMap.put("Message", "This is a very very very very very very very very very very very very very long message");
-		dataList.add(dataMap);
+		dataList.add(dataMap);*/
 		
+		List<Map<String,String>> results = model.getSearchResults();
 
-		SimpleAdapter adapter = new SimpleAdapter(getActivity(), dataList,
+		SimpleAdapter adapter = new SimpleAdapter(getActivity(), results,
 				R.layout.search_result_list_item, new String[] { "Message",
 						"Date" }, new int[] { R.id.search_result_text,
 						R.id.search_result_date });
 
-		setListAdapter(adapter);*/
+		setListAdapter(adapter);
 		
-		//TODO: cursor code
-		
-		Cursor resultCursor = model.getResultCursor();
+		/*Cursor resultCursor = model.getResultCursor();
 		CursorAdapter resultsAdapter = new SimpleCursorAdapter(getActivity(), 
 				R.layout.search_result_list_item,
 				resultCursor,new String[] { "Message", "Date" }, 
 				new int[] { R.id.search_result_text, R.id.search_result_date });
-		setListAdapter(resultsAdapter);
+		setListAdapter(resultsAdapter);*/
 		
 	
 		/*

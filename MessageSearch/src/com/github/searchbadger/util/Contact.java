@@ -3,19 +3,19 @@ package com.github.searchbadger.util;
 import android.graphics.Bitmap;
 
 public class Contact {
-	private final int id;
+	private final long id;
 	private final MessageSource source;
 	private final String name;
 	private final Bitmap picture;
 
-	public Contact(int id, MessageSource source, String name, Bitmap picture) {
+	public Contact(long id, MessageSource source, String name, Bitmap picture) {
 		this.id = id;
 		this.source = source;
 		this.name = name;
 		this.picture = picture;
 	}
 
-	public int getId() {
+	public long getId() {
 		return id;
 	}
 
