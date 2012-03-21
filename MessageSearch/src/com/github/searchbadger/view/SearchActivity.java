@@ -169,10 +169,7 @@ public class SearchActivity extends Activity implements SearchGenerator {
 		toggleFilterDate();
 		toggleFilterContacts();
 		toggleFilterSentReceived();
-		// XXX updateContactFilter();
-		// XXX updateSendReceiveFilter();
 		updateDateButtons();
-
 	}
 
 	@Override
@@ -208,11 +205,6 @@ public class SearchActivity extends Activity implements SearchGenerator {
 		else
 			layoutFilterDate.setVisibility(View.GONE);
 	}
-
-
-
-
-
 
 	public void insertTextSymbol(View v) {
 
@@ -295,183 +287,7 @@ public class SearchActivity extends Activity implements SearchGenerator {
 				cal.get(Calendar.DATE));
 		showDialog(DATE_DIALOG_ID);
 	}
-
-	//	public class ContactSelector implements View.OnClickListener {
-	//		public void onClick(View v) {
-	//
-	//			// get the contact object
-	//			if (!(v.getParent() instanceof View))
-	//				return;
-	//			View parentView = (View) v.getParent();
-	//			if (!(parentView.getTag() instanceof Contact))
-	//				return;
-	//			Contact contact = (Contact) parentView.getTag();
-	//
-	//			// add/remove contact
-	//			if (!(v instanceof CheckBox))
-	//				return;
-	//			CheckBox checkbox = (CheckBox) v;
-	//			// TODO remove this
-	//			if (checkbox.isChecked())
-	//				model.addContact(contact);
-	//			else
-	//				model.removeContact(contact);
-	//
-	//			// TODO remove this
-	//			Toast.makeText(v.getContext(), model.getContacts().toString(),
-	//					Toast.LENGTH_SHORT).show();
-	//		}
-	//	}
-	//
-	//	public class SearchSourceSelected implements View.OnClickListener {
-	//
-	//		private SearchActivity searchActiviy;
-	//
-	//		public SearchSourceSelected(SearchActivity activity) {
-	//			searchActiviy = activity;
-	//		}
-	//
-	//		public void onClick(View v) {
-	//			if (!(v instanceof ToggleButton))
-	//				return;
-	//			ToggleButton button = (ToggleButton) v;
-	//
-	//			// determine the search type
-	//			MessageSource searchSource = null;
-	//			switch (v.getId()) {
-	//			case R.id.toggleButtonTypeSMS:
-	//				searchSource = MessageSource.SMS;
-	//				break;
-	//			case R.id.toggleButtonTypeFacebook:
-	//				searchSource = MessageSource.FACEBOOK;
-	//				break;
-	//			case R.id.toggleButtonTypeTwitter:
-	//				searchSource = MessageSource.TWITTER;
-	//				break;
-	//			case R.id.toggleButtonTypeStar:
-	//				searchSource = MessageSource.STARRED;
-	//				break;
-	//			}
-	//			// TODO: remove this
-	//			// add/remove search type
-	//			if (button.isChecked())
-	//				model.addSearchSource(searchSource);
-	//			else
-	//				model.removeSearchSource(searchSource);
-	//
-	//
-	//			// disable/enable the contact filter
-	//			searchActiviy.updateContactFilter();
-	//
-	//			// TODO remove this
-	//			List<MessageSource> searchSources = model.getSearchSources();
-	//			Toast.makeText(v.getContext(), searchSources.toString(),
-	//					Toast.LENGTH_SHORT).show();
-	//		}
-	//	}
-	//
-	//	public class SendReceiveTypeSelected implements RadioGroup.OnCheckedChangeListener {
-	//		public void onCheckedChanged(RadioGroup group, int selectedId) {
-	//
-	//			// set the send/receive type
-	//			switch (selectedId) {
-	//			case R.id.radioSent:
-	//				model.setType(SendReceiveType.SENT);
-	//				break;
-	//
-	//			case R.id.radioReceived:
-	//				model.setType(SendReceiveType.RECEIVED);
-	//				break;
-	//			}
-	//
-	//		}
-	//	}
-	//
-	//	public class DateRangeSelected implements RadioGroup.OnCheckedChangeListener {
-	//
-	//		private SearchActivity searchActiviy;
-	//
-	//		public DateRangeSelected(SearchActivity activity){
-	//			searchActiviy = activity;
-	//		}
-	//
-	//		public void onCheckedChanged(RadioGroup group, int selectedId) {
-	//
-	//			// return if this is a clear check
-	//			if(selectedId == -1) return;
-	//
-	//			// set the default begin and end date to be today
-	//			Calendar cal = Calendar.getInstance();
-	//			Date beginDate = new Date();
-	//			Date endDate = new Date();
-	//			beginDate.setHours(0);
-	//			beginDate.setMinutes(0);
-	//			beginDate.setSeconds(0);
-	//			endDate.setHours(23);
-	//			endDate.setMinutes(59);
-	//			endDate.setSeconds(59);
-	//
-	//			// set the begin and end date
-	//			switch (selectedId) {
-	//			case R.id.radioToday:
-	//				break;
-	//
-	//			case R.id.radioYesterday:
-	//				cal.setTime(beginDate);
-	//				cal.add(Calendar.DATE, -1);
-	//				beginDate = cal.getTime();
-	//				break;
-	//
-	//			case R.id.radioPaskWeek:
-	//				cal.setTime(beginDate);
-	//				cal.add(Calendar.DATE, -7);
-	//				beginDate = cal.getTime();
-	//				break;
-	//
-	//			case R.id.radioPastMonth:
-	//				cal.setTime(beginDate);
-	//				cal.add(Calendar.DATE, beginDate.getDate() * -1 + 1);
-	//				beginDate = cal.getTime();
-	//				break;
-	//
-	//			case R.id.radioBefore:
-	//				beginDate = null;
-	//				endDate = searchActiviy.getDateBefore();
-	//				endDate.setHours(23);
-	//				endDate.setMinutes(59);
-	//				endDate.setSeconds(59);
-	//				break;
-	//
-	//			case R.id.radioAfter:
-	//				beginDate = searchActiviy.getDateAfter();
-	//				endDate = null;
-	//				beginDate.setHours(0);
-	//				beginDate.setMinutes(0);
-	//				beginDate.setSeconds(0);
-	//				break;
-	//
-	//			case R.id.radioFrom:
-	//				beginDate = searchActiviy.getDateFrom();
-	//				endDate = searchActiviy.getDateTo();
-	//				beginDate.setHours(0);
-	//				beginDate.setMinutes(0);
-	//				beginDate.setSeconds(0);
-	//				endDate.setHours(23);
-	//				endDate.setMinutes(59);
-	//				endDate.setSeconds(59);
-	//				break;
-	//
-	//			default:
-	//				return;
-	//			}
-	//
-	//			// update the model
-	//			model.setBeginDate(beginDate);
-	//			model.setEndDate(endDate);
-	//
-	//		}
-	//	}
-	//
+	
 	//the callback received when the user sets the date in the dialog
 
 	public void setDateBefore(Date date) {
@@ -556,45 +372,52 @@ public class SearchActivity extends Activity implements SearchGenerator {
 
 		// get text
 		text = searchInputText.getText().toString();
-
+		
+		Calendar cal = Calendar.getInstance();
 		// get begin date
 		// get end date
 		if (checkBoxFilterDate.isChecked()) {
 			switch (radioGroupDate.getCheckedRadioButtonId()) {
 			case R.id.radioToday:
-				//begin.set
+				begin = cal.getTime();
+				end = cal.getTime();
 				break;
 			case R.id.radioYesterday:
-				
+				cal.add(Calendar.DAY_OF_YEAR, -1);
+				begin = cal.getTime();
+				end = cal.getTime();
 				break;
 				
 			case R.id.radioPaskWeek:
-				
+				end = cal.getTime();
+				cal.add(Calendar.DAY_OF_YEAR, -7);
+				begin = cal.getTime();
 				break;
 				
 			case R.id.radioPastMonth:
-				
+				end = cal.getTime();
+				cal.add(Calendar.MONTH, -1);
+				begin = cal.getTime();
 				break;
 				
 			case R.id.radioBefore:
-				
+				end = this.beforeDate;
+				begin = null;
 				break;
 				
 			case R.id.radioAfter:
-				
+				begin = this.afterDate;
+				end = null;
 				break;
 				
 			case R.id.radioFrom:
-				
+				begin = this.fromDate;
+				end = this.toDate;
 				break;
-				
-				// TODO: is R.id. missing a radioTo ??
-			//case R.id.
-				
-				default:
-					
-					break;
-				
+			default:
+				begin = null;
+				end = null;
+				break;
 			}
 		} else {
 			begin = null;
@@ -603,6 +426,9 @@ public class SearchActivity extends Activity implements SearchGenerator {
 
 		// get sources
 		sources = getMessageSources();
+		
+		// get contacts
+		contacts = null;
 
 		// get type
 		if (checkBoxFilterSentReceived.isChecked()) {
@@ -623,8 +449,7 @@ public class SearchActivity extends Activity implements SearchGenerator {
 		}
 
 
-		Search search = new Search(text, begin, end, sources, contacts, type);
-		return null;
+		return new Search(text, begin, end, sources, contacts, type);
 	}
 
 	public List<MessageSource> getMessageSources() {
