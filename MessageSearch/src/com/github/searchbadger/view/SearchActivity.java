@@ -1,11 +1,13 @@
 package com.github.searchbadger.view;
 
-import java.text.*;
-import java.util.*;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 import android.app.Activity;
 import android.app.DatePickerDialog;
-import android.app.DatePickerDialog.OnDateSetListener;
 import android.app.Dialog;
 import android.os.Bundle;
 import android.view.View;
@@ -16,12 +18,16 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.ToggleButton;
 
-import com.github.searchbadger.core.*;
-import com.github.searchbadger.util.*;
 import com.github.searchbadger.R;
+import com.github.searchbadger.core.MessageSearchController;
+import com.github.searchbadger.core.MessageSearchModel;
+import com.github.searchbadger.util.Contact;
+import com.github.searchbadger.util.MessageSource;
+import com.github.searchbadger.util.Search;
+import com.github.searchbadger.util.SearchGenerator;
+import com.github.searchbadger.util.SendReceiveType;
 
 public class SearchActivity extends Activity implements SearchGenerator {
 
@@ -61,6 +67,7 @@ public class SearchActivity extends Activity implements SearchGenerator {
 	private Date afterDate;
 	private Date fromDate;
 	private Date toDate;
+	
 
 
 	/** Called when the activity is first created. */
@@ -436,8 +443,12 @@ public class SearchActivity extends Activity implements SearchGenerator {
 		// get sources
 		sources = getMessageSources();
 		
-		// get contacts
+		// get selectedContacts
 		contacts = null;
+		if (checkBoxFilterContacts.isChecked()) {
+			
+			
+		}
 
 		// get type
 		if (checkBoxFilterSentReceived.isChecked()) {
@@ -483,4 +494,6 @@ public class SearchActivity extends Activity implements SearchGenerator {
 	}
 
 
+
+	
 }
