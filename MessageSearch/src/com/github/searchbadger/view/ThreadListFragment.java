@@ -14,7 +14,7 @@ import android.view.ViewGroup;
 import android.widget.ScrollView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
-import edu.wisc.cs.cs638.messagesearch.R;
+import com.github.searchbadger.R;
 
 public class ThreadListFragment extends ListFragment {
 

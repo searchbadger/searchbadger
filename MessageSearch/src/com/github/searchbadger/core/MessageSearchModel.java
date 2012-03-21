@@ -1,6 +1,5 @@
 package com.github.searchbadger.core;
 
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -13,13 +12,12 @@ import com.github.searchbadger.util.MessageSource;
 import com.github.searchbadger.util.Search;
 import com.github.searchbadger.util.SendReceiveType;
 
-
 import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 
-
+import com.github.searchbadger.R;
 
 public class MessageSearchModel {
 	private final static MessageSearchModel instance = new MessageSearchModel();

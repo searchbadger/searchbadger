@@ -6,7 +6,7 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.widget.TabHost;
-import edu.wisc.cs.cs638.messagesearch.R;
+import com.github.searchbadger.R;
 
 public class MainTabActivity extends TabActivity {
 	  @Override

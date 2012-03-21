@@ -2,7 +2,7 @@ package com.github.searchbadger.view;
 
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import edu.wisc.cs.cs638.messagesearch.R;
+import com.github.searchbadger.R;
 
 public class SearchResultActivity extends FragmentActivity {
 	

@@ -18,7 +18,8 @@ import android.widget.CursorAdapter;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.SimpleCursorAdapter;
-import edu.wisc.cs.cs638.messagesearch.R;
+
+import com.github.searchbadger.R;
 
 public class SearchResultListFragment extends ListFragment {
 

@@ -12,7 +12,7 @@ import android.support.v4.app.ListFragment;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
-import edu.wisc.cs.cs638.messagesearch.R;
+import com.github.searchbadger.R;
 
 public class StarredMessagesListFragment extends ListFragment {
 

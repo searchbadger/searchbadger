@@ -17,7 +17,7 @@ import android.widget.DatePicker;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 import android.widget.ToggleButton;
-import edu.wisc.cs.cs638.messagesearch.*;
+import com.github.searchbadger.R;
 
 public class MessageSearchController {
 	private static final MessageSearchController instance = 

@@ -1,6 +1,6 @@
 package com.github.searchbadger.view;
 
-import edu.wisc.cs.cs638.messagesearch.R;
+import com.github.searchbadger.R;
 import android.app.Activity;
 import android.os.Bundle;
 

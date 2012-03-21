@@ -1,15 +1,7 @@
 package com.github.searchbadger.view;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-
-import com.github.searchbadger.core.*;
-import com.github.searchbadger.util.*;
-
+import java.text.*;
+import java.util.*;
 
 import android.app.Activity;
 import android.app.DatePickerDialog;
@@ -26,7 +18,10 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
-import edu.wisc.cs.cs638.messagesearch.*;
+
+import com.github.searchbadger.core.*;
+import com.github.searchbadger.util.*;
+import com.github.searchbadger.R;
 
 public class SearchActivity extends Activity implements SearchGenerator {
 
@@ -567,7 +562,7 @@ public class SearchActivity extends Activity implements SearchGenerator {
 		if (checkBoxFilterDate.isChecked()) {
 			switch (radioGroupDate.getCheckedRadioButtonId()) {
 			case R.id.radioToday:
-				
+				//begin.set
 				break;
 			case R.id.radioYesterday:
 				

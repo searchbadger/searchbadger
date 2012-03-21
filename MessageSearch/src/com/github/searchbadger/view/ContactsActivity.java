@@ -20,7 +20,7 @@ import android.widget.CheckBox;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
-import edu.wisc.cs.cs638.messagesearch.R;
+import com.github.searchbadger.R;
 
 public class ContactsActivity extends Activity {
 
