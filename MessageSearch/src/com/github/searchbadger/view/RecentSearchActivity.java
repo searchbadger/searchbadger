@@ -8,7 +8,7 @@ import java.util.Map;
 import android.app.ListActivity;
 import android.os.Bundle;
 import android.widget.SimpleAdapter;
-import edu.wisc.cs.cs638.messagesearch.R;
+import com.github.searchbadger.*;
 
 public class RecentSearchActivity extends ListActivity {
 
