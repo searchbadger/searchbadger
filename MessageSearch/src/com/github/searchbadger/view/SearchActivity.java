@@ -71,8 +71,12 @@ public class SearchActivity extends Activity implements SearchGenerator {
 
 		model = MessageSearchModel.getInstance();
 		controller = MessageSearchController.getInstance();
-
-		pickerDate = new DatePickerDialog(this, this.new DatePickerSelected(this), 0, 0, 0);
+		
+		/* Android 2.3 DatePickerDiaglog cannot handle the original date passed
+		 *  to its constructor being all zeros, while the ICS (4.0) DatePickerDialog
+		 *  can.  So, we now pass in a date of February 1, 2012. 
+		 */
+		pickerDate = new DatePickerDialog(this, this.new DatePickerSelected(this), 2012, 1, 1);
 
 		layoutFilterDate = (LinearLayout) findViewById(R.id.linearFilterDateOptions);
 		layoutFilterContacts = (LinearLayout) findViewById(R.id.linearFilterContactsOptions);
