@@ -1,17 +1,31 @@
 package com.github.searchbadger.view.test;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import junit.framework.TestCase;
+import android.content.ContentProviderOperation;
+import android.content.ContentProviderResult;
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.OperationApplicationException;
+import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
+import android.os.RemoteException;
+import android.provider.ContactsContract;
+import android.provider.ContactsContract.Contacts;
+import android.provider.ContactsContract.RawContacts;
+import android.util.Log;
 
 import com.github.searchbadger.core.MessageSearchApplication;
 import com.github.searchbadger.core.MessageSearchModel;
+import com.github.searchbadger.util.Contact;
+import com.github.searchbadger.util.MessageSource;
 import com.github.searchbadger.util.Search;
 import com.github.searchbadger.util.SendReceiveType;
 
@@ -23,13 +37,37 @@ public class MessageSearchModelTest extends TestCase {
 	private Date date;
 	private List<Map<String,String>> results;
 	
+	private long[] contactIDs = new long[5];
+
+	private static final String SMS_URI = "content://sms";
+	private static final String ADDRESS = "address";
+	private static final String PERSON = "person";
+	private static final String DATE = "date";
+	private static final String TYPE = "type";
+	private static final String BODY = "body";
+
+	private static final int MESSAGE_TYPE_INBOX = 1;
+	private static final int MESSAGE_TYPE_SENT = 2;
+
+	
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
+		
+		// DISABLE this if you want to run it on a real device
+		boolean inEmulator = "generic".equals(Build.BRAND.toLowerCase());
+		if(inEmulator == false)
+		{
+			throw new Exception("This script is disabled on a real device since it deletes the SMS database");
+		}
+		 
+		
 		model = MessageSearchModel.getInstance();
 		contentResolver = MessageSearchApplication.getAppContext().getContentResolver();
 		date = new Date();
+		clearContactDatabase();
 		clearSmsDatabase();
+		addDefaultContactDatabase();
 	}
 	
 
@@ -60,6 +98,14 @@ public class MessageSearchModelTest extends TestCase {
 		addSmsToDatabase("2-222-222-2222", date.getTime(), MESSAGE_TYPE_INBOX, "Hello World Inbox");
 		addSmsToDatabase("2-222-222-2222", date.getTime(), MESSAGE_TYPE_INBOX, "Hello World Inbox");
 		
+	}
+
+	public void addDefaultContactDatabase() {
+		contactIDs[0] = addContactToDatabase("Homer", "Simpson", "1-111-111-1111");  
+		contactIDs[1] = addContactToDatabase("Marge", "Simpson", "2-222-222-2222");  
+		contactIDs[2] = addContactToDatabase("Lisa", "Simpson", "3-333-333-3333");   
+		contactIDs[3] = addContactToDatabase("Bart", "Simpson", "4-444-444-4444");   
+		contactIDs[4] = addContactToDatabase("Maggie", "Simpson", "5-555-555-5555"); 
 	}
 
 	public void testPreconditions() {
@@ -243,51 +289,50 @@ public class MessageSearchModelTest extends TestCase {
 
 	public void testSearchBlankFilterContacts() {
 
-		assertTrue("TODO: testSearchBlankFilterContacts", false);
-		/*
-		addSmsToDatabase("1-111-111-1111", date.getTime(), MESSAGE_TYPE_INBOX, "Foo 12345 Inbox", 1);
-		addSmsToDatabase("1-111-111-1111", date.getTime(), MESSAGE_TYPE_INBOX, "Bar Inbox", 1);
-		addSmsToDatabase("1-111-111-1111", date.getTime(), MESSAGE_TYPE_INBOX, "Food Inbox", 1);
-		addSmsToDatabase("1-111-111-1111", date.getTime(), MESSAGE_TYPE_INBOX, "Bar1 Inbox", 1);
-		addSmsToDatabase("1-111-111-1111", date.getTime(), MESSAGE_TYPE_INBOX, "Bar10 Inbox", 1);
-		addSmsToDatabase("1-111-111-1111", date.getTime(), MESSAGE_TYPE_INBOX, "Bar100 Inbox", 1);
+		addSmsToDatabase("1-111-111-1111", date.getTime(), MESSAGE_TYPE_INBOX, "Foo 12345 Inbox", contactIDs[0]);
+		addSmsToDatabase("1-111-111-1111", date.getTime(), MESSAGE_TYPE_INBOX, "Bar Inbox", contactIDs[0]);
+		addSmsToDatabase("1-111-111-1111", date.getTime(), MESSAGE_TYPE_INBOX, "Food Inbox", contactIDs[0]);
+		addSmsToDatabase("1-111-111-1111", date.getTime(), MESSAGE_TYPE_INBOX, "Bar1 Inbox", contactIDs[0]);
+		addSmsToDatabase("1-111-111-1111", date.getTime(), MESSAGE_TYPE_INBOX, "Bar10 Inbox", contactIDs[0]);
+		addSmsToDatabase("1-111-111-1111", date.getTime(), MESSAGE_TYPE_INBOX, "Bar100 Inbox", contactIDs[0]);
 		
-		addSmsToDatabase("2-222-222-2222", date.getTime(), MESSAGE_TYPE_SENT, "Hello 53703 World Sent", 2);
-		addSmsToDatabase("2-222-222-2222", date.getTime(), MESSAGE_TYPE_SENT, "Hello World Sent", 2);
-		addSmsToDatabase("2-222-222-2222", date.getTime(), MESSAGE_TYPE_SENT, "Hello World Sent", 2);
+		addSmsToDatabase("2-222-222-2222", date.getTime(), MESSAGE_TYPE_SENT, "Hello 53703 World Sent", contactIDs[1]);
+		addSmsToDatabase("2-222-222-2222", date.getTime(), MESSAGE_TYPE_SENT, "Hello World Sent", contactIDs[1]);
+		addSmsToDatabase("2-222-222-2222", date.getTime(), MESSAGE_TYPE_SENT, "Hello World Sent", contactIDs[1]);
 		
-		addSmsToDatabase("2-222-222-2222", date.getTime(), MESSAGE_TYPE_INBOX, "Hello World Inbox", 3);
-		addSmsToDatabase("2-222-222-2222", date.getTime(), MESSAGE_TYPE_INBOX, "Hello Worlld Inbox", 3);
+		addSmsToDatabase("2-222-222-2222", date.getTime(), MESSAGE_TYPE_INBOX, "Hello World Inbox", contactIDs[2]);
+		addSmsToDatabase("2-222-222-2222", date.getTime(), MESSAGE_TYPE_INBOX, "Hello Worlld Inbox", contactIDs[2]);
+		
+		List<Contact> selectedContacts = new LinkedList<Contact>();
 		
 		// testing contact filter
-		filter = new Search("", null, null, null, null, null);
+		selectedContacts.clear();
+		selectedContacts.add(new Contact(contactIDs[0], MessageSource.SMS, null, null));
+		filter = new Search("", null, null, null, selectedContacts, null);
 		model.search(filter);
 		results = model.getSearchResultsMap();
-		assertEquals("Testing blank search with filter contacts {1}: ", 6, results.size());
-		filter = new Search("", null, null, null, null, null);
+		assertEquals("Testing blank search with filter contacts {" + contactIDs[0] + "}: ", 6, results.size());
+
+		selectedContacts.clear();
+		selectedContacts.add(new Contact(contactIDs[2], MessageSource.SMS, null, null));
+		filter = new Search("", null, null, null, selectedContacts, null);
 		model.search(filter);
 		results = model.getSearchResultsMap();
-		assertEquals("Testing blank search with filter contacts {2}: ", 3, results.size());
-		filter = new Search("", null, null, null, null, null);
+		assertEquals("Testing blank search with filter contacts {" + contactIDs[1] + "}: ", 3, results.size());
+
+		selectedContacts.clear();
+		selectedContacts.add(new Contact(contactIDs[0], MessageSource.SMS, null, null));
+		selectedContacts.add(new Contact(contactIDs[2], MessageSource.SMS, null, null));
+		filter = new Search("", null, null, null, selectedContacts, null);
 		model.search(filter);
 		results = model.getSearchResultsMap();
-		assertEquals("Testing blank search with filter contacts {1,3}: ", 8, results.size());
-		*/
+		assertEquals("Testing blank search with filter contacts {" + contactIDs[0] + ","
+				+ contactIDs[2]+ "}: ", 8, results.size());
+		
 	}
 	
-	private static final String SMS_URI = "content://sms";
-	private static final String ADDRESS = "address";
-	private static final String PERSON = "person";
-	private static final String DATE = "date";
-	private static final String TYPE = "type";
-	private static final String BODY = "body";
 
-	private static final int MESSAGE_TYPE_INBOX = 1;
-	private static final int MESSAGE_TYPE_SENT = 2;
-
-
-	private void addSmsToDatabase( String address, long date, int type, String body, int contactID  )
-	{
+	private void addSmsToDatabase( String address, long date, int type, String body, long contactID  ){
 	    ContentValues values = new ContentValues();
 	    values.put( ADDRESS, address );
 	    values.put( DATE, date );
@@ -300,16 +345,109 @@ public class MessageSearchModelTest extends TestCase {
 	    contentResolver.insert( Uri.parse( SMS_URI ), values );
 	}
 	
-	private void addSmsToDatabase( String address, long date, int type, String body )
-	{
+	private void addSmsToDatabase( String address, long date, int type, String body ) {
 		addSmsToDatabase( address, date, type, body, 0);
 	}
 	
 	
 
-	private void clearSmsDatabase()
-	{
+	private void clearSmsDatabase() {
 	    // clear the SMS database
 	    contentResolver.delete( Uri.parse( SMS_URI ), null, null );
 	}
+	
+	private long addContactToDatabase(String firstname, String lastname, String number) {
+
+		ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
+        int rawContactInsertIndex = ops.size();
+        
+        ops.add(ContentProviderOperation.newInsert(ContactsContract.RawContacts.CONTENT_URI)
+                .withValue(RawContacts.ACCOUNT_TYPE, null)
+                .withValue(RawContacts.ACCOUNT_NAME, null)
+                .build());
+        //INSERT NAME
+        ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
+                .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID,rawContactInsertIndex)
+                .withValue(ContactsContract.Data.MIMETYPE, ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE)
+                //.withValue(ContactsContract.CommonDataKinds.StructuredName.DISPLAY_NAME, szFullname) // Name of the person
+                .withValue(ContactsContract.CommonDataKinds.StructuredName.FAMILY_NAME, lastname) // Name of the person
+                .withValue(ContactsContract.CommonDataKinds.StructuredName.GIVEN_NAME, firstname) // Name of the person
+                .build());
+        //INSERT PHONE
+        ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
+                .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID,   rawContactInsertIndex)
+                .withValue(ContactsContract.Data.MIMETYPE, ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE)
+                .withValue(ContactsContract.CommonDataKinds.Phone.NUMBER, number) // Number of the person
+                .withValue(ContactsContract.CommonDataKinds.Phone.TYPE, ContactsContract.CommonDataKinds.Phone.TYPE_WORK)
+                .build()); // 
+        
+    	// SAVE CONTACT IN BCR Structure
+		Uri newContactUri = null;
+		//PUSH EVERYTHING TO CONTACTS
+        try
+        {
+            ContentProviderResult[] res = contentResolver.applyBatch(ContactsContract.AUTHORITY, ops);
+            if (res!=null && res[0]!=null) {
+            	newContactUri = res[0].uri;	
+            	// contact:content://com.android.contacts/raw_contacts/612
+            	
+            	Cursor c = contentResolver.query(newContactUri, new String[]{Contacts._ID}, null, null, null);
+            	try {
+            	    c.moveToFirst();
+            	    long id = c.getLong(0);
+
+                	Log.v("SearchBadger","" + id);
+            	    return id;
+            	} finally {
+            	    c.close();
+            	}
+            }
+        }
+        catch (RemoteException e)
+        { 
+            // error
+        	newContactUri = null;
+        }
+        catch (OperationApplicationException e) 
+        {
+            // error
+        	newContactUri = null;
+        }  
+        
+        return 0;
+		/*
+	    ContentValues contentValues = new ContentValues();
+	    contentValues.put(People.NAME, name);
+	    contentValues.put(People.STARRED, 1);
+	    Uri newContactUri = contentResolver.insert(People.CONTENT_URI, contentValues);
+	     
+	    Uri phoneUri = Uri.withAppendedPath(newContactUri, People.Phones.CONTENT_DIRECTORY);
+	    contentValues.clear();
+	    contentValues.put(People.Phones.TYPE, People.TYPE_MOBILE);
+	    contentValues.put(People.NUMBER, number);
+	     
+	    contentResolver.insert(phoneUri, contentValues);
+	    */
+	}
+	
+	private void clearContactDatabase() {
+	    // clear the contact database
+	    //contentResolver.delete( People.CONTENT_URI, null, null );
+	    //contentResolver.delete( People.Phones.CONTENT_DIRECTORY, null, null );
+		Cursor cur = contentResolver.query(ContactsContract.Contacts.CONTENT_URI,
+	            null, null, null, null);
+	    while (cur.moveToNext()) {
+	        try{
+	            String lookupKey = cur.getString(cur.getColumnIndex(ContactsContract.Contacts.LOOKUP_KEY));
+	            Uri uri = Uri.withAppendedPath(ContactsContract.Contacts.CONTENT_LOOKUP_URI, lookupKey);
+	            System.out.println("The uri is " + uri.toString());
+	            contentResolver.delete(uri, null, null);
+	        }
+	        catch(Exception e)
+	        {
+	            System.out.println(e.getStackTrace());
+	        }
+	    }
+	}
+	
 }
