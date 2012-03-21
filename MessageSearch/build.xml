@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="MessageSearch" default="help">
+<project name="MessageSearch" default="-default-target">
 
     <!-- The local.properties file is created and updated by the 'android' tool.
          It contains the path to the SDK. It should *NOT* be checked into
@@ -45,7 +45,11 @@
             unless="sdk.dir"
     />
 
-
+	<target name="-default-target">
+	<fail
+	            message="please specify a valid target, or use the target 'help' for help'"
+	/>
+	</target>
 <!-- extension targets. Uncomment the ones where you want to do custom work
      in between standard targets -->
 <!--
