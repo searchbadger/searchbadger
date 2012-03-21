@@ -35,18 +35,21 @@
 
             <Button
                 android:id="@+id/buttonSymbolPound"
+                android:focusable="false"
                 android:layout_width="45dp"
                 android:layout_height="wrap_content"
                 android:text="@string/symbol_pound" />
 
             <Button
                 android:id="@+id/buttonSymbolStar"
+                android:focusable="false"
                 android:layout_width="45dp"
                 android:layout_height="wrap_content"
                 android:text="@string/symbol_star" />
 
             <Button
                 android:id="@+id/buttonSymbolUnderscore"
+                android:focusable="false"
                 android:layout_width="45dp"
                 android:layout_height="wrap_content"
                 android:text="@string/symbol_underscore" />

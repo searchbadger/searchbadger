@@ -18,6 +18,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.github.searchbadger.R;
@@ -37,6 +38,7 @@ public class SearchActivity extends Activity implements SearchGenerator {
 	private LinearLayout layoutFilterDate;
 	private LinearLayout layoutFilterContacts;
 	private LinearLayout layoutFilterSentReceived;
+	private LinearLayout layoutButtonSymbols;
 	private CheckBox checkBoxFilterDate;
 	private CheckBox checkBoxFilterContacts;
 	private CheckBox checkBoxFilterSentReceived;
@@ -89,6 +91,7 @@ public class SearchActivity extends Activity implements SearchGenerator {
 		layoutFilterDate = (LinearLayout) findViewById(R.id.linearFilterDateOptions);
 		layoutFilterContacts = (LinearLayout) findViewById(R.id.linearFilterContactsOptions);
 		layoutFilterSentReceived = (LinearLayout) findViewById(R.id.linearFilterSentReceivedOptions);
+		layoutButtonSymbols = (LinearLayout) findViewById(R.id.linearLayoutButtonSymbols);
 		checkBoxFilterDate = (CheckBox) findViewById(R.id.checkBoxFilterDate);
 		checkBoxFilterContacts = (CheckBox) findViewById(R.id.checkBoxFilterContacts);
 		checkBoxFilterSentReceived = (CheckBox) findViewById(R.id.checkBoxFilterSentReceived);
@@ -175,6 +178,12 @@ public class SearchActivity extends Activity implements SearchGenerator {
 				showDatePicker(v);
 			}
 		});
+		
+		searchInputText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+			public void onFocusChange(View v, boolean hasFocus) {
+				toggleButtonSymbols(hasFocus);
+			}
+		});
 
 		// update the filters
 		radioGroupDate.check(R.id.radioToday);
@@ -182,11 +191,14 @@ public class SearchActivity extends Activity implements SearchGenerator {
 		toggleFilterContacts();
 		toggleFilterSentReceived();
 		
+		
 		beforeDate = new Date();
 		afterDate = new Date();
 		fromDate = new Date();
 		toDate = new Date();
 		updateDateButtons();
+		
+		searchInputText.requestFocus();
 	}
 
 	@Override
@@ -222,9 +234,19 @@ public class SearchActivity extends Activity implements SearchGenerator {
 		else
 			layoutFilterDate.setVisibility(View.GONE);
 	}
+	
+	public void toggleButtonSymbols(boolean hasFocus) {
+		if(hasFocus)
+			layoutButtonSymbols.setVisibility(View.VISIBLE);
+		else
+			layoutButtonSymbols.setVisibility(View.GONE);
+	}
 
 	public void insertTextSymbol(View v) {
 
+		Toast.makeText(this, "This feature has not been implemented yet", Toast.LENGTH_SHORT).show();
+		if(true) return;
+		
 		// determine the button type
 		String symbol = "";
 		switch (v.getId()) {
