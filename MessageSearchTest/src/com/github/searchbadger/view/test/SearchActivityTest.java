@@ -46,7 +46,7 @@ public class SearchActivityTest extends
 	private final Date to = new Date();
 
 	public SearchActivityTest() {
-		super("edu.wisc.cs.cs638.messagesearch", SearchActivity.class);
+		super("com.github.searchbadger", SearchActivity.class);
 	}
 
 	protected void setUp() throws Exception {
@@ -55,32 +55,32 @@ public class SearchActivityTest extends
 		dateLayout = (LinearLayout) testActivity
 				.findViewById(com.github.searchbadger.R.id.linearFilterDateOptions);
 		contactsLayout = (LinearLayout) testActivity
-				.findViewById(edu.wisc.cs.cs638.messagesearch.R.id.linearFilterContactsOptions);
+				.findViewById(com.github.searchbadger.R.id.linearFilterContactsOptions);
 		sentLayout = (LinearLayout) testActivity
-				.findViewById(edu.wisc.cs.cs638.messagesearch.R.id.linearFilterSentReceivedOptions);
+				.findViewById(com.github.searchbadger.R.id.linearFilterSentReceivedOptions);
 		dateCheck = (CheckBox) testActivity
-				.findViewById(edu.wisc.cs.cs638.messagesearch.R.id.checkBoxFilterDate);
+				.findViewById(com.github.searchbadger.R.id.checkBoxFilterDate);
 		contactsCheck = (CheckBox) testActivity
-				.findViewById(edu.wisc.cs.cs638.messagesearch.R.id.checkBoxFilterContacts);
+				.findViewById(com.github.searchbadger.R.id.checkBoxFilterContacts);
 		sentCheck = (CheckBox) testActivity
-				.findViewById(edu.wisc.cs.cs638.messagesearch.R.id.checkBoxFilterSentReceived);
-		searchButton = (Button) testActivity.findViewById(edu.wisc.cs.cs638.messagesearch.R.id.buttonSearch);
-		contactsButton = (Button) testActivity.findViewById(edu.wisc.cs.cs638.messagesearch.R.id.buttonSelectContacts);
-		smsButton = (ToggleButton) testActivity.findViewById(edu.wisc.cs.cs638.messagesearch.R.id.toggleButtonTypeSMS);
-		facebookButton = (ToggleButton) testActivity.findViewById(edu.wisc.cs.cs638.messagesearch.R.id.toggleButtonTypeFacebook);
-		twitterButton = (ToggleButton) testActivity.findViewById(edu.wisc.cs.cs638.messagesearch.R.id.toggleButtonTypeTwitter);
-		starButton = (ToggleButton) testActivity.findViewById(edu.wisc.cs.cs638.messagesearch.R.id.toggleButtonTypeStar);
-		symbolPoundButton = (Button) testActivity.findViewById(edu.wisc.cs.cs638.messagesearch.R.id.buttonSymbolPound);
-		symbolStarButton = (Button) testActivity.findViewById(edu.wisc.cs.cs638.messagesearch.R.id.buttonSymbolStar);
-		symbolUnderscoreButton = (Button) testActivity.findViewById(edu.wisc.cs.cs638.messagesearch.R.id.buttonSymbolUnderscore);
-		searchInputText = (EditText) testActivity.findViewById(edu.wisc.cs.cs638.messagesearch.R.id.editTextSearch);
-		sendReceiveRadioGroup = (RadioGroup) testActivity.findViewById(edu.wisc.cs.cs638.messagesearch.R.id.radioGroupSentReceived);
-		radioGroupDate = (RadioGroup) testActivity.findViewById(edu.wisc.cs.cs638.messagesearch.R.id.radioGroupDate);
-		beforeButton = (Button) testActivity.findViewById(edu.wisc.cs.cs638.messagesearch.R.id.buttonBefore);
-		afterButton = (Button) testActivity.findViewById(edu.wisc.cs.cs638.messagesearch.R.id.buttonAfter);
-		fromButton = (Button) testActivity.findViewById(edu.wisc.cs.cs638.messagesearch.R.id.buttonFrom);
-		toButton = (Button) testActivity.findViewById(edu.wisc.cs.cs638.messagesearch.R.id.buttonTo);
-		contactsText = (TextView) testActivity.findViewById(edu.wisc.cs.cs638.messagesearch.R.id.textViewSelectContacts);
+				.findViewById(com.github.searchbadger.R.id.checkBoxFilterSentReceived);
+		searchButton = (Button) testActivity.findViewById(com.github.searchbadger.R.id.buttonSearch);
+		contactsButton = (Button) testActivity.findViewById(com.github.searchbadger.R.id.buttonSelectContacts);
+		smsButton = (ToggleButton) testActivity.findViewById(com.github.searchbadger.R.id.toggleButtonTypeSMS);
+		facebookButton = (ToggleButton) testActivity.findViewById(com.github.searchbadger.R.id.toggleButtonTypeFacebook);
+		twitterButton = (ToggleButton) testActivity.findViewById(com.github.searchbadger.R.id.toggleButtonTypeTwitter);
+		starButton = (ToggleButton) testActivity.findViewById(com.github.searchbadger.R.id.toggleButtonTypeStar);
+		symbolPoundButton = (Button) testActivity.findViewById(com.github.searchbadger.R.id.buttonSymbolPound);
+		symbolStarButton = (Button) testActivity.findViewById(com.github.searchbadger.R.id.buttonSymbolStar);
+		symbolUnderscoreButton = (Button) testActivity.findViewById(com.github.searchbadger.R.id.buttonSymbolUnderscore);
+		searchInputText = (EditText) testActivity.findViewById(com.github.searchbadger.R.id.editTextSearch);
+		sendReceiveRadioGroup = (RadioGroup) testActivity.findViewById(com.github.searchbadger.R.id.radioGroupSentReceived);
+		radioGroupDate = (RadioGroup) testActivity.findViewById(com.github.searchbadger.R.id.radioGroupDate);
+		beforeButton = (Button) testActivity.findViewById(com.github.searchbadger.R.id.buttonBefore);
+		afterButton = (Button) testActivity.findViewById(com.github.searchbadger.R.id.buttonAfter);
+		fromButton = (Button) testActivity.findViewById(com.github.searchbadger.R.id.buttonFrom);
+		toButton = (Button) testActivity.findViewById(com.github.searchbadger.R.id.buttonTo);
+		contactsText = (TextView) testActivity.findViewById(com.github.searchbadger.R.id.textViewSelectContacts);
 	
 	}
 
