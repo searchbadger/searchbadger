@@ -1,5 +1,6 @@
 package com.github.searchbadger.view;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.github.searchbadger.core.MessageSearchController;
@@ -37,7 +38,8 @@ public class ContactsActivity extends Activity {
         ListAdapter adapter = null;
 		
 		// get the search sources
-		List<MessageSource> searchSources = model.getSearchSources();
+		List<MessageSource> searchSources = new ArrayList<MessageSource>();
+		searchSources.add(MessageSource.SMS);
 
 		// check if only one source is selected
 		if (searchSources.size() != 1)
@@ -102,14 +104,14 @@ public class ContactsActivity extends Activity {
 			// set the click listener for the checkbox
 			CheckBox checkbox = (CheckBox) view
 					.findViewById(R.id.contact_checkBox);
-			checkbox.setOnClickListener(MessageSearchController.getInstance().new ContactSelector());
+			//checkbox.setOnClickListener(MessageSearchController.getInstance().new ContactSelector());
 
 			// check the box if the contact is in the list
-			List<Contact> contacts = model.getContacts();
-			if(contacts.contains(contact))
+			//List<Contact> contacts = model.getContacts();
+			/*if(contacts.contains(contact))
 				checkbox.setChecked(true);
 			else
-				checkbox.setChecked(false);
+				checkbox.setChecked(false);*/
 		}
 	}
 
