@@ -484,10 +484,10 @@ public class SearchActivity extends Activity implements SearchGenerator {
 				break;
 
 			default :
-				type = SendReceiveType.BOTH;
+				type = null;
 			}
 		} else {
-			type = SendReceiveType.BOTH;
+			type = null;
 		}
 
 
