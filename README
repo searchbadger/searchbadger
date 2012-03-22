@@ -1,0 +1,24 @@
+SearchBadger – Android Messaging Search application
+by
+Benjamin Frisch
+Sarah Gilliland
+Theodora Hinkle
+Sachin Ravi
+Kong Yang
+
+Iteration 1 README
+
+After cloning the tagged repository from git, open Eclipse. Install the Android Development Tools (ADT) plugin by following the instructions provided at the helpful website:
+http://developer.android.com/sdk/eclipse-adt.html
+An Android SDK of at least version 7/ 2.1 will need to be installed.
+
+To bring the code into Eclipse, import it as a project:
+File >> Import >> General >> Existing Projects into Workspace >> Next 
+Then browse for the root directory of your git project clone, and click Finish. Be sure to import the SearchBadger project and the test project as two separate project imports. 
+
+Eclipse is probably set to build the project automatically, but if not, you can set this as an option under the Project menu. 
+
+To run the application, click on the project name in the Eclipse Package Explorer. Next, navigate to the green “play” button, or alternatively, Run in the Run menu. This will run the project. First, an Eclipse emulator will start. This will probably take several minutes to load. You can interact with the emulator as though it was a touchscreen phone. Opening the Android Virtual Device Manager will allow you to create customized phone emulators. 
+
+To run the tests, you need to import the test project as a separate project, and perform the same Run procedure. Do not touch the emulator when it loads. Wait for it to get to the home screen, then in the main Eclipse application, a Junit tab will open and begin running the tests. You can easily see which pass and which fail. By double clicking on the failing tests in the Junit tab, you can open the file where an assertion has failed and it will be highlighted. In the Failure Trace portion of the Junit tab, you can see what the expected and actual values of the assertion are. All of the tests will run even if some fail. 
+
