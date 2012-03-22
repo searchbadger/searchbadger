@@ -14,7 +14,7 @@ SearchBadger Dependencies
 5. Optional: Any Android Emulator
 - Install from the SDK Manager
 
-## Building and Running SearchBadger Using Eclipse
+Building and Running SearchBadger Using Eclipse
 1. Install the Android Development Tools (ADT) Plugin for Eclipse
 - See http://developer.android.com/sdk/eclipse-adt.html for installation information
 2. Open Eclipse
@@ -31,7 +31,7 @@ SearchBadger Dependencies
 10. Select either your connected Android Device or the Android Emulator you want to
    run with
 
-## Building and Running the SearchBadger Tests Using Eclipse
+Building and Running the SearchBadger Tests Using Eclipse
 1. Install the Android Development Tools (ADT) Plugin for Eclipse
 - See http://developer.android.com/sdk/eclipse-adt.html for installation information
 2. Open Eclipse
@@ -47,11 +47,11 @@ SearchBadger Dependencies
 - If prompted, select Android JUnit Application
 10. Navigate to the Green Play Button or Click "Run" in the "Run" Menu
 
-*Note:* Do not touch the emulator when it loads. Wait for it to get to the home
-       screen, then in the main Eclipse application, a JUnit tab will open and
-       begin running the tests. You can easily see which pass and which fail. 
+Note: Do not touch the emulator when it loads. Wait for it to get to the home
+      screen, then in the main Eclipse application, a JUnit tab will open and
+      begin running the tests. You can easily see which pass and which fail. 
 	  
-	     By double clicking on the failing tests in the Junit tab, you can open the file
-	     where an assertion has failed and it will be highlighted. In the Failure Trace
-	     portion of the Junit tab, you can see what the expected and actual values of
-	     the assertion are. All of the tests will run even if some fail.
+      By double clicking on the failing tests in the Junit tab, you can open the file
+      where an assertion has failed and it will be highlighted. In the Failure Trace
+      portion of the Junit tab, you can see what the expected and actual values of
+      the assertion are. All of the tests will run even if some fail.
