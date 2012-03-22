@@ -241,14 +241,15 @@ public class SearchBadgerModel {
 						Log.v("SearchBadger","columns " + i + ": " + columns[i] + ": "
 								+ searchResultCursor.getString(i));
 						}
-
+						
 						long messageId = searchResultCursor.getLong(0);
 						long threadId = searchResultCursor.getLong(1);
 						String address = searchResultCursor.getString(2);
-						long contactId = searchResultCursor.getLong(3);
+						long timestamp = searchResultCursor.getLong(3);
+						String body = searchResultCursor.getString(4);
+						long type = searchResultCursor.getLong(5);
+						long contactId = searchResultCursor.getLong(6);
 						String contactId_string = String.valueOf(contactId);
-						long timestamp = searchResultCursor.getLong(4);
-						String body = searchResultCursor.getString(5);
 						
 						Contact c = new Contact(contactId, MessageSource.SMS,
 								contactId_string, null);
