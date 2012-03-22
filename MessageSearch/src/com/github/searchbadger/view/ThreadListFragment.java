@@ -15,9 +15,12 @@ import android.widget.ScrollView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import com.github.searchbadger.R;
+import com.github.searchbadger.core.MessageSearchModel;
+import com.github.searchbadger.util.Message;
 
 public class ThreadListFragment extends ListFragment {
 
+	private MessageSearchModel model = MessageSearchModel.getInstance();
 	 /**
      * Create a new instance of DetailsFragment, initialized to
      * show the text at 'index'.
@@ -46,7 +49,7 @@ public class ThreadListFragment extends ListFragment {
 		
 
 		// TODO Remove the following
-		List<Map<String, String>> dataList = new ArrayList<Map<String, String>>();
+		/*List<Map<String, String>> dataList = new ArrayList<Map<String, String>>();
 
 		HashMap<String, String> dataMap;
 
@@ -66,7 +69,10 @@ public class ThreadListFragment extends ListFragment {
 		dataMap.put("Message", "Jane Does: See ya");
 		dataList.add(dataMap);
 
-		SimpleAdapter adapter = new SimpleAdapter(getActivity(), dataList,
+		*/
+		
+		List<Map<String,String>> thread= model.getThread(getArguments().getInt("index", 0));
+		SimpleAdapter adapter = new SimpleAdapter(getActivity(), thread,
 				R.layout.thread_list_item, new String[] { "Message" },
 						new int[] { R.id.thread_text });
 

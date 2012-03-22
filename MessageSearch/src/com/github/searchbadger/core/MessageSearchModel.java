@@ -212,8 +212,10 @@ public class MessageSearchModel {
 	 * TODO Needs to access database. This probably will go through some other 
 	 * class for SMSSearch or other search type
 	 */
-	public List<Message> getThread(Message msgInThread) {
+	public List<Map<String,String>> getThread(int index) {
 		// SMS content provider uri 
+		Message msgInThread = searchResultMessages.get(index);
+		
 		String url = "content://sms"; 
 		Uri uri = Uri.parse(url); 
 
@@ -269,7 +271,7 @@ public class MessageSearchModel {
 			}
 		}
 
-		return threadMessages;
+		return threadMap;
 	}
 	
 	/*
