@@ -193,12 +193,12 @@ public class MessageSearchModelTest extends TestCase {
 		assertEquals("Testing blank search with filter date before 02/14/2012 9:00:00 am: ", 4, results.size());
 
 		// testing after filter
+		cal.set(2012, 2, 14, 11, 0, 0); // 02/14/2012 11:00:00 am
 		begin = cal.getTime();
 		filter = new Search("", begin, null, null, null, null);
-		cal.set(2012, 2, 14, 9, 0, 0); // 02/14/2012 9:00:00 am
 		model.search(filter);
 		results = model.getSearchResultsMap();
-		assertEquals("Testing blank search with filter date after 02/14/2012 9:00:00 am: ", 3, results.size());
+		assertEquals("Testing blank search with filter date after 02/14/2012 11:00:00 am: ", 3, results.size());
 		
 		// testing from to filter
 		cal.set(2012, 2, 14, 9, 0, 0); // 02/14/2012 9:00:00 am
@@ -314,7 +314,7 @@ public class MessageSearchModelTest extends TestCase {
 		assertEquals("Testing blank search with filter contacts {" + contactIDs[0] + "}: ", 6, results.size());
 
 		selectedContacts.clear();
-		selectedContacts.add(new Contact(contactIDs[2], MessageSource.SMS, null, null));
+		selectedContacts.add(new Contact(contactIDs[1], MessageSource.SMS, null, null));
 		filter = new Search("", null, null, null, selectedContacts, null);
 		model.search(filter);
 		results = model.getSearchResultsMap();

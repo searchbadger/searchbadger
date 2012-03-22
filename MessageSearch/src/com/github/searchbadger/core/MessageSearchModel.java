@@ -31,7 +31,7 @@ public class MessageSearchModel {
 	//private Cursor searchResultCursor;
 	private List<Map<String,String>> searchResults;
 	private List<Message> searchResultMessages;
-	private final static String projectionList[] = {"_id", "thread_id", "address", "date", "body", "type"};
+	private final static String projectionList[] = {"_id", "thread_id", "address", "date", "body", "type", "person"};
 	
 	
 	public static MessageSearchModel getInstance() {
@@ -41,7 +41,8 @@ public class MessageSearchModel {
 	public void search(Search filter) {
 		this._currentSearch = filter;
 		// SMS content provider uri 
-		String url = "content://sms"; 
+		String url = "content://sms/"; 
+
 		Uri uri = Uri.parse(url); 
 	
 		List<String> selectionArgList = new LinkedList<String>();
@@ -51,7 +52,8 @@ public class MessageSearchModel {
 		// Go through each possible search type, and build SQL query
 		if (filter.getText() != null && filter.getText().length() != 0) {
 			selection += "body LIKE ?";
-			arg = DatabaseUtils.sqlEscapeString("'%" + filter.getText() + "%'");
+			//arg = DatabaseUtils.sqlEscapeString("%" + filter.getText() + "%");
+			arg = "%" + filter.getText() + "%";
 			selectionArgList.add(arg);
 		}
 		if (filter.getContacts() != null){
@@ -64,7 +66,7 @@ public class MessageSearchModel {
 			selection += "(";
 			while (iter.hasNext()){
 				Contact c = iter.next();
-				selection += "address = ?";
+				selection += "person = ?";
 				arg = ((Long)c.getId()).toString();
 				selectionArgList.add(arg);
 				if (iter.hasNext()) selection += " OR ";
@@ -92,25 +94,21 @@ public class MessageSearchModel {
 			
 			selectionArgList.add(arg);
 		}
-		/*
+		
 		if (filter.getType() != null){
 			
 			//TODO: Figure out what the types are actually supposed to be. probably not "sent" and "received"
+			selection += "type = ?";
 			if (filter.getType()==SendReceiveType.SENT) {
-				if (selection.length() > 0)
-					selection += " AND ";
-				selection += "type = " + "sent";
+				arg = "2";
+				selectionArgList.add(arg);
 			}
 			else if (filter.getType()==SendReceiveType.RECEIVED) {
-				if (selection.length() > 0)
-					selection += "AND";
-				selection += "type = " + "received";
+				arg = "1";
+				selectionArgList.add(arg);
 			}
-			//arg = filter.getBegin().toString();
-			
-			//selectionArgList.add(arg);
 		}
-		*/
+		
 		// Make query to content provider and store cursor to table returned
 		String[] selectionArgsArray = new String[selectionArgList.size()];
 		selectionArgList.toArray(selectionArgsArray);
@@ -134,10 +132,11 @@ public class MessageSearchModel {
 						long messageId = searchResultCursor.getLong(0);
 						long threadId = searchResultCursor.getLong(1);
 						String address = searchResultCursor.getString(2);
-						long contactId = searchResultCursor.getLong(3);
+						long timestamp = searchResultCursor.getLong(3);
+						String body = searchResultCursor.getString(4);
+						long type = searchResultCursor.getLong(5);
+						long contactId = searchResultCursor.getLong(6);
 						String contactId_string = String.valueOf(contactId);
-						long timestamp = searchResultCursor.getLong(4);
-						String body = searchResultCursor.getString(5);
 						
 						Contact c = new Contact(contactId, MessageSource.SMS,
 								contactId_string, null);
