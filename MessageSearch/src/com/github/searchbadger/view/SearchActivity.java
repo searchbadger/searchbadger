@@ -22,8 +22,8 @@ import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.github.searchbadger.R;
-import com.github.searchbadger.core.MessageSearchController;
-import com.github.searchbadger.core.MessageSearchModel;
+import com.github.searchbadger.core.SearchBadgerController;
+import com.github.searchbadger.core.SearchBadgerModel;
 import com.github.searchbadger.util.Contact;
 import com.github.searchbadger.util.MessageSource;
 import com.github.searchbadger.util.Search;
@@ -60,8 +60,8 @@ public class SearchActivity extends Activity implements SearchGenerator {
 	private Button toButton;
 	private TextView contactsText;
 
-	private MessageSearchController controller;
-	private MessageSearchModel model;
+	private SearchBadgerController controller;
+	private SearchBadgerModel model;
 
 	private final SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
 	private int pickerButtonId;
@@ -79,8 +79,8 @@ public class SearchActivity extends Activity implements SearchGenerator {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.search_layout);
 
-		model = MessageSearchModel.getInstance();
-		controller = MessageSearchController.getInstance();
+		model = SearchBadgerModel.getInstance();
+		controller = SearchBadgerController.getInstance();
 		
 		/* Android 2.3 DatePickerDiaglog cannot handle the original date passed
 		 *  to its constructor being all zeros, while the ICS (4.0) DatePickerDialog

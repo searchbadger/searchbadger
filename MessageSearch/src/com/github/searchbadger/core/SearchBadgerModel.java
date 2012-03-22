@@ -24,8 +24,8 @@ import android.util.Log;
 
 import com.github.searchbadger.R;
 
-public class MessageSearchModel {
-	private final static MessageSearchModel instance = new MessageSearchModel();
+public class SearchBadgerModel {
+	private final static SearchBadgerModel instance = new SearchBadgerModel();
 	private Search _currentSearch;
 	
 	//private Cursor searchResultCursor;
@@ -34,7 +34,7 @@ public class MessageSearchModel {
 	private final static String projectionList[] = {"_id", "thread_id", "address", "date", "body", "type", "person"};
 	
 	
-	public static MessageSearchModel getInstance() {
+	public static SearchBadgerModel getInstance() {
 		return instance;
 	}
 	
@@ -112,7 +112,7 @@ public class MessageSearchModel {
 		// Make query to content provider and store cursor to table returned
 		String[] selectionArgsArray = new String[selectionArgList.size()];
 		selectionArgList.toArray(selectionArgsArray);
-		Cursor searchResultCursor = MessageSearchApplication.getAppContext().getContentResolver().query(uri, projectionList, selection, selectionArgsArray, "date DESC");
+		Cursor searchResultCursor = SearchBadgerApplication.getAppContext().getContentResolver().query(uri, projectionList, selection, selectionArgsArray, "date DESC");
 		
 		searchResults = new ArrayList<Map<String,String>>();
 		searchResultMessages = new ArrayList<Message>();
@@ -222,7 +222,7 @@ public class MessageSearchModel {
 		String[] selectionArgs = new String[]{((Long)msgInThread.getThreadId()).toString()};
 		String selection = "thread_id = ?";
 		
-		Cursor searchResultCursor = MessageSearchApplication.getAppContext().getContentResolver().query(uri, projectionList, selection, selectionArgs, "date DESC");
+		Cursor searchResultCursor = SearchBadgerApplication.getAppContext().getContentResolver().query(uri, projectionList, selection, selectionArgs, "date DESC");
 		
 		List<Map<String,String>> threadMap = new LinkedList<Map<String,String>>();
 		List<Message> threadMessages = new LinkedList<Message>();

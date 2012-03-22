@@ -19,12 +19,12 @@ import android.widget.Toast;
 import android.widget.ToggleButton;
 import com.github.searchbadger.R;
 
-public class MessageSearchController {
-	private static final MessageSearchController instance = 
-		new MessageSearchController();
-	private final MessageSearchModel model = MessageSearchModel.getInstance();
+public class SearchBadgerController {
+	private static final SearchBadgerController instance = 
+		new SearchBadgerController();
+	private final SearchBadgerModel model = SearchBadgerModel.getInstance();
 
-	public static final MessageSearchController getInstance() {
+	public static final SearchBadgerController getInstance() {
 		return instance;
 	}
 

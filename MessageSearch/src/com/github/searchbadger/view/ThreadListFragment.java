@@ -15,12 +15,12 @@ import android.widget.ScrollView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import com.github.searchbadger.R;
-import com.github.searchbadger.core.MessageSearchModel;
+import com.github.searchbadger.core.SearchBadgerModel;
 import com.github.searchbadger.util.Message;
 
 public class ThreadListFragment extends ListFragment {
 
-	private MessageSearchModel model = MessageSearchModel.getInstance();
+	private SearchBadgerModel model = SearchBadgerModel.getInstance();
 	 /**
      * Create a new instance of DetailsFragment, initialized to
      * show the text at 'index'.

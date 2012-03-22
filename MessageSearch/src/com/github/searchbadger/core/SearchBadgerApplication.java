@@ -3,16 +3,16 @@ package com.github.searchbadger.core;
 import android.app.Application;
 import android.content.Context;
 
-public class MessageSearchApplication extends Application{
+public class SearchBadgerApplication extends Application{
 
     private static Context context;
 
     public void onCreate(){
         super.onCreate();
-        MessageSearchApplication.context = getApplicationContext();
+        SearchBadgerApplication.context = getApplicationContext();
     }
 
     public static Context getAppContext() {
-        return MessageSearchApplication.context;
+        return SearchBadgerApplication.context;
     }
 }
