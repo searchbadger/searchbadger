@@ -210,39 +210,39 @@ public class SearchActivity extends Activity implements SearchGenerator {
 	}
 
 
-	public int getDatePickerId() {
+	private int getDatePickerId() {
 		return pickerButtonId;
 	}
 
-	public void toggleFilterSentReceived() {
+	private void toggleFilterSentReceived() {
 		if (checkBoxFilterSentReceived.isChecked())
 			layoutFilterSentReceived.setVisibility(View.VISIBLE);
 		else
 			layoutFilterSentReceived.setVisibility(View.GONE);
 	}
 
-	public void toggleFilterContacts() {
+	private void toggleFilterContacts() {
 		if (checkBoxFilterContacts.isChecked())
 			layoutFilterContacts.setVisibility(View.VISIBLE);
 		else
 			layoutFilterContacts.setVisibility(View.GONE);
 	}
 
-	public void toggleFilterDate() {
+	private void toggleFilterDate() {
 		if (checkBoxFilterDate.isChecked())
 			layoutFilterDate.setVisibility(View.VISIBLE);
 		else
 			layoutFilterDate.setVisibility(View.GONE);
 	}
 	
-	public void toggleButtonSymbols(boolean hasFocus) {
+	private void toggleButtonSymbols(boolean hasFocus) {
 		if(hasFocus)
 			layoutButtonSymbols.setVisibility(View.VISIBLE);
 		else
 			layoutButtonSymbols.setVisibility(View.GONE);
 	}
 
-	public void insertTextSymbol(View v) {
+	private void insertTextSymbol(View v) {
 
 		Toast.makeText(this, "This feature has not been implemented yet", Toast.LENGTH_SHORT).show();
 		if(true) return;
@@ -296,7 +296,7 @@ public class SearchActivity extends Activity implements SearchGenerator {
 		return null;
 	}
 
-	public void showDatePicker(View v) {
+	private void showDatePicker(View v) {
 
 		// determine the date picker type
 		Calendar cal = Calendar.getInstance();
@@ -329,23 +329,37 @@ public class SearchActivity extends Activity implements SearchGenerator {
 	
 	//the callback received when the user sets the date in the dialog
 
-	public void setDateBefore(Date date) {
-		beforeDate = date;
+	private void setDateBefore(Date date) {
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(date);
+		cal.add(Calendar.DAY_OF_YEAR, -1);
+		this.calToEndOfDay(cal);
+		beforeDate = cal.getTime();
 	}
-	public void setDateAfter(Date date) {
-		afterDate = date;
+	private void setDateAfter(Date date) {
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(date);
+		cal.add(Calendar.DAY_OF_YEAR, 1);
+		this.calToBeginningOfDay(cal);
+		afterDate = cal.getTime();
 	}
-	public void setDateFrom(Date date) {
-		fromDate = date;
+	private void setDateFrom(Date date) {
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(date);
+		this.calToBeginningOfDay(cal);
+		fromDate = cal.getTime();
 	}
-	public void setDateTo(Date date) {
-		toDate = date;
+	private void setDateTo(Date date) {
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(date);
+		this.calToEndOfDay(cal);
+		toDate = cal.getTime();
 	}
 	/*
 	 * update the text on the before, after, from and to buttons
 	 * to match the date picked
 	 */
-	public void updateDateButtons() {
+	private void updateDateButtons() {
 		beforeButton.setText(dateFormat.format(beforeDate));
 		afterButton.setText(dateFormat.format(afterDate));
 		fromButton.setText(dateFormat.format(fromDate));
@@ -353,7 +367,7 @@ public class SearchActivity extends Activity implements SearchGenerator {
 	}
 
 
-	public class DatePickerSelected implements DatePickerDialog.OnDateSetListener {
+	private class DatePickerSelected implements DatePickerDialog.OnDateSetListener {
 
 		private SearchActivity searchActivity;
 
@@ -399,7 +413,20 @@ public class SearchActivity extends Activity implements SearchGenerator {
 		}
 	}
 
-
+	private void calToBeginningOfDay(Calendar cal) {
+		cal.set(Calendar.HOUR_OF_DAY, 0);
+		cal.set(Calendar.MINUTE, 0);
+		cal.set(Calendar.SECOND, 0);
+		cal.set(Calendar.MILLISECOND, 0);
+	}
+	
+	private void calToEndOfDay(Calendar cal) {
+		cal.set(Calendar.HOUR_OF_DAY, 23);
+		cal.set(Calendar.MINUTE, 59);
+		cal.set(Calendar.SECOND, 59);
+		cal.set(Calendar.MILLISECOND, 999);
+	}
+	
 	public Search generateSearch() {
 		// TODO Auto-generated method stub
 		String text;
@@ -418,24 +445,32 @@ public class SearchActivity extends Activity implements SearchGenerator {
 		if (checkBoxFilterDate.isChecked()) {
 			switch (radioGroupDate.getCheckedRadioButtonId()) {
 			case R.id.radioToday:
+				calToBeginningOfDay(cal);
 				begin = cal.getTime();
+				calToEndOfDay(cal);
 				end = cal.getTime();
 				break;
 			case R.id.radioYesterday:
 				cal.add(Calendar.DAY_OF_YEAR, -1);
+				calToBeginningOfDay(cal);
 				begin = cal.getTime();
+				calToEndOfDay(cal);
 				end = cal.getTime();
 				break;
 				
 			case R.id.radioPaskWeek:
+				calToEndOfDay(cal);
 				end = cal.getTime();
 				cal.add(Calendar.DAY_OF_YEAR, -7);
+				calToBeginningOfDay(cal);
 				begin = cal.getTime();
 				break;
 				
 			case R.id.radioPastMonth:
+				calToEndOfDay(cal);
 				end = cal.getTime();
 				cal.add(Calendar.MONTH, -1);
+				calToBeginningOfDay(cal);
 				begin = cal.getTime();
 				break;
 				

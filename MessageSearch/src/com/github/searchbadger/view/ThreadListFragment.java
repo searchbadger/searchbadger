@@ -47,30 +47,6 @@ public class ThreadListFragment extends ListFragment {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
 		
-
-		// TODO Remove the following
-		/*List<Map<String, String>> dataList = new ArrayList<Map<String, String>>();
-
-		HashMap<String, String> dataMap;
-
-		dataMap = new HashMap<String, String>();
-		dataMap.put("Message", "John Does: Hi");
-		dataList.add(dataMap);
-
-		dataMap = new HashMap<String, String>();
-		dataMap.put("Message", "Jane Does: Hello");
-		dataList.add(dataMap);
-
-		dataMap = new HashMap<String, String>();
-		dataMap.put("Message", "John Does: Bye");
-		dataList.add(dataMap);
-
-		dataMap = new HashMap<String, String>();
-		dataMap.put("Message", "Jane Does: See ya");
-		dataList.add(dataMap);
-
-		*/
-		
 		List<Map<String,String>> thread= model.getThread(getArguments().getInt("index", 0));
 		SimpleAdapter adapter = new SimpleAdapter(getActivity(), thread,
 				R.layout.thread_list_item, new String[] { "Message" },
