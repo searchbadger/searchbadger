@@ -41,7 +41,7 @@ public class MessageSearchModel {
 	public void search(Search filter) {
 		this._currentSearch = filter;
 		// SMS content provider uri 
-		String url = "content://sms/inbox"; 
+		String url = "content://sms"; 
 		Uri uri = Uri.parse(url); 
 	
 		List<String> selectionArgList = new LinkedList<String>();
@@ -213,8 +213,64 @@ public class MessageSearchModel {
 	 * TODO Needs to access database. This probably will go through some other 
 	 * class for SMSSearch or other search type
 	 */
-	public List<Message> getThread(Message msg) {
-		return null;
+	public List<Message> getThread(Message msgInThread) {
+		// SMS content provider uri 
+		String url = "content://sms"; 
+		Uri uri = Uri.parse(url); 
+
+		String[] selectionArgs = new String[]{((Long)msgInThread.getThreadId()).toString()};
+		String selection = "thread_id = ?";
+		
+		Cursor searchResultCursor = MessageSearchApplication.getAppContext().getContentResolver().query(uri, projectionList, selection, selectionArgs, "date DESC");
+		
+		List<Map<String,String>> threadMap = new LinkedList<Map<String,String>>();
+		List<Message> threadMessages = new LinkedList<Message>();
+		if (searchResultCursor != null) {
+			try {
+				int count = searchResultCursor.getCount();
+				if (count > 0) {
+					searchResultCursor.moveToFirst();
+					do {
+
+						String[] columns = searchResultCursor.getColumnNames();
+						for (int i=0; i<columns.length; i++) {
+						Log.v("SearchBadger","columns " + i + ": " + columns[i] + ": "
+								+ searchResultCursor.getString(i));
+						}
+
+						long messageId = searchResultCursor.getLong(0);
+						long threadId = searchResultCursor.getLong(1);
+						String address = searchResultCursor.getString(2);
+						long contactId = searchResultCursor.getLong(3);
+						String contactId_string = String.valueOf(contactId);
+						long timestamp = searchResultCursor.getLong(4);
+						String body = searchResultCursor.getString(5);
+						
+						Contact c = new Contact(contactId, MessageSource.SMS,
+								contactId_string, null);
+						
+						Message msg = new Message(c, messageId, threadId, new Date (timestamp),
+								body, false);
+						threadMessages.add(msg);
+
+						HashMap<String, String> map = new HashMap<String, String>();
+						map.put("Message", body);
+						String date = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss").format(new Date (timestamp));
+						map.put("Date", date);
+						map.put("FromAddress", address);
+						map.put("ID", ((Long) messageId).toString());
+						map.put("ThreadID", ((Long) threadId).toString());
+						map.put("ContactID", contactId_string);
+						threadMap.add(map);
+					} while (searchResultCursor.moveToNext() == true);
+
+				}
+			} finally {
+				searchResultCursor.close();
+			}
+		}
+
+		return threadMessages;
 	}
 	
 	/*
