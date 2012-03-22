@@ -22,16 +22,16 @@ import android.provider.ContactsContract.Contacts;
 import android.provider.ContactsContract.RawContacts;
 import android.util.Log;
 
-import com.github.searchbadger.core.MessageSearchApplication;
-import com.github.searchbadger.core.MessageSearchModel;
+import com.github.searchbadger.core.SearchBadgerApplication;
+import com.github.searchbadger.core.SearchBadgerModel;
 import com.github.searchbadger.util.Contact;
 import com.github.searchbadger.util.MessageSource;
 import com.github.searchbadger.util.Search;
 import com.github.searchbadger.util.SendReceiveType;
 
-public class MessageSearchModelTest extends TestCase {
+public class SearchBadgerModelTest extends TestCase {
 
-	private MessageSearchModel model;
+	private SearchBadgerModel model;
 	private ContentResolver contentResolver;
 	private Search filter;
 	private Date date;
@@ -62,8 +62,8 @@ public class MessageSearchModelTest extends TestCase {
 		}
 		 
 		
-		model = MessageSearchModel.getInstance();
-		contentResolver = MessageSearchApplication.getAppContext().getContentResolver();
+		model = SearchBadgerModel.getInstance();
+		contentResolver = SearchBadgerApplication.getAppContext().getContentResolver();
 		date = new Date();
 		clearContactDatabase();
 		clearSmsDatabase();

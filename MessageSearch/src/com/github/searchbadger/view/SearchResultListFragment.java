@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.github.searchbadger.core.MessageSearchModel;
+import com.github.searchbadger.core.SearchBadgerModel;
 
 
 import android.content.Intent;
@@ -25,7 +25,7 @@ public class SearchResultListFragment extends ListFragment {
 
 	private boolean mDualPane;
     private int mCurCheckPosition = 0;
-    private MessageSearchModel model = MessageSearchModel.getInstance();
+    private SearchBadgerModel model = SearchBadgerModel.getInstance();
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
