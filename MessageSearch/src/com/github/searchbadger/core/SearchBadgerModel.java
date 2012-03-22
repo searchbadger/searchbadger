@@ -261,7 +261,7 @@ public class SearchBadgerModel {
 						map.put("Message", body);
 						String date = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss").format(new Date (timestamp));
 						map.put("Date", date);
-						map.put("FromAddress", address);
+						map.put("From", address);
 						map.put("ID", ((Long) messageId).toString());
 						map.put("ThreadID", ((Long) threadId).toString());
 						map.put("ContactID", contactId_string);

@@ -49,7 +49,7 @@ public class ThreadListFragment extends ListFragment {
 		
 		List<Map<String,String>> thread= model.getThread(getArguments().getInt("index", 0));
 		SimpleAdapter adapter = new SimpleAdapter(getActivity(), thread,
-				R.layout.thread_list_item, new String[] { "Message" },
+				R.layout.thread_list_item, new String[] { "Message", "Date", "From" },
 						new int[] { R.id.thread_text });
 
 		setListAdapter(adapter);
