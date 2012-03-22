@@ -456,11 +456,10 @@ public class SearchActivity extends Activity implements SearchGenerator {
 				calToEndOfDay(cal);
 				end = cal.getTime();
 				break;
-			case R.id.radioYesterday:
+			case R.id.radioSinceYesterday:
 				cal.add(Calendar.DAY_OF_YEAR, -1);
-				calToBeginningOfDay(cal);
-				begin = cal.getTime();
 				calToEndOfDay(cal);
+				begin = null;
 				end = cal.getTime();
 				break;
 				

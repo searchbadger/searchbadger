@@ -138,7 +138,7 @@
                     android:textAppearance="?android:attr/textAppearanceMedium" />
 
                 <RadioButton
-                    android:id="@+id/radioYesterday"
+                    android:id="@+id/radioSinceYesterday"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/yesterday"
