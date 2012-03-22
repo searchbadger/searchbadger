@@ -336,18 +336,10 @@ public class SearchActivity extends Activity implements SearchGenerator {
 	//the callback received when the user sets the date in the dialog
 
 	private void setDateBefore(Date date) {
-		Calendar cal = Calendar.getInstance();
-		cal.setTime(date);
-		cal.add(Calendar.DAY_OF_YEAR, -1);
-		this.calToEndOfDay(cal);
-		beforeDate = cal.getTime();
+		beforeDate = date;
 	}
 	private void setDateAfter(Date date) {
-		Calendar cal = Calendar.getInstance();
-		cal.setTime(date);
-		cal.add(Calendar.DAY_OF_YEAR, 1);
-		this.calToBeginningOfDay(cal);
-		afterDate = cal.getTime();
+		afterDate = date;
 	}
 	private void setDateFrom(Date date) {
 		Calendar cal = Calendar.getInstance();
@@ -480,12 +472,18 @@ public class SearchActivity extends Activity implements SearchGenerator {
 				break;
 				
 			case R.id.radioBefore:
-				end = this.beforeDate;
+				cal.setTime(beforeDate);
+				cal.add(Calendar.DAY_OF_YEAR, -1);
+				this.calToEndOfDay(cal);
+				end = cal.getTime();
 				begin = null;
 				break;
 				
 			case R.id.radioAfter:
-				begin = this.afterDate;
+				cal.setTime(this.afterDate);
+				cal.add(Calendar.DAY_OF_YEAR, 1);
+				this.calToBeginningOfDay(cal);
+				begin = cal.getTime();
 				end = null;
 				break;
 				
