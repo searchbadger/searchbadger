@@ -7,6 +7,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import com.github.searchbadger.core.SearchBadgerApplication;
+import com.github.searchbadger.core.SearchBadgerModel;
+import com.github.searchbadger.util.*;
+
+
 import junit.framework.TestCase;
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderResult;
@@ -17,17 +22,11 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.RemoteException;
+import android.provider.BaseColumns;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.Contacts;
 import android.provider.ContactsContract.RawContacts;
 import android.util.Log;
-
-import com.github.searchbadger.core.SearchBadgerApplication;
-import com.github.searchbadger.core.SearchBadgerModel;
-import com.github.searchbadger.util.Contact;
-import com.github.searchbadger.util.MessageSource;
-import com.github.searchbadger.util.Search;
-import com.github.searchbadger.util.SendReceiveType;
 
 public class SearchBadgerModelTest extends TestCase {
 
@@ -255,34 +254,34 @@ public class SearchBadgerModelTest extends TestCase {
 		addSmsToDatabase("2-222-222-2222", date.getTime(), MESSAGE_TYPE_INBOX, "Hello Worlld Inbox");
 		
 		// testing # symbol
-		filter = new Search("#####", null, null, null, null, null);
+		filter = new Search("*#####*", null, null, null, null, null);
 		model.search(filter);
 		results = model.getSearchResultsMap();
-		assertEquals("Testing ##### search with no filter: ", 2, results.size());
-		filter = new Search("bar#", null, null, null, null, null);
+		assertEquals("Testing *#####* search with no filter: ", 2, results.size());
+		filter = new Search("Bar#*", null, null, null, null, null);
 		model.search(filter);
 		results = model.getSearchResultsMap();
-		assertEquals("Testing bar# search with no filter: ", 3, results.size());
+		assertEquals("Testing Bar#* search with no filter: ", 3, results.size());
 		
 		// testing * symbol
-		filter = new Search("W*d", null, null, null, null, null);
+		filter = new Search("*W*d*", null, null, null, null, null);
 		model.search(filter);
 		results = model.getSearchResultsMap();
-		assertEquals("Testing W*d search with no filter: ", 5, results.size());
-		filter = new Search("*inbox", null, null, null, null, null);
+		assertEquals("Testing *W*d* search with no filter: ", 5, results.size());
+		filter = new Search("*Inbox", null, null, null, null, null);
 		model.search(filter);
 		results = model.getSearchResultsMap();
-		assertEquals("Testing *inbox search with no filter: ", 7, results.size());
-		filter = new Search("hello*", null, null, null, null, null);
+		assertEquals("Testing *Inbox search with no filter: ", 8, results.size());
+		filter = new Search("Hello*", null, null, null, null, null);
 		model.search(filter);
 		results = model.getSearchResultsMap();
-		assertEquals("Testing hello* search with no filter: ", 5, results.size());
+		assertEquals("Testing Hello* search with no filter: ", 5, results.size());
 		
 		// testing _ symbol
-		filter = new Search("W___d", null, null, null, null, null);
+		filter = new Search("*W___d*", null, null, null, null, null);
 		model.search(filter);
 		results = model.getSearchResultsMap();
-		assertEquals("Testing W___d search with no filter: ", 4, results.size());
+		assertEquals("Testing *W___d* search with no filter: ", 4, results.size());
 	}
 	
 
@@ -391,7 +390,7 @@ public class SearchBadgerModelTest extends TestCase {
             	newContactUri = res[0].uri;	
             	// contact:content://com.android.contacts/raw_contacts/612
             	
-            	Cursor c = contentResolver.query(newContactUri, new String[]{Contacts._ID}, null, null, null);
+            	Cursor c = contentResolver.query(newContactUri, new String[]{BaseColumns._ID}, null, null, null);
             	try {
             	    c.moveToFirst();
             	    long id = c.getLong(0);

@@ -15,14 +15,9 @@ import com.github.searchbadger.util.MessageSource;
 import com.github.searchbadger.util.Search;
 import com.github.searchbadger.util.SendReceiveType;
 
-import android.app.Activity;
-import android.content.Context;
 import android.database.Cursor;
-import android.database.DatabaseUtils;
 import android.net.Uri;
 import android.util.Log;
-
-import com.github.searchbadger.R;
 
 public class SearchBadgerModel {
 	private final static SearchBadgerModel instance = new SearchBadgerModel();
@@ -49,11 +44,25 @@ public class SearchBadgerModel {
 		String selection = "";
 		String arg = "";
 		
+		
+				
 		// Go through each possible search type, and build SQL query
 		if (filter.getText() != null && filter.getText().length() != 0) {
-			selection += "body LIKE ?";
-			//arg = DatabaseUtils.sqlEscapeString("%" + filter.getText() + "%");
-			arg = "%" + filter.getText() + "%";
+			selection += "body";
+			if (filter.getText().contains("#") || filter.getText().contains("*") || filter.getText().contains("_")){
+				selection += " GLOB ?";
+				arg = filter.getText();
+				arg = arg.replace("#", "[0-9]");
+				arg = arg.replace("_", "?");
+				
+				System.out.println("The sql argument: " + arg);
+			}
+			else{
+				selection += " LIKE ?";
+				//arg = DatabaseUtils.sqlEscapeString("%" + filter.getText() + "%");
+				arg = "%" + filter.getText() + "%";
+			}
+			
 			selectionArgList.add(arg);
 		}
 		if (filter.getContacts() != null){
@@ -110,7 +119,7 @@ public class SearchBadgerModel {
 				selectionArgList.add(arg);
 			}
 		}
-		
+				
 		// Make query to content provider and store cursor to table returned
 		String[] selectionArgsArray = new String[selectionArgList.size()];
 		selectionArgList.toArray(selectionArgsArray);
