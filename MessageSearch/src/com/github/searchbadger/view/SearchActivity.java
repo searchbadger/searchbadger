@@ -548,9 +548,5 @@ public class SearchActivity extends Activity implements SearchGenerator {
 			sources.add(MessageSource.STARRED);
 		}
 		return sources;
-	}
-
-
-
-	
+	}	
 }

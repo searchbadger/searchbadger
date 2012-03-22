@@ -96,6 +96,8 @@ public class SearchBadgerModel {
 		}
 		
 		if (filter.getType() != null){
+			if (selection.length() > 0)
+				selection += " AND ";
 			
 			//TODO: Figure out what the types are actually supposed to be. probably not "sent" and "received"
 			selection += "type = ?";
@@ -112,8 +114,9 @@ public class SearchBadgerModel {
 		// Make query to content provider and store cursor to table returned
 		String[] selectionArgsArray = new String[selectionArgList.size()];
 		selectionArgList.toArray(selectionArgsArray);
+
 		Cursor searchResultCursor = SearchBadgerApplication.getAppContext().getContentResolver().query(uri, projectionList, selection, selectionArgsArray, "date DESC");
-		
+
 		searchResults = new ArrayList<Map<String,String>>();
 		searchResultMessages = new ArrayList<Message>();
 		if (searchResultCursor != null) {
