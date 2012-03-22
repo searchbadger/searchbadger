@@ -192,6 +192,7 @@ public class SearchActivity extends Activity implements SearchGenerator {
 		facebookButton.setEnabled(false);
 		twitterButton.setEnabled(false);	  	
 		starButton.setEnabled(false);    
+		checkBoxFilterContacts.setEnabled(false);   
 		
 		toggleFilterDate();
 		toggleFilterContacts();
