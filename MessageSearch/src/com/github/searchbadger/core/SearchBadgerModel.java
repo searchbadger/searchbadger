@@ -55,7 +55,6 @@ public class SearchBadgerModel {
 				arg = arg.replace("#", "[0-9]");
 				arg = arg.replace("_", "?");
 				
-				System.out.println("The sql argument: " + arg);
 			}
 			else{
 				selection += " LIKE ?";
