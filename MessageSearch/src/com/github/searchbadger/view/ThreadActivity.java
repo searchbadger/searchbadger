@@ -26,41 +26,4 @@ public class ThreadActivity extends FragmentActivity {
             getSupportFragmentManager().beginTransaction().add(android.R.id.content, details).commit();
         }
     }
-	
-	/*
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-
-		super.onCreate(savedInstanceState);
-
-		// TODO Remove the following
-		List<Map<String, String>> dataList = new ArrayList<Map<String, String>>();
-
-		HashMap<String, String> dataMap;
-
-		dataMap = new HashMap<String, String>();
-		dataMap.put("Message", "John Does: Hi");
-		dataList.add(dataMap);
-
-		dataMap = new HashMap<String, String>();
-		dataMap.put("Message", "Jane Does: Hello");
-		dataList.add(dataMap);
-
-		dataMap = new HashMap<String, String>();
-		dataMap.put("Message", "John Does: Bye");
-		dataList.add(dataMap);
-
-		dataMap = new HashMap<String, String>();
-		dataMap.put("Message", "Jane Does: See ya");
-		dataList.add(dataMap);
-
-		SimpleAdapter adapter = new SimpleAdapter(this, dataList,
-				R.layout.thread_list_item, new String[] { "Message" },
-						new int[] { R.id.thread_text });
-
-		setListAdapter(adapter);
-
-	}
-	*/
-
 }

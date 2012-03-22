@@ -74,7 +74,7 @@ public class SearchBadgerController {
 	}
 
 
-
+	// This is currently implemented in ThreadListFragment and SearchResultListFragment
 	public class ResultSelected implements View.OnClickListener {
 		public void onClick(View v) {
 
