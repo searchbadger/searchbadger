@@ -449,12 +449,12 @@ public class SearchActivity extends Activity implements SearchGenerator {
 				end = cal.getTime();
 				break;
 			case R.id.radioSinceYesterday:
-				cal.add(Calendar.DAY_OF_YEAR, -1);
 				calToEndOfDay(cal);
-				begin = null;
 				end = cal.getTime();
+				cal.add(Calendar.DAY_OF_YEAR, -1);
+				calToBeginningOfDay(cal);
+				begin = cal.getTime();
 				break;
-				
 			case R.id.radioPaskWeek:
 				calToEndOfDay(cal);
 				end = cal.getTime();
