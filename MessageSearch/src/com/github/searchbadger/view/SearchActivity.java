@@ -187,6 +187,7 @@ public class SearchActivity extends Activity implements SearchGenerator {
 
 		// update the filters
 		radioGroupDate.check(R.id.radioToday);
+		sendReceiveRadioGroup.check(R.id.radioSent);
 		toggleFilterDate();
 		toggleFilterContacts();
 		toggleFilterSentReceived();
@@ -413,28 +414,33 @@ public class SearchActivity extends Activity implements SearchGenerator {
 		text = searchInputText.getText().toString();
 		
 		Calendar cal = Calendar.getInstance();
+		begin = new Date();
+		end = new Date();
+		begin.setHours(0);
+		begin.setMinutes(0);
+		begin.setSeconds(0);
+		end.setHours(23);
+		end.setMinutes(59);
+		end.setSeconds(59);
+		cal.setTime(begin);
 		// get begin date
 		// get end date
 		if (checkBoxFilterDate.isChecked()) {
 			switch (radioGroupDate.getCheckedRadioButtonId()) {
 			case R.id.radioToday:
-				begin = cal.getTime();
-				end = cal.getTime();
 				break;
+				
 			case R.id.radioYesterday:
 				cal.add(Calendar.DAY_OF_YEAR, -1);
 				begin = cal.getTime();
-				end = cal.getTime();
 				break;
 				
 			case R.id.radioPaskWeek:
-				end = cal.getTime();
 				cal.add(Calendar.DAY_OF_YEAR, -7);
 				begin = cal.getTime();
 				break;
 				
 			case R.id.radioPastMonth:
-				end = cal.getTime();
 				cal.add(Calendar.MONTH, -1);
 				begin = cal.getTime();
 				break;
@@ -442,16 +448,28 @@ public class SearchActivity extends Activity implements SearchGenerator {
 			case R.id.radioBefore:
 				end = this.beforeDate;
 				begin = null;
+				end.setHours(23);
+				end.setMinutes(59);
+				end.setSeconds(59);
 				break;
 				
 			case R.id.radioAfter:
 				begin = this.afterDate;
 				end = null;
+				begin.setHours(0);
+				begin.setMinutes(0);
+				begin.setSeconds(0);
 				break;
 				
 			case R.id.radioFrom:
 				begin = this.fromDate;
 				end = this.toDate;
+				begin.setHours(0);
+				begin.setMinutes(0);
+				begin.setSeconds(0);
+				end.setHours(23);
+				end.setMinutes(59);
+				end.setSeconds(59);
 				break;
 			default:
 				begin = null;

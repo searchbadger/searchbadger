@@ -96,6 +96,8 @@ public class MessageSearchModel {
 		}
 		
 		if (filter.getType() != null){
+			if (selection.length() > 0)
+				selection += " AND ";
 			
 			//TODO: Figure out what the types are actually supposed to be. probably not "sent" and "received"
 			selection += "type = ?";
@@ -113,7 +115,7 @@ public class MessageSearchModel {
 		String[] selectionArgsArray = new String[selectionArgList.size()];
 		selectionArgList.toArray(selectionArgsArray);
 		Cursor searchResultCursor = MessageSearchApplication.getAppContext().getContentResolver().query(uri, projectionList, selection, selectionArgsArray, "date DESC");
-		
+
 		searchResults = new ArrayList<Map<String,String>>();
 		searchResultMessages = new ArrayList<Message>();
 		if (searchResultCursor != null) {
