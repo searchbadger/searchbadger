@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
  <selector xmlns:android="http://schemas.android.com/apk/res/android">
      <item android:state_pressed="true"
-           android:drawable="@drawable/search" />
-     <item android:drawable="@drawable/search" />
+           android:drawable="@drawable/btn_blue_matte" />
+     <item android:drawable="@drawable/btn_white_matte" />
  </selector>

@@ -42,7 +42,7 @@
                     android:layout_alignLeft="@+id/editTextSearch"
                     android:layout_marginLeft="7dip"
                     android:layout_marginTop="7dip"
-                    android:background="@drawable/button_type_search" >
+                    android:background="@drawable/search" >
                 </ImageButton>
 
                 <ImageButton
@@ -91,7 +91,7 @@
                 <ToggleButton
                     android:id="@+id/toggleButtonTypeSMS"
                     android:layout_width="50dp"
-                    android:layout_height="50dp"
+                    android:layout_height="44dp"
                     android:layout_margin="5dp"
                     android:background="@drawable/button_type_sms"
                     android:textOff=""
@@ -100,7 +100,7 @@
                 <ToggleButton
                     android:id="@+id/toggleButtonTypeFacebook"
                     android:layout_width="50dp"
-                    android:layout_height="50dp"
+                    android:layout_height="44dp"
                     android:layout_margin="5dp"
                     android:background="@drawable/button_type_facebook"
                     android:textOff=""
@@ -109,7 +109,7 @@
                 <ToggleButton
                     android:id="@+id/toggleButtonTypeTwitter"
                     android:layout_width="50dp"
-                    android:layout_height="50dp"
+                    android:layout_height="44dp"
                     android:layout_margin="5dp"
                     android:background="@drawable/button_type_twitter"
                     android:textOff=""
@@ -118,7 +118,7 @@
                 <ToggleButton
                     android:id="@+id/toggleButtonTypeStar"
                     android:layout_width="50dp"
-                    android:layout_height="50dp"
+                    android:layout_height="44dp"
                     android:layout_margin="5dp"
                     android:background="@drawable/button_type_star"
                     android:textOff=""
@@ -160,58 +160,58 @@
                     <RadioButton
                         android:id="@+id/radioToday"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_height="44dp"
                         android:text="@string/today"
                         android:textAppearance="?android:attr/textAppearanceMedium" />
 
                     <RadioButton
                         android:id="@+id/radioSinceYesterday"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_height="44dp"
                         android:text="@string/yesterday"
                         android:textAppearance="?android:attr/textAppearanceMedium" />
 
                     <RadioButton
                         android:id="@+id/radioPaskWeek"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_height="44dp"
                         android:text="@string/past_week"
                         android:textAppearance="?android:attr/textAppearanceMedium" />
 
                     <RadioButton
                         android:id="@+id/radioPastMonth"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_height="44dp"
                         android:text="@string/past_month"
                         android:textAppearance="?android:attr/textAppearanceMedium" />
 
                     <RadioButton
                         android:id="@+id/radioBefore"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_height="44dp"
                         android:text="@string/before"
                         android:textAppearance="?android:attr/textAppearanceMedium" />
 
                     <RadioButton
                         android:id="@+id/radioAfter"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_height="44dp"
                         android:text="@string/after"
                         android:textAppearance="?android:attr/textAppearanceMedium" />
 
                     <RadioButton
                         android:id="@+id/radioFrom"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_height="44dp"
                         android:text="@string/from"
                         android:textAppearance="?android:attr/textAppearanceMedium" />
 
                     <TextView
                         android:id="@+id/textView1"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_height="44dp"
                         android:paddingLeft="37dp"
-                        android:paddingTop="15dp"
+                        android:paddingTop="9dp"
                         android:text="@string/to"
                         android:textAppearance="?android:attr/textAppearanceMedium" />
                 </RadioGroup>
@@ -221,58 +221,70 @@
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:paddingLeft="10dp" >
+                    android:paddingRight="10dp" >
 
                     <Button
                         android:id="@+id/buttonDateToday"
                         android:layout_width="wrap_content"
-                        android:layout_height="fill_parent"
+                        android:layout_height="44dp"
                         android:text="@string/empty"
                         android:visibility="invisible" />
 
                     <Button
                         android:id="@+id/buttonDateYesterday"
                         android:layout_width="wrap_content"
-                        android:layout_height="fill_parent"
+                        android:layout_height="44dp"
                         android:text="@string/empty"
                         android:visibility="invisible" />
 
                     <Button
                         android:id="@+id/buttonDateLastWeek"
                         android:layout_width="wrap_content"
-                        android:layout_height="fill_parent"
+                        android:layout_height="44dp"
                         android:text="@string/empty"
                         android:visibility="invisible" />
 
                     <Button
                         android:id="@+id/buttonDatePastMonth"
                         android:layout_width="wrap_content"
-                        android:layout_height="fill_parent"
+                        android:layout_height="44dp"
                         android:text="@string/empty"
                         android:visibility="invisible" />
 
                     <Button
                         android:id="@+id/buttonBefore"
-                        android:layout_width="100dp"
-                        android:layout_height="fill_parent"
+                        android:textSize="10sp"
+                        android:layout_width="140dp"
+                        android:layout_height="44dp"
+                        android:drawableLeft="@drawable/calendar"
+                        android:paddingRight="24dp"
                         android:text="@string/sample_date" />
 
                     <Button
                         android:id="@+id/buttonAfter"
-                        android:layout_width="100dp"
-                        android:layout_height="fill_parent"
+                        android:textSize="10sp"
+                        android:layout_width="140dp"
+                        android:layout_height="44dp"
+                        android:drawableLeft="@drawable/calendar"
+                        android:paddingRight="24dp"
                         android:text="@string/sample_date" />
 
                     <Button
                         android:id="@+id/buttonFrom"
-                        android:layout_width="100dp"
-                        android:layout_height="fill_parent"
+                        android:textSize="10sp"
+                        android:layout_width="140dp"
+                        android:layout_height="44dp"
+                        android:drawableLeft="@drawable/calendar"
+                        android:paddingRight="24dp"
                         android:text="@string/sample_date" />
 
                     <Button
                         android:id="@+id/buttonTo"
-                        android:layout_width="100dp"
-                        android:layout_height="fill_parent"
+                        android:textSize="10sp"
+                        android:layout_width="140dp"
+                        android:layout_height="44dp"
+                        android:drawableLeft="@drawable/calendar"
+                        android:paddingRight="24dp"
                         android:text="@string/sample_date" />
                 </LinearLayout>
             </LinearLayout>
@@ -307,12 +319,16 @@
 
                 <Button
                     android:id="@+id/buttonSelectContacts"
-                    android:layout_width="150dp"
-                    android:layout_height="fill_parent"
+                    android:layout_width="180dp"
+                    android:layout_height="44dp"
+                    android:textSize="12sp"
+                    android:drawableLeft="@drawable/contacts"
+                    android:paddingRight="24dp"
                     android:text="@string/select_contacts" />
 
                 <TextView
                     android:id="@+id/textViewSelectContacts"
+                    android:textSize="12sp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:paddingLeft="5dp"
@@ -355,14 +371,14 @@
                     <RadioButton
                         android:id="@+id/radioSent"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                    	android:layout_height="44dp"
                         android:text="@string/sent"
                         android:textAppearance="?android:attr/textAppearanceMedium" />
 
                     <RadioButton
                         android:id="@+id/radioReceived"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                    	android:layout_height="44dp"
                         android:text="@string/received"
                         android:textAppearance="?android:attr/textAppearanceMedium" />
                 </RadioGroup>
@@ -382,6 +398,9 @@
             android:layout_height="fill_parent"
             android:drawableTop="@drawable/logo_30x27"
             android:gravity= "center_horizontal"
+            android:textColor="@color/black"
+            android:textSize="10sp"
+            android:background="@drawable/button_type_search"
             android:text="@string/search" />
     </LinearLayout>
 
