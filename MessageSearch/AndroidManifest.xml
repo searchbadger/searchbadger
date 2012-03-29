@@ -19,7 +19,8 @@
         android:name=".core.SearchBadgerApplication" >
         
         
-        <activity android:name=".view.SearchActivity">
+        <activity android:name=".view.SearchActivity"
+            android:windowSoftInputMode="stateVisible|adjustResize">
         </activity>
         
         
