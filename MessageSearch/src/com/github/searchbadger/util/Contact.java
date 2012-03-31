@@ -6,10 +6,10 @@ import android.os.Parcelable;
 import android.util.Log;
 
 public class Contact implements Parcelable {
-	private final long id;
-	private final MessageSource source;
-	private final String name;
-	private final Bitmap picture;
+	protected long id;
+	protected MessageSource source;
+	protected String name;
+	protected Bitmap picture;
 
 	public Contact(long id, MessageSource source, String name, Bitmap picture) {
 		this.id = id;

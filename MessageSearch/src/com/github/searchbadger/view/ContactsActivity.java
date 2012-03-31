@@ -8,15 +8,20 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.provider.ContactsContract.Contacts;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.searchbadger.R;
+import com.github.searchbadger.core.SearchBadgerModel;
 import com.github.searchbadger.util.Contact;
 import com.github.searchbadger.util.MessageSource;
 import com.github.searchbadger.util.SelectedContacts;
@@ -25,7 +30,7 @@ public class ContactsActivity extends Activity {
 
 	private static final String[] CONTACT_PROJECTION = new String[] {
 			Contacts._ID, Contacts.DISPLAY_NAME };
-	private int[] sources;
+	private List<MessageSource> sources;
 	private List<Contact> selectedContacts;
 
 	@Override
@@ -44,79 +49,67 @@ public class ContactsActivity extends Activity {
         
         
         Intent intent = getIntent();
-        sources = intent.getIntArrayExtra("messageSources");
-        selectedContacts = SelectedContacts.getInstance().getSelectedContacts();
+        if(intent != null) {
+	        sources = intent.getParcelableArrayListExtra("messageSources");
+	        selectedContacts = SelectedContacts.getInstance().getSelectedContacts();
+        }
         
+		// check if only one source is selected
+        if(sources == null) return;
+        if(selectedContacts == null) return;
+		if(sources.size() != 1) return;
 
         ListView list = (ListView) findViewById(R.id.listView_contact);
-        ListAdapter adapter = null;
-		
-
-		// check if only one source is selected
-		if (sources.length != 1)
-			return;
-
-		// set the correct list adapter for the search type
-		switch (sources[0]) {
-		case 0: // TODO how do you convert enums to ints?
-			adapter = getListAdapterSMS();
-			break;
-
-		}
-        list.setAdapter(adapter);
+        List<Contact> contacts = SearchBadgerModel.getInstance().getContacts(sources.get(0));
+		ListAdapter myadapter = new ContactArrayAdapter(this,
+				R.layout.contacts_list_item,
+				contacts);
+        list.setAdapter(myadapter);
 
 	}
+	
+	protected class ContactArrayAdapter extends ArrayAdapter<Contact> {
 
-	protected ListAdapter getListAdapterSMS() {
+		private List<Contact> contacts;
 		
-		// TODO Do we need to move this to the model since it's accessing
-		//      the data?
-		// Get a cursor with all people
-		Cursor cursor = getContentResolver().query(Contacts.CONTENT_URI,
-				CONTACT_PROJECTION, null, null, null);
-		startManagingCursor(cursor);
-
-		ListAdapter adapter = new SMSContactSimpleCursorAdapter(this,
-				R.layout.contacts_list_item, cursor,
-				new String[] { Contacts.DISPLAY_NAME },
-				new int[] { R.id.contact_name });
-		return adapter;
-	}
-
-	protected class SMSContactSimpleCursorAdapter extends SimpleCursorAdapter {
-
-		public SMSContactSimpleCursorAdapter(Activity context, int layout,
-				Cursor c, String[] from, int[] to) {
-			super(context, layout, c, from, to);
+		public ContactArrayAdapter(Context context, int textViewResourceId, List<Contact> objects) {
+			super(context, textViewResourceId, objects);
+			contacts = objects;
 		}
 
-		@Override
-		public void bindView(View view, Context context, Cursor cursor) {
-			super.bindView(view, context, cursor);
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+                View v = convertView;
+                if (v == null) {
+                    LayoutInflater vi = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                    v = vi.inflate(R.layout.contacts_list_item, null);
+                }
+                Contact c = contacts.get(position);
+                if (c != null) {
+                	// save the contact into the tag
+        			v.setTag(c);
+                	
+                	// add the name
+                	TextView name = (TextView) v.findViewById(R.id.contact_name);
+                	if(name != null)
+                		name.setText(c.getName());
 
-			// save the contact into the tag
-			int contactId = Integer.parseInt(cursor.getString(cursor.getColumnIndex(Contacts._ID)));
-			String contactName = cursor.getString(cursor.getColumnIndex(Contacts.DISPLAY_NAME));
-			Contact contact = new Contact(contactId,
-					MessageSource.SMS,
-					contactName,
-					null);
-			view.setTag(contact);
-
-			// set the click listener for the checkbox
-			CheckBox checkbox = (CheckBox) view
-					.findViewById(R.id.contact_checkBox);
-			checkbox.setOnClickListener(new View.OnClickListener() {
-				public void onClick(View v) {
-					OnContactSelector(v);
-				}
-			});
-			// check the box if the contact is in the list
-			if(selectedContacts.contains(contact))
-				checkbox.setChecked(true);
-			else
-				checkbox.setChecked(false);
-		}
+        			// set the click listener for the checkbox
+        			CheckBox checkbox = (CheckBox) v.findViewById(R.id.contact_checkBox);
+        			checkbox.setOnClickListener(new View.OnClickListener() {
+        				public void onClick(View v) {
+        					OnContactSelector(v);
+        				}
+        			});
+        			// check the box if the contact is in the list
+        			if(selectedContacts.contains(c))
+        				checkbox.setChecked(true);
+        			else
+        				checkbox.setChecked(false);
+                }
+                return v;
+        }
+		
 	}
 	
 	protected void OnContactSelector(View v){
@@ -138,9 +131,6 @@ public class ContactsActivity extends Activity {
 		else
 			selectedContacts.remove(contact);
 
-		// TODO remove this
-		Toast.makeText(v.getContext(), selectedContacts.toString(),
-				Toast.LENGTH_SHORT).show();
 	}
 
 }

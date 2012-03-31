@@ -9,15 +9,18 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import android.database.Cursor;
+import android.net.Uri;
+import android.provider.ContactsContract.CommonDataKinds.Phone;
+import android.provider.ContactsContract.Contacts;
+import android.util.Log;
+
 import com.github.searchbadger.util.Contact;
+import com.github.searchbadger.util.ContactSMS;
 import com.github.searchbadger.util.Message;
 import com.github.searchbadger.util.MessageSource;
 import com.github.searchbadger.util.Search;
 import com.github.searchbadger.util.SendReceiveType;
-
-import android.database.Cursor;
-import android.net.Uri;
-import android.util.Log;
 
 public class SearchBadgerModel {
 	private final static SearchBadgerModel instance = new SearchBadgerModel();
@@ -70,12 +73,23 @@ public class SearchBadgerModel {
 				selection += " AND ";
 				
 			selection += "(";
+			boolean firstAddress = true;
 			while (iter.hasNext()){
 				Contact c = iter.next();
-				selection += "person = ?";
-				arg = ((Long)c.getId()).toString();
-				selectionArgList.add(arg);
-				if (iter.hasNext()) selection += " OR ";
+				if (c instanceof ContactSMS) {
+					ContactSMS cSMS = (ContactSMS)c;
+					List<String> addresses = cSMS.getAddresses();
+					Iterator<String> iterAddresses = addresses.iterator();
+					while (iterAddresses.hasNext()){
+						if(firstAddress == true)
+							firstAddress = false;
+						else
+							selection += " OR ";
+						String address = iterAddresses.next();
+						selection += "address = ?";
+						selectionArgList.add(address);
+					}
+				}
 			}
 			selection += ")";
 			
@@ -288,7 +302,85 @@ public class SearchBadgerModel {
 	 * Given a message source this gets the contacts for that source.§
 	 */
 	public List<Contact> getContacts(MessageSource source) {
+		switch(source) {
+		case SMS:
+			return getSMSContacts();
+		}
+		
 		return null;
 	}
+
+	private static final String[] CONTACT_PROJECTION = new String[] {
+			Contacts._ID, Contacts.DISPLAY_NAME };
+	
+	protected List<Contact> getSMSContacts() {
+		List<Contact> contacts = null; 
+		
+		// get the list of contacts
+		Cursor cursor = SearchBadgerApplication.getAppContext().getContentResolver().query(Contacts.CONTENT_URI,
+				CONTACT_PROJECTION, null, null, null);
+		
+		// go through all the contacts
+		if (cursor != null) {
+			int count = cursor.getCount();
+			contacts = new ArrayList<Contact>(count);
+			try {
+				if (count > 0) {
+					cursor.moveToFirst();
+					do {
+
+						// get the id and name
+						String contactId = cursor.getString(cursor.getColumnIndex(Contacts._ID));
+						String contactName = cursor.getString(cursor.getColumnIndex(Contacts.DISPLAY_NAME));
+						
+						// get all the number for the contact
+						List<String> addresses = null;
+						List<String> selectionArgList = new LinkedList<String>();
+						selectionArgList.add(contactId);
+						String[] selectionArgsArray = new String[selectionArgList.size()];
+						selectionArgList.toArray(selectionArgsArray);
+						
+						Cursor c = SearchBadgerApplication.getAppContext().getContentResolver().query(
+								Phone.CONTENT_URI, 
+								new String[]{Phone.NUMBER, Phone.TYPE}, 
+								Phone.CONTACT_ID + " = ? ", /*" DISPLAY_NAME = '"+contactName+"'",*/
+								selectionArgsArray, 
+			                    null); // TODO
+						try {
+							addresses = new ArrayList<String>(c.getCount());
+				            while(c.moveToNext()){
+				                switch(c.getInt(c.getColumnIndex(Phone.TYPE))){
+				                case Phone.TYPE_MOBILE :
+				                case Phone.TYPE_HOME :
+				                case Phone.TYPE_WORK :
+				                case Phone.TYPE_OTHER :
+				                	addresses.add(c.getString(c.getColumnIndex(Phone.NUMBER)));
+				                	break;
+				                }
+				            }
+						}finally {
+							c.close();
+						}
+
+						// add the new contact to the list
+						ContactSMS contact = new ContactSMS(
+								Integer.parseInt(contactId),
+								MessageSource.SMS,
+								contactName,
+								null,
+								addresses);
+						contacts.add(contact);
+						
+					} while (cursor.moveToNext() == true);
+
+				}
+			} finally {
+				cursor.close();
+			}
+		}
+		
+		return contacts;
+	}
+	
 	
 }

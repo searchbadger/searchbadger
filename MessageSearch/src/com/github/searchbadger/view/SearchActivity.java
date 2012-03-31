@@ -218,10 +218,6 @@ public class SearchActivity extends Activity implements SearchGenerator {
 		radioGroupDate.check(R.id.radioToday);
 		sendReceiveRadioGroup.check(R.id.radioSent);
 		smsButton.toggle();
-		facebookButton.setEnabled(false);
-		twitterButton.setEnabled(false);	  	
-		starButton.setEnabled(false);    
-		checkBoxFilterContacts.setEnabled(false);   
 		
 		toggleFilterDate();
 		toggleFilterContacts();
