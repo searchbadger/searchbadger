@@ -34,7 +34,9 @@ public class SearchBadgerController {
 			Search filter = srchGen.generateSearch();
 			if(filter.getSources().size() == 0) {
 				AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
-				builder.setMessage("No source was selected. Please select a source and try again.")
+				builder.setMessage("Please select a source and try again.")
+				       .setTitle("No source was selected")
+				       .setIcon(android.R.drawable.ic_dialog_alert)
 				       .setCancelable(false)
 				       .setPositiveButton("OK", new DialogInterface.OnClickListener() {
 				           public void onClick(DialogInterface dialog, int id) {

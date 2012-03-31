@@ -17,6 +17,9 @@ import android.text.Html;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextWatcher;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -649,5 +652,44 @@ public class SearchActivity extends Activity implements SearchGenerator {
 		
 	}
 
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater inflater = getMenuInflater();
+	    inflater.inflate(R.menu.default_menu, menu);
+	    return true;
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+	    // Handle item selection
+	    switch (item.getItemId()) {
+	    
+	        case R.id.menu_settings:
+	        	ShowSettings();
+	            return true;
+	        case R.id.menu_help:
+	        	ShowHelp();
+	            return true;
+	        case R.id.menu_about:
+	        	ShowAbout();
+	            return true;
+	            
+	        default:
+	            return super.onOptionsItemSelected(item);
+	    }
+	}
+	
+	public void ShowSettings() {
+		Intent intent = new Intent(this, AccountsActivity.class);
+		startActivity(intent);
+	}
+	
+	public void ShowHelp() {
+		
+	}
+	
+	public void ShowAbout() {
+		
+	}
 	
 }
