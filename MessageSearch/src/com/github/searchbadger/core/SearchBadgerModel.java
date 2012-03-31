@@ -68,31 +68,31 @@ public class SearchBadgerModel {
 		if (filter.getContacts() != null){
 			List<Contact> contacts = filter.getContacts();
 			Iterator<Contact> iter = contacts.iterator();
-			
-			if (selection.length() > 0)
-				selection += " AND ";
-				
-			selection += "(";
-			boolean firstAddress = true;
-			while (iter.hasNext()){
-				Contact c = iter.next();
-				if (c instanceof ContactSMS) {
-					ContactSMS cSMS = (ContactSMS)c;
-					List<String> addresses = cSMS.getAddresses();
-					Iterator<String> iterAddresses = addresses.iterator();
-					while (iterAddresses.hasNext()){
-						if(firstAddress == true)
-							firstAddress = false;
-						else
-							selection += " OR ";
-						String address = iterAddresses.next();
-						selection += "address = ?";
-						selectionArgList.add(address);
+			if(contacts.size() != 0) {
+				if (selection.length() > 0)
+					selection += " AND ";
+					
+				selection += "(";
+				boolean firstAddress = true;
+				while (iter.hasNext()){
+					Contact c = iter.next();
+					if (c instanceof ContactSMS) {
+						ContactSMS cSMS = (ContactSMS)c;
+						List<String> addresses = cSMS.getAddresses();
+						Iterator<String> iterAddresses = addresses.iterator();
+						while (iterAddresses.hasNext()){
+							if(firstAddress == true)
+								firstAddress = false;
+							else
+								selection += " OR ";
+							String address = iterAddresses.next();
+							selection += "address = ?";
+							selectionArgList.add(address);
+						}
 					}
 				}
-			}
-			selection += ")";
-			
+				selection += ")";				
+			}			
 		}
 		
 		if (filter.getBegin() != null){
