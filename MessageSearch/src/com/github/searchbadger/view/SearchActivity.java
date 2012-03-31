@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import android.app.Activity;
@@ -147,11 +148,15 @@ public class SearchActivity extends Activity implements SearchGenerator {
 		contactsButton.setOnClickListener(controller.new 
 				ContactButtonListener(this));
 
-		// XXX SearchSourceSelected searchSourceSelected = controller.new SearchSourceSelected(this);
-		//		smsButton.setOnClickListener(searchSourceSelected);
-		//		facebookButton.setOnClickListener(searchSourceSelected);
-		//		twitterButton.setOnClickListener(searchSourceSelected);
-		//		starButton.setOnClickListener(searchSourceSelected);
+		View.OnClickListener searchSourceSelected = new View.OnClickListener() {
+			public void onClick(View v) {
+				updateSourceSelection(v);
+			}
+		};
+		smsButton.setOnClickListener(searchSourceSelected);
+		facebookButton.setOnClickListener(searchSourceSelected);
+		twitterButton.setOnClickListener(searchSourceSelected);
+		starButton.setOnClickListener(searchSourceSelected);
 
 		symbolPoundButton.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
@@ -234,6 +239,7 @@ public class SearchActivity extends Activity implements SearchGenerator {
 		fromDate = new Date();
 		toDate = new Date();
 		updateDateButtons();
+		updateTextContacts();
 		
 		searchInputText.requestFocus();
 	}
@@ -314,6 +320,20 @@ public class SearchActivity extends Activity implements SearchGenerator {
 		searchInputText.setSelection(start + 1);
 	}
 
+
+	private void updateSourceSelection(View v) {
+		
+		// this will enable/disable the select contact button depending on the sources selected
+		List<MessageSource> sources = getMessageSources();
+		if(sources.size() != 1) {
+			contactsText.setText("The contact selection filter is only available when a single source is selected.");
+			contactsButton.setEnabled(false);
+		} else {
+			updateTextContacts();
+			contactsButton.setEnabled(true);
+		}
+	}
+	
 	@Override
 	protected Dialog onCreateDialog(int id) {
 		switch (id) {
@@ -602,10 +622,32 @@ public class SearchActivity extends Activity implements SearchGenerator {
             if (resultCode == RESULT_OK) {
                 if(data != null) {
         	        selectedContacts = data.getParcelableArrayListExtra(INTENT_DATA_CONTACTS);
+        	        updateTextContacts();
                 }
             }
         }
 	}
-	
+
+	public void updateTextContacts() {
+		
+		StringBuilder listNames = new StringBuilder();
+		
+		// create and show the list of selected contacts
+		listNames.append("Selected contacts: ");
+		if(selectedContacts.size() == 0) {
+			listNames.append("None");
+		}
+		else {
+			Iterator<Contact> iterator = selectedContacts.iterator();
+			while (iterator.hasNext()) {
+				listNames.append(iterator.next().getName());
+				if(iterator.hasNext())
+					listNames.append(", ");
+			} 
+		}
+		contactsText.setText(listNames);
+		
+	}
+
 	
 }

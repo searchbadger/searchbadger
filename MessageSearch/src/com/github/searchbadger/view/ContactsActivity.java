@@ -59,6 +59,7 @@ public class ContactsActivity extends Activity {
 
         ListView list = (ListView) findViewById(R.id.listView_contact);
         List<Contact> contacts = SearchBadgerModel.getInstance().getContacts(sources.get(0));
+        if(contacts == null) return;
 		ListAdapter myadapter = new ContactArrayAdapter(this,
 				R.layout.contacts_list_item,
 				contacts);

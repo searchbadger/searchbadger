@@ -2,12 +2,15 @@ package com.github.searchbadger.core;
 
 import java.util.ArrayList;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.view.View;
 
 import com.github.searchbadger.util.Contact;
 import com.github.searchbadger.util.MessageSource;
+import com.github.searchbadger.util.Search;
 import com.github.searchbadger.util.SearchGenerator;
 import com.github.searchbadger.view.ContactsActivity;
 import com.github.searchbadger.view.SearchActivity;
@@ -28,7 +31,21 @@ public class SearchBadgerController {
 			this.srchGen = srchGen;
 		}
 		public void onClick(View v) {
-			model.search(srchGen.generateSearch());
+			Search filter = srchGen.generateSearch();
+			if(filter.getSources().size() == 0) {
+				AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
+				builder.setMessage("No source was selected. Please select a source and try again.")
+				       .setCancelable(false)
+				       .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+				           public void onClick(DialogInterface dialog, int id) {
+				                dialog.cancel();
+				           }
+				       });
+				AlertDialog alert = builder.create();
+				alert.show();
+				return;
+			}
+			model.search(filter);
 			Intent resActIntent = new Intent(v.getContext(), 
 					SearchResultActivity.class);
 			v.getContext().startActivity(resActIntent);

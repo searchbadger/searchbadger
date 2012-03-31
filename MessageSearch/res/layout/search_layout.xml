@@ -320,8 +320,7 @@
                 <Button
                     android:id="@+id/buttonSelectContacts"
                     android:layout_width="180dp"
-                    android:layout_height="44dp"
-                    android:textSize="12sp"
+                    android:layout_height="60dp"
                     android:drawableLeft="@drawable/contacts"
                     android:paddingRight="24dp"
                     android:text="@string/select_contacts" />
