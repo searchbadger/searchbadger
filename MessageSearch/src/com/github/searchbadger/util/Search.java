@@ -46,6 +46,38 @@ public class Search {
 	public SendReceiveType getType() {
 		return type;
 	}
-	
+
+	public String getGlobText() {
+		StringBuilder glob = new StringBuilder();
+		
+		// escape special char
+		String tmpText = text;
+		tmpText = tmpText.replace("[", "'[[]");
+		tmpText = tmpText.replace("{", "'[{]");
+		tmpText = tmpText.replace("?", "'[?]");
+		
+		
+		// make glob search be case insensitive
+		String textLowerCase = tmpText.toLowerCase();
+		String textUpperCase = tmpText.toUpperCase();
+		char letterLowerCase, letterUpperCase;
+		for(int i = 0; i < tmpText.length(); i++) {
+			letterLowerCase = textLowerCase.charAt(i);
+			letterUpperCase = textUpperCase.charAt(i);
+			if(letterLowerCase == letterUpperCase) {
+				glob.append(letterLowerCase);
+			} else {
+				glob.append("[" + letterLowerCase + letterUpperCase + "]");
+			}
+		}
+		
+		
+		// add regex
+		tmpText = "*" + glob.toString() + "*";
+		tmpText = tmpText.replace("#", "[0-9]");
+		tmpText = tmpText.replace("_", "?");
+		
+		return tmpText;
+	}
 	
 }

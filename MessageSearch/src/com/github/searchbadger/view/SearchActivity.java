@@ -251,9 +251,6 @@ public class SearchActivity extends Activity implements SearchGenerator {
 
 	private void insertTextSymbol(View v) {
 
-		Toast.makeText(this, "This feature has not been implemented yet", Toast.LENGTH_SHORT).show();
-		if(true) return;
-		
 		// determine the button type
 		String symbol = "";
 		switch (v.getId()) {
@@ -271,27 +268,20 @@ public class SearchActivity extends Activity implements SearchGenerator {
 		// insert the symbol selected
 		// note: the selection start can be the end index if the
 		// text was selected backward
-		if (searchInputText.hasSelection()) {
-			int startSelection = searchInputText.getSelectionStart();
-			int endSelection = searchInputText.getSelectionEnd();
-			int start = startSelection;
-			int end = endSelection;
-			if (endSelection < startSelection) {
-				start = endSelection;
-				end = startSelection;
-			}
-			String searchText = searchInputText.getText().toString();
-			String leftOfSelection = searchText.substring(0, start);
-			String rightOfSelection = searchText.substring(end);
-			searchText = leftOfSelection + symbol + rightOfSelection;
-			searchInputText.setText(searchText);
-			//searchInputText.setSelection(start + 1);
-			searchInputText.setSelected(false);
+		int startSelection = searchInputText.getSelectionStart();
+		int endSelection = searchInputText.getSelectionEnd();
+		int start = startSelection;
+		int end = endSelection;
+		if (endSelection < startSelection) {
+			start = endSelection;
+			end = startSelection;
 		}
-		else {
-			searchInputText.setText(searchInputText.getText() + symbol);
-			searchInputText.setSelected(false);
-		}
+		String searchText = searchInputText.getText().toString();
+		String leftOfSelection = searchText.substring(0, start);
+		String rightOfSelection = searchText.substring(end);
+		searchText = leftOfSelection + symbol + rightOfSelection;
+		searchInputText.setText(searchText);
+		searchInputText.setSelection(start + 1);
 	}
 
 	@Override

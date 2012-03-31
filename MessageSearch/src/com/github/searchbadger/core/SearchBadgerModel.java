@@ -49,19 +49,17 @@ public class SearchBadgerModel {
 		// Go through each possible search type, and build SQL query
 		if (filter.getText() != null && filter.getText().length() != 0) {
 			selection += "body";
-			if (filter.getText().contains("#") || filter.getText().contains("*") || filter.getText().contains("_")){
+			
+			// use the glob for any text that contains regex symbols for GLOB and LIKE
+			if (filter.getText().contains("#") || filter.getText().contains("*") || filter.getText().contains("_") || filter.getText().contains("%")){
 				selection += " GLOB ?";
-				arg = filter.getText();
-				arg = arg.replace("#", "[0-9]");
-				arg = arg.replace("_", "?");
-				
+				arg = filter.getGlobText();				
 			}
 			else{
 				selection += " LIKE ?";
-				//arg = DatabaseUtils.sqlEscapeString("%" + filter.getText() + "%");
 				arg = "%" + filter.getText() + "%";
 			}
-			
+
 			selectionArgList.add(arg);
 		}
 		if (filter.getContacts() != null){
