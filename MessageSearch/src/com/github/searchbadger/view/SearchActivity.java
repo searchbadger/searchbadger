@@ -10,15 +10,20 @@ import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.Html;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.github.searchbadger.R;
@@ -59,6 +64,7 @@ public class SearchActivity extends Activity implements SearchGenerator {
 	private Button fromButton;
 	private Button toButton;
 	private TextView contactsText;
+	private ImageButton clearSearchButton;
 
 	private SearchBadgerController controller;
 	private SearchBadgerModel model;
@@ -71,6 +77,7 @@ public class SearchActivity extends Activity implements SearchGenerator {
 	private Date fromDate;
 	private Date toDate;
 	
+	private TextWatcher watcher;
 
 
 	/** Called when the activity is first created. */
@@ -112,6 +119,7 @@ public class SearchActivity extends Activity implements SearchGenerator {
 		fromButton = (Button) findViewById(R.id.buttonFrom);
 		toButton = (Button) findViewById(R.id.buttonTo);
 		contactsText = (TextView) findViewById(R.id.textViewSelectContacts);
+		clearSearchButton = (ImageButton) findViewById(R.id.clear_button);
 
 		// set the onClick events
 		checkBoxFilterDate.setOnClickListener(new View.OnClickListener() {
@@ -184,6 +192,27 @@ public class SearchActivity extends Activity implements SearchGenerator {
 				toggleButtonSymbols(hasFocus);
 			}
 		});
+		
+		clearSearchButton.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				searchInputText.setText("");
+			}
+		});
+		
+		// this will color the regex symbols
+		watcher = new TextWatcher() {
+			public void onTextChanged(CharSequence s, int start, int before, int count) {
+				searchInputText.removeTextChangedListener(watcher);
+				int startSelection = searchInputText.getSelectionStart();
+				int stopSelection = searchInputText.getSelectionEnd();
+				searchInputText.setText(colorRegexString(searchInputText.getText().toString()));
+				searchInputText.setSelection(startSelection, stopSelection); // restore selection
+				searchInputText.addTextChangedListener(watcher);
+			}
+			public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+			public void afterTextChanged(Editable s) {}
+		};
+		searchInputText.addTextChangedListener(watcher);
 
 		// update the filters
 		radioGroupDate.check(R.id.radioToday);
@@ -543,4 +572,22 @@ public class SearchActivity extends Activity implements SearchGenerator {
 		}
 		return sources;
 	}	
+	
+	protected Editable colorRegexString(String string) {
+		SpannableStringBuilder editable = new SpannableStringBuilder();
+		
+		char letter;
+		Spanned spanned;
+		for(int i = 0; i < string.length(); i++) {
+			letter = string.charAt(i);
+			if(letter == '#' || letter == '*' || letter == '_') {
+				spanned = Html.fromHtml("<font color='#46a546'><b>" + letter + "</b></font>");
+				editable.append(spanned);
+			} else {
+				editable.append(letter);
+			}
+		}
+		
+		return editable;
+	}
 }
