@@ -9,6 +9,7 @@ import java.util.List;
 import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.Html;
@@ -33,12 +34,14 @@ import com.github.searchbadger.util.Contact;
 import com.github.searchbadger.util.MessageSource;
 import com.github.searchbadger.util.Search;
 import com.github.searchbadger.util.SearchGenerator;
-import com.github.searchbadger.util.SelectedContacts;
 import com.github.searchbadger.util.SendReceiveType;
 
 public class SearchActivity extends Activity implements SearchGenerator {
 
-	static final int DATE_DIALOG_ID = 0;
+	static private final int DATE_DIALOG_ID = 0;
+	static public final int PICK_CONTACT_REQUEST = 1;
+	static public final String INTENT_DATA_SOURCES = "messageSources";
+	static public final String INTENT_DATA_CONTACTS = "selectedContacts";
 
 	private LinearLayout layoutFilterDate;
 	private LinearLayout layoutFilterContacts;
@@ -78,6 +81,8 @@ public class SearchActivity extends Activity implements SearchGenerator {
 	private Date toDate;
 	
 	private TextWatcher watcher;
+	
+	protected List<Contact> selectedContacts = new ArrayList<Contact>();
 
 
 	/** Called when the activity is first created. */
@@ -523,7 +528,7 @@ public class SearchActivity extends Activity implements SearchGenerator {
 		// get selectedContacts
 		contacts = null;
 		if (checkBoxFilterContacts.isChecked()) {
-			contacts = SelectedContacts.getInstance().getSelectedContacts();			
+			contacts = selectedContacts;			
 		}
 
 		// get type
@@ -569,6 +574,10 @@ public class SearchActivity extends Activity implements SearchGenerator {
 		return sources;
 	}	
 	
+	public List<Contact> getSelectedContacts() {
+		return selectedContacts;
+	}
+	
 	protected Editable colorRegexString(String string) {
 		SpannableStringBuilder editable = new SpannableStringBuilder();
 		
@@ -586,4 +595,17 @@ public class SearchActivity extends Activity implements SearchGenerator {
 		
 		return editable;
 	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if (requestCode == PICK_CONTACT_REQUEST) {
+            if (resultCode == RESULT_OK) {
+                if(data != null) {
+        	        selectedContacts = data.getParcelableArrayListExtra(INTENT_DATA_CONTACTS);
+                }
+            }
+        }
+	}
+	
+	
 }

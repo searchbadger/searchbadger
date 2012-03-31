@@ -1,11 +1,11 @@
 package com.github.searchbadger.view;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.provider.ContactsContract.Contacts;
 import android.view.LayoutInflater;
@@ -16,20 +16,15 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.github.searchbadger.R;
 import com.github.searchbadger.core.SearchBadgerModel;
 import com.github.searchbadger.util.Contact;
 import com.github.searchbadger.util.MessageSource;
-import com.github.searchbadger.util.SelectedContacts;
 
 public class ContactsActivity extends Activity {
 
-	private static final String[] CONTACT_PROJECTION = new String[] {
-			Contacts._ID, Contacts.DISPLAY_NAME };
 	private List<MessageSource> sources;
 	private List<Contact> selectedContacts;
 
@@ -43,6 +38,9 @@ public class ContactsActivity extends Activity {
         Button buttonDone = (Button) findViewById(R.id.buttonDone);
         buttonDone.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
+				Intent intent = new Intent();
+				intent.putParcelableArrayListExtra("selectedContacts", (ArrayList<Contact>)selectedContacts);
+				setResult(RESULT_OK, intent);
 				finish();
 			}
 		});
@@ -51,7 +49,7 @@ public class ContactsActivity extends Activity {
         Intent intent = getIntent();
         if(intent != null) {
 	        sources = intent.getParcelableArrayListExtra("messageSources");
-	        selectedContacts = SelectedContacts.getInstance().getSelectedContacts();
+	        selectedContacts = intent.getParcelableArrayListExtra("selectedContacts");
         }
         
 		// check if only one source is selected
@@ -127,10 +125,21 @@ public class ContactsActivity extends Activity {
 			return;
 		CheckBox checkbox = (CheckBox) v;
 		if (checkbox.isChecked())
-			selectedContacts.add(contact);
+			addContact(contact);
 		else
-			selectedContacts.remove(contact);
+			removeContact(contact);
 
+	}
+	
+
+	protected void addContact(Contact contact) {
+		if(contact == null) return;
+		if(selectedContacts.contains(contact)) return;
+		selectedContacts.add(contact);
+	}
+	
+	protected boolean removeContact(Contact contact) {
+		return selectedContacts.remove(contact); 
 	}
 
 }

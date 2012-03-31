@@ -1,5 +1,6 @@
 package com.github.searchbadger.util;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import android.graphics.Bitmap;
@@ -18,10 +19,7 @@ public class ContactSMS extends Contact implements Parcelable {
 	
 	public ContactSMS(Parcel in){
 		super(in);
-		id = in.readLong();
-		source = MessageSource.valueOf(in.readString());
-		name = in.readString();
-		picture = in.readParcelable(Bitmap.class.getClassLoader());
+		addresses = new LinkedList<String>();
 		in.readStringList(addresses);
 	}
 	

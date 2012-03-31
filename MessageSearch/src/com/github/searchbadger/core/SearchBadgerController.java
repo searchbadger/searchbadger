@@ -6,9 +6,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.view.View;
 
+import com.github.searchbadger.util.Contact;
 import com.github.searchbadger.util.MessageSource;
 import com.github.searchbadger.util.SearchGenerator;
 import com.github.searchbadger.view.ContactsActivity;
+import com.github.searchbadger.view.SearchActivity;
 import com.github.searchbadger.view.SearchResultActivity;
 
 public class SearchBadgerController {
@@ -44,8 +46,8 @@ public class SearchBadgerController {
 	}
 
 	public final class ContactButtonListener implements View.OnClickListener {
-		private SearchGenerator srchGen;
-		public ContactButtonListener(SearchGenerator gen) {
+		private SearchActivity srchGen;
+		public ContactButtonListener(SearchActivity gen) {
 			srchGen = gen;
 		}
 		public void onClick(View v) {
@@ -54,8 +56,11 @@ public class SearchBadgerController {
 			Context context = v.getContext();
 			Intent intent = new Intent();
 			intent.setClass(context, ContactsActivity.class);
-			intent.putParcelableArrayListExtra("messageSources", (ArrayList<MessageSource>)srchGen.getMessageSources());
-			context.startActivity(intent);
+			intent.putParcelableArrayListExtra(SearchActivity.INTENT_DATA_SOURCES, 
+					(ArrayList<MessageSource>)srchGen.getMessageSources());
+			intent.putParcelableArrayListExtra(SearchActivity.INTENT_DATA_CONTACTS, 
+					(ArrayList<Contact>)srchGen.getSelectedContacts());
+			srchGen.startActivityForResult(intent, SearchActivity.PICK_CONTACT_REQUEST);
 		}
 	}
 
