@@ -136,10 +136,10 @@ public class SearchActivityTest extends
 		symbolPoundButton.performClick();
 		assertEquals("Search box text",  "something#search", searchInputText.getText().toString());
 		symbolStarButton.performClick();
-		assertEquals("Search box text",  "something#search*", searchInputText.getText().toString());
+		assertEquals("Search box text",  "something#*search", searchInputText.getText().toString());
 		searchInputText.setSelection(0, 3);
 		symbolUnderscoreButton.performClick();
-		assertEquals("Search box text",  "_ething#search*", searchInputText.getText().toString());
+		assertEquals("Search box text",  "_ething#*search", searchInputText.getText().toString());
 		
 	}
 	

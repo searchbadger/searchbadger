@@ -1,4 +1,4 @@
-package com.github.searchbadger.view.test;
+package com.github.searchbadger.model.test;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -6,11 +6,6 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
-import com.github.searchbadger.core.SearchBadgerApplication;
-import com.github.searchbadger.core.SearchBadgerModel;
-import com.github.searchbadger.util.*;
-
 
 import junit.framework.TestCase;
 import android.content.ContentProviderOperation;
@@ -24,9 +19,16 @@ import android.os.Build;
 import android.os.RemoteException;
 import android.provider.BaseColumns;
 import android.provider.ContactsContract;
-import android.provider.ContactsContract.Contacts;
 import android.provider.ContactsContract.RawContacts;
 import android.util.Log;
+
+import com.github.searchbadger.core.SearchBadgerApplication;
+import com.github.searchbadger.core.SearchBadgerModel;
+import com.github.searchbadger.util.Contact;
+import com.github.searchbadger.util.ContactSMS;
+import com.github.searchbadger.util.MessageSource;
+import com.github.searchbadger.util.Search;
+import com.github.searchbadger.util.SendReceiveType;
 
 public class SearchBadgerModelTest extends TestCase {
 
@@ -36,7 +38,6 @@ public class SearchBadgerModelTest extends TestCase {
 	private Date date;
 	private List<Map<String,String>> results;
 	
-	private long[] contactIDs = new long[5];
 
 	private static final String SMS_URI = "content://sms";
 	private static final String ADDRESS = "address";
@@ -100,11 +101,11 @@ public class SearchBadgerModelTest extends TestCase {
 	}
 
 	public void addDefaultContactDatabase() {
-		contactIDs[0] = addContactToDatabase("Homer", "Simpson", "1-111-111-1111");  
-		contactIDs[1] = addContactToDatabase("Marge", "Simpson", "2-222-222-2222");  
-		contactIDs[2] = addContactToDatabase("Lisa", "Simpson", "3-333-333-3333");   
-		contactIDs[3] = addContactToDatabase("Bart", "Simpson", "4-444-444-4444");   
-		contactIDs[4] = addContactToDatabase("Maggie", "Simpson", "5-555-555-5555"); 
+		addContactToDatabase("Homer", "Simpson", "1-111-111-1111");  
+		addContactToDatabase("Marge", "Simpson", "2-222-222-2222");  
+		addContactToDatabase("Lisa", "Simpson", "3-333-333-3333");   
+		addContactToDatabase("Bart", "Simpson", "4-444-444-4444");   
+		addContactToDatabase("Maggie", "Simpson", "5-555-555-5555"); 
 	}
 
 	public void testPreconditions() {
@@ -258,94 +259,94 @@ public class SearchBadgerModelTest extends TestCase {
 		model.search(filter);
 		results = model.getSearchResultsMap();
 		assertEquals("Testing *#####* search with no filter: ", 2, results.size());
-		filter = new Search("Bar#*", null, null, null, null, null);
+		filter = new Search("ar#*", null, null, null, null, null);
 		model.search(filter);
 		results = model.getSearchResultsMap();
-		assertEquals("Testing Bar#* search with no filter: ", 3, results.size());
+		assertEquals("Testing bar#* search with no filter: ", 3, results.size());
 		
 		// testing * symbol
-		filter = new Search("*W*d*", null, null, null, null, null);
+		filter = new Search("*w*d*", null, null, null, null, null);
 		model.search(filter);
 		results = model.getSearchResultsMap();
-		assertEquals("Testing *W*d* search with no filter: ", 5, results.size());
-		filter = new Search("*Inbox", null, null, null, null, null);
+		assertEquals("Testing *w*d* search with no filter: ", 5, results.size());
+		filter = new Search("*inbox", null, null, null, null, null);
 		model.search(filter);
 		results = model.getSearchResultsMap();
-		assertEquals("Testing *Inbox search with no filter: ", 8, results.size());
-		filter = new Search("Hello*", null, null, null, null, null);
+		assertEquals("Testing *inbox search with no filter: ", 8, results.size());
+		filter = new Search("hello*", null, null, null, null, null);
 		model.search(filter);
 		results = model.getSearchResultsMap();
-		assertEquals("Testing Hello* search with no filter: ", 5, results.size());
+		assertEquals("Testing hello* search with no filter: ", 5, results.size());
 		
 		// testing _ symbol
-		filter = new Search("*W___d*", null, null, null, null, null);
+		filter = new Search("*w___d*", null, null, null, null, null);
 		model.search(filter);
 		results = model.getSearchResultsMap();
-		assertEquals("Testing *W___d* search with no filter: ", 4, results.size());
+		assertEquals("Testing *w___d* search with no filter: ", 4, results.size());
 	}
 	
 
 
 	public void testSearchBlankFilterContacts() {
 
-		addSmsToDatabase("1-111-111-1111", date.getTime(), MESSAGE_TYPE_INBOX, "Foo 12345 Inbox", contactIDs[0]);
-		addSmsToDatabase("1-111-111-1111", date.getTime(), MESSAGE_TYPE_INBOX, "Bar Inbox", contactIDs[0]);
-		addSmsToDatabase("1-111-111-1111", date.getTime(), MESSAGE_TYPE_INBOX, "Food Inbox", contactIDs[0]);
-		addSmsToDatabase("1-111-111-1111", date.getTime(), MESSAGE_TYPE_INBOX, "Bar1 Inbox", contactIDs[0]);
-		addSmsToDatabase("1-111-111-1111", date.getTime(), MESSAGE_TYPE_INBOX, "Bar10 Inbox", contactIDs[0]);
-		addSmsToDatabase("1-111-111-1111", date.getTime(), MESSAGE_TYPE_INBOX, "Bar100 Inbox", contactIDs[0]);
+		addSmsToDatabase("1-111-111-1111", date.getTime(), MESSAGE_TYPE_INBOX, "Foo 12345 Inbox");
+		addSmsToDatabase("1-111-111-1111", date.getTime(), MESSAGE_TYPE_INBOX, "Bar Inbox");
+		addSmsToDatabase("1-111-111-1111", date.getTime(), MESSAGE_TYPE_INBOX, "Food Inbox");
+		addSmsToDatabase("1-111-111-1111", date.getTime(), MESSAGE_TYPE_INBOX, "Bar1 Inbox");
+		addSmsToDatabase("1-111-111-1111", date.getTime(), MESSAGE_TYPE_INBOX, "Bar10 Inbox");
+		addSmsToDatabase("1-111-111-1111", date.getTime(), MESSAGE_TYPE_INBOX, "Bar100 Inbox");
 		
-		addSmsToDatabase("2-222-222-2222", date.getTime(), MESSAGE_TYPE_SENT, "Hello 53703 World Sent", contactIDs[1]);
-		addSmsToDatabase("2-222-222-2222", date.getTime(), MESSAGE_TYPE_SENT, "Hello World Sent", contactIDs[1]);
-		addSmsToDatabase("2-222-222-2222", date.getTime(), MESSAGE_TYPE_SENT, "Hello World Sent", contactIDs[1]);
+		addSmsToDatabase("2-222-222-2222", date.getTime(), MESSAGE_TYPE_SENT, "Hello 53703 World Sent");
+		addSmsToDatabase("2-222-222-2222", date.getTime(), MESSAGE_TYPE_SENT, "Hello World Sent");
+		addSmsToDatabase("2-222-222-2222", date.getTime(), MESSAGE_TYPE_SENT, "Hello World Sent");
 		
-		addSmsToDatabase("2-222-222-2222", date.getTime(), MESSAGE_TYPE_INBOX, "Hello World Inbox", contactIDs[2]);
-		addSmsToDatabase("2-222-222-2222", date.getTime(), MESSAGE_TYPE_INBOX, "Hello Worlld Inbox", contactIDs[2]);
+		addSmsToDatabase("3-333-333-3333", date.getTime(), MESSAGE_TYPE_INBOX, "Hello World Inbox");
+		addSmsToDatabase("3-333-333-3333", date.getTime(), MESSAGE_TYPE_INBOX, "Hello Worlld Inbox");
 		
 		List<Contact> selectedContacts = new LinkedList<Contact>();
+		List<String> addresses = new LinkedList<String>();
 		
 		// testing contact filter
 		selectedContacts.clear();
-		selectedContacts.add(new Contact(contactIDs[0], MessageSource.SMS, null, null));
+		addresses.clear();
+		addresses.add("1-111-111-1111");
+		selectedContacts.add(new ContactSMS(1, MessageSource.SMS, null, null, addresses));
 		filter = new Search("", null, null, null, selectedContacts, null);
 		model.search(filter);
 		results = model.getSearchResultsMap();
-		assertEquals("Testing blank search with filter contacts {" + contactIDs[0] + "}: ", 6, results.size());
+		assertEquals("Testing blank search with filter contacts address {1-111-111-1111}: ", 6, results.size());
 
 		selectedContacts.clear();
-		selectedContacts.add(new Contact(contactIDs[1], MessageSource.SMS, null, null));
+		addresses.clear();
+		addresses.add("2-222-222-2222");
+		selectedContacts.add(new ContactSMS(2, MessageSource.SMS, null, null, addresses));
 		filter = new Search("", null, null, null, selectedContacts, null);
 		model.search(filter);
 		results = model.getSearchResultsMap();
-		assertEquals("Testing blank search with filter contacts {" + contactIDs[1] + "}: ", 3, results.size());
+		assertEquals("Testing blank search with filter contacts address {2-222-222-2222}:", 3, results.size());
 
 		selectedContacts.clear();
-		selectedContacts.add(new Contact(contactIDs[0], MessageSource.SMS, null, null));
-		selectedContacts.add(new Contact(contactIDs[2], MessageSource.SMS, null, null));
+		addresses.clear();
+		addresses.add("1-111-111-1111");
+		addresses.add("3-333-333-3333");
+		selectedContacts.add(new ContactSMS(3, MessageSource.SMS, null, null, addresses));
 		filter = new Search("", null, null, null, selectedContacts, null);
 		model.search(filter);
 		results = model.getSearchResultsMap();
-		assertEquals("Testing blank search with filter contacts {" + contactIDs[0] + ","
-				+ contactIDs[2]+ "}: ", 8, results.size());
+		assertEquals("Testing blank search with filter contacts address {1-111-111-1111, 3-333-333-3333}: ", 8, results.size());
 		
 	}
 	
 
-	private void addSmsToDatabase( String address, long date, int type, String body, long contactID  ){
+	private void addSmsToDatabase( String address, long date, int type, String body ){
 	    ContentValues values = new ContentValues();
 	    values.put( ADDRESS, address );
 	    values.put( DATE, date );
 	    values.put( TYPE, type );
 	    values.put( BODY, body );
-	    if(contactID != 0)
-	    	values.put( PERSON, contactID );
 
 	    // insert row into the SMS database
 	    contentResolver.insert( Uri.parse( SMS_URI ), values );
-	}
-	
-	private void addSmsToDatabase( String address, long date, int type, String body ) {
-		addSmsToDatabase( address, date, type, body, 0);
 	}
 	
 	
