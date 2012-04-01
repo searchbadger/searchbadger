@@ -685,11 +685,13 @@ public class SearchActivity extends Activity implements SearchGenerator {
 	}
 	
 	public void ShowHelp() {
-		
+		Intent intent = new Intent(this, HelpActivity.class);
+		startActivity(intent);
 	}
 	
 	public void ShowAbout() {
-		
+		Intent intent = new Intent(this, AboutActivity.class);
+		startActivity(intent);
 	}
 	
 }
