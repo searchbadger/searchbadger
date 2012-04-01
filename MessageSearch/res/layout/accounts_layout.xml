@@ -1,58 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/scroll"
-    android:layout_width="fill_parent"
-    android:layout_height="wrap_content" >
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="fill_parent" >
 
-    <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical" >
-
-        <LinearLayout
-            android:id="@+id/linearLayoutFacebook"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content" >
+    <PreferenceCategory android:title="Facebook"
+         android:icon="@drawable/facebook_selected">
 
-            <Button
-                android:id="@+id/buttonFacebookConnect"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:drawableLeft="@drawable/facebook_selected"
-                android:text="@string/login" />
+        <Preference
+            android:key="facebookConnect"
+            android:icon="@drawable/facebook_selected"
+            android:summary="Connect to Facebook"
+            android:title="@string/login" />
 
-            <Button
-                android:id="@+id/buttonFacebookDisconnect"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:drawableLeft="@drawable/facebook_selected"
-                android:text="@string/logout" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/linearLayoutTwitter"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content" >
+    </PreferenceCategory>
+    
+    <PreferenceCategory android:title="Twitter" >
 
-            <Button
-                android:id="@+id/buttonTwitterConnect"
-                android:layout_width="0dp"
-                android:layout_height="fill_parent"
-                android:layout_weight="1"
-                android:drawableLeft="@drawable/twitter_selected"
-                android:text="@string/login" />
+        <Preference
+            android:key="twitterConnect"
+            android:icon="@drawable/twitter_selected"
+            android:summary="Connect to Twitter"
+            android:title="@string/login" />
 
-            <Button
-                android:id="@+id/buttonTwitterDisconnect"
-                android:layout_width="0dp"
-                android:layout_height="fill_parent"
-                android:layout_weight="1"
-                android:drawableLeft="@drawable/twitter_selected"
-                android:text="@string/logout" />
-        </LinearLayout>
+    </PreferenceCategory>
 
-    </LinearLayout>
+    <PreferenceCategory android:title="Search Settings" >
 
-</ScrollView>
+        <EditTextPreference
+            android:defaultValue="100"
+            android:key="prefMaxResults"
+            android:summary="Set the max number of results returned"
+            android:inputType="number"
+            android:title="Max Results: 100" />
+        
+        <EditTextPreference
+            android:defaultValue="10"
+            android:key="prefNumMessagesThread"
+            android:summary="Set the number of messages each thread will return"
+            android:inputType="number"
+            android:title="Thread Messages: 10" />
+
+        <Preference
+            android:key="prefClearSearchHistory"
+            android:summary="This will clear all the recent search history"
+            android:title="Clear Search History" />
+        
+    </PreferenceCategory>
+
+</PreferenceScreen>

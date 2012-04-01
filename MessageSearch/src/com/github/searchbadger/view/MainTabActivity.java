@@ -9,6 +9,8 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TabHost;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.github.searchbadger.R;
 
@@ -55,6 +57,7 @@ public class MainTabActivity extends TabActivity {
 	        if (Build.VERSION.SDK_INT >= 11 /*HONEYCOMB*/) {
 	        	View tab;
 	        	ImageView image;
+	        	TextView text;
 
 	        	tab = tabHost.getTabWidget().getChildTabViewAt(0);
 	        	image = (ImageView) tab.findViewById(android.R.id.icon);
@@ -62,6 +65,8 @@ public class MainTabActivity extends TabActivity {
 		        	image.setImageDrawable(res.getDrawable(R.drawable.tabicon_search));
 		        	image.setVisibility(View.VISIBLE);
 		        }
+		        text = (TextView) tab.findViewById(android.R.id.title);
+		        text.setSingleLine();
 
 		        tab = tabHost.getTabWidget().getChildTabViewAt(1);
 		        image = (ImageView) tab.findViewById(android.R.id.icon);
@@ -69,6 +74,8 @@ public class MainTabActivity extends TabActivity {
 		        	image.setImageDrawable(res.getDrawable(R.drawable.tabicon_recent));
 		        	image.setVisibility(View.VISIBLE);
 		        }
+		        text = (TextView) tab.findViewById(android.R.id.title);
+		        text.setSingleLine();
 
 		        tab = tabHost.getTabWidget().getChildTabViewAt(2);
 		        image = (ImageView) tab.findViewById(android.R.id.icon);
@@ -76,6 +83,8 @@ public class MainTabActivity extends TabActivity {
 		        	image.setImageDrawable(res.getDrawable(R.drawable.tabicon_star));
 		        	image.setVisibility(View.VISIBLE);
 		        }
+		        text = (TextView) tab.findViewById(android.R.id.title);
+		        text.setSingleLine();
 	        }
 	    }
 }
