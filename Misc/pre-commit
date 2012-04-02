@@ -64,7 +64,7 @@ fi
 
 
 # run the test suite
-ant test
+ant install test
 if [ $? -eq 0 ]; then
   exit 0
 else

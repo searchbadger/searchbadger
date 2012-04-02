@@ -33,6 +33,7 @@ public class SearchResultListFragment extends ListFragment {
 		super.onCreate(savedInstanceState);
 
 		List<Map<String,String>> results = model.getSearchResultsMap();
+		if(results == null) return;
 
 		SimpleAdapter adapter = new SimpleAdapter(getActivity(), results,
 				R.layout.search_result_list_item, new String[] { "Message",
