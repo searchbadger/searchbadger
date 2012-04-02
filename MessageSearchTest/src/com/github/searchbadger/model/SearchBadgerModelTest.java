@@ -1,0 +1,290 @@
+package com.github.searchbadger.model;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+import junit.framework.TestCase;
+import android.content.ContentResolver;
+import android.os.Build;
+
+import com.github.searchbadger.core.SearchBadgerApplication;
+import com.github.searchbadger.testutil.SearchBadgerTestUtil;
+import com.github.searchbadger.util.Contact;
+import com.github.searchbadger.util.ContactSMS;
+import com.github.searchbadger.util.MessageSource;
+import com.github.searchbadger.util.Search;
+import com.github.searchbadger.util.SearchModel;
+import com.github.searchbadger.util.SendReceiveType;
+
+public class SearchBadgerModelTest extends TestCase {
+
+	private SearchModel model;
+	private ContentResolver contentResolver;
+	private Search filter;
+	private Date date;
+	private List<Map<String,String>> results;
+	
+
+	
+	@Override
+	protected void setUp() throws Exception {
+		super.setUp();
+		
+		// DISABLE this if you want to run it on a real device
+		boolean inEmulator = "generic".equals(Build.BRAND.toLowerCase());
+		if(inEmulator == false)
+		{
+			throw new Exception("This script is disabled on a real device since it deletes the SMS database");
+		}
+		 
+		
+		model = SearchBadgerApplication.getSearchModel();
+		contentResolver = SearchBadgerApplication.getAppContext().getContentResolver();
+		date = new Date();
+		SearchBadgerTestUtil.clearContactDatabase();
+		SearchBadgerTestUtil.clearSmsDatabase();
+		SearchBadgerTestUtil.addDefaultContactDatabase();
+	}
+	
+
+	@Override
+	protected void tearDown() throws Exception {
+		super.tearDown();
+		SearchBadgerTestUtil.clearSmsDatabase();
+		SearchBadgerTestUtil.addDefaultSmsDatabase();
+	}
+	
+	public void testPreconditions() {
+		assertNotNull(model);
+		assertNotNull(contentResolver);
+	}
+	
+	public void testSearchBlankNoFilters() {
+		
+		SearchBadgerTestUtil.addSmsToDatabase("1-111-111-1111", date.getTime(), SearchBadgerTestUtil.MESSAGE_TYPE_INBOX, "Foo Inbox");
+		SearchBadgerTestUtil.addSmsToDatabase("1-111-111-1111", date.getTime(), SearchBadgerTestUtil.MESSAGE_TYPE_INBOX, "Bar Inbox");
+		SearchBadgerTestUtil.addSmsToDatabase("1-111-111-1111", date.getTime(), SearchBadgerTestUtil.MESSAGE_TYPE_INBOX, "Food Inbox");
+		SearchBadgerTestUtil.addSmsToDatabase("1-111-111-1111", date.getTime(), SearchBadgerTestUtil.MESSAGE_TYPE_INBOX, "Bar1 Inbox");
+		SearchBadgerTestUtil.addSmsToDatabase("1-111-111-1111", date.getTime(), SearchBadgerTestUtil.MESSAGE_TYPE_INBOX, "Bar10 Inbox");
+		
+		SearchBadgerTestUtil.addSmsToDatabase("2-222-222-2222", date.getTime(), SearchBadgerTestUtil.MESSAGE_TYPE_SENT, "Hello World Sent");
+		SearchBadgerTestUtil.addSmsToDatabase("2-222-222-2222", date.getTime(), SearchBadgerTestUtil.MESSAGE_TYPE_SENT, "Hello World Sent");
+		SearchBadgerTestUtil.addSmsToDatabase("2-222-222-2222", date.getTime(), SearchBadgerTestUtil.MESSAGE_TYPE_SENT, "Hello World Sent");
+		SearchBadgerTestUtil.addSmsToDatabase("2-222-222-2222", date.getTime(), SearchBadgerTestUtil.MESSAGE_TYPE_INBOX, "Hello World Inbox");
+		SearchBadgerTestUtil.addSmsToDatabase("2-222-222-2222", date.getTime(), SearchBadgerTestUtil.MESSAGE_TYPE_INBOX, "Hello World Inbox");
+		
+		filter = new Search("", null, null, null, null, null);
+		model.search(filter);
+		results = model.getSearchResultsMap();
+		assertEquals("Testing blank search with no filters: ", 10, results.size());
+	}
+	
+	public void testSearchTextNoFilters() {
+
+		SearchBadgerTestUtil.addSmsToDatabase("1-111-111-1111", date.getTime(), SearchBadgerTestUtil.MESSAGE_TYPE_INBOX, "Foo Inbox");
+		SearchBadgerTestUtil.addSmsToDatabase("1-111-111-1111", date.getTime(), SearchBadgerTestUtil.MESSAGE_TYPE_INBOX, "Bar Inbox");
+		SearchBadgerTestUtil.addSmsToDatabase("1-111-111-1111", date.getTime(), SearchBadgerTestUtil.MESSAGE_TYPE_INBOX, "Food Inbox");
+		SearchBadgerTestUtil.addSmsToDatabase("1-111-111-1111", date.getTime(), SearchBadgerTestUtil.MESSAGE_TYPE_INBOX, "Bar1 Inbox");
+		SearchBadgerTestUtil.addSmsToDatabase("1-111-111-1111", date.getTime(), SearchBadgerTestUtil.MESSAGE_TYPE_INBOX, "Bar10 Inbox");
+		
+		SearchBadgerTestUtil.addSmsToDatabase("2-222-222-2222", date.getTime(), SearchBadgerTestUtil.MESSAGE_TYPE_SENT, "Hello World Sent");
+		SearchBadgerTestUtil.addSmsToDatabase("2-222-222-2222", date.getTime(), SearchBadgerTestUtil.MESSAGE_TYPE_SENT, "Hello World Sent");
+		SearchBadgerTestUtil.addSmsToDatabase("2-222-222-2222", date.getTime(), SearchBadgerTestUtil.MESSAGE_TYPE_SENT, "Hello World Sent");
+		SearchBadgerTestUtil.addSmsToDatabase("2-222-222-2222", date.getTime(), SearchBadgerTestUtil.MESSAGE_TYPE_INBOX, "Hello World Inbox");
+		SearchBadgerTestUtil.addSmsToDatabase("2-222-222-2222", date.getTime(), SearchBadgerTestUtil.MESSAGE_TYPE_INBOX, "Hello World Inbox");
+		
+		// testing text search
+		filter = new Search("Hello", null, null, null, null, null);
+		model.search(filter);
+		results = model.getSearchResultsMap();
+		assertEquals("Testing 'Hello' search with no filters: ", 5, results.size());
+		
+		// testing another text search
+		filter = new Search("foo", null, null, null, null, null);
+		model.search(filter);
+		results = model.getSearchResultsMap();
+		assertEquals("Testing 'foo' search with no filters: ", 2, results.size());
+	}
+	
+
+	public void testSearchBlankFilterDate() {
+
+		Date begin, end;
+		Calendar cal = Calendar.getInstance();
+		
+		cal.set(2012, 2, 14, 8, 0, 0); // 02/14/2012 8:00:00 am
+		date = cal.getTime();
+		
+		SearchBadgerTestUtil.addSmsToDatabase("1-111-111-1111", date.getTime(), SearchBadgerTestUtil.MESSAGE_TYPE_INBOX, "Foo Inbox");
+		SearchBadgerTestUtil.addSmsToDatabase("1-111-111-1111", date.getTime(), SearchBadgerTestUtil.MESSAGE_TYPE_INBOX, "Bar Inbox");
+		SearchBadgerTestUtil.addSmsToDatabase("1-111-111-1111", date.getTime(), SearchBadgerTestUtil.MESSAGE_TYPE_INBOX, "Food Inbox");
+		SearchBadgerTestUtil.addSmsToDatabase("1-111-111-1111", date.getTime(), SearchBadgerTestUtil.MESSAGE_TYPE_INBOX, "Bar1 Inbox");
+		
+		cal.set(2012, 2, 14, 10, 0, 0); // 02/14/2012 10:00:00 am
+		date = cal.getTime();
+		SearchBadgerTestUtil.addSmsToDatabase("1-111-111-1111", date.getTime(), SearchBadgerTestUtil.MESSAGE_TYPE_INBOX, "Bar10 Inbox");
+		
+		cal.set(2012, 2, 15, 8, 0, 0); // 02/15/2012 8:00:00 am
+		date = cal.getTime();
+		SearchBadgerTestUtil.addSmsToDatabase("2-222-222-2222", date.getTime(), SearchBadgerTestUtil.MESSAGE_TYPE_SENT, "Hello World Sent");
+		SearchBadgerTestUtil.addSmsToDatabase("2-222-222-2222", date.getTime(), SearchBadgerTestUtil.MESSAGE_TYPE_INBOX, "Hello World Inbox");
+		SearchBadgerTestUtil.addSmsToDatabase("2-222-222-2222", date.getTime(), SearchBadgerTestUtil.MESSAGE_TYPE_INBOX, "Hello World Inbox");
+		
+		// testing before filter
+		cal.set(2012, 2, 14, 9, 0, 0); // 02/14/2012 9:00:00 am
+		end = cal.getTime();
+		filter = new Search("", null, end, null, null, null);
+		model.search(filter);
+		results = model.getSearchResultsMap();
+		assertEquals("Testing blank search with filter date before 02/14/2012 9:00:00 am: ", 4, results.size());
+
+		// testing after filter
+		cal.set(2012, 2, 14, 11, 0, 0); // 02/14/2012 11:00:00 am
+		begin = cal.getTime();
+		filter = new Search("", begin, null, null, null, null);
+		model.search(filter);
+		results = model.getSearchResultsMap();
+		assertEquals("Testing blank search with filter date after 02/14/2012 11:00:00 am: ", 3, results.size());
+		
+		// testing from to filter
+		cal.set(2012, 2, 14, 9, 0, 0); // 02/14/2012 9:00:00 am
+		begin = cal.getTime();
+		cal.set(2012, 2, 14, 11, 0, 0); // 02/14/2012 11:00:00 am
+		end = cal.getTime();
+		filter = new Search("", begin, end, null, null, null);
+		model.search(filter);
+		results = model.getSearchResultsMap();
+		assertEquals("Testing blank search with filter date from 02/14/2012 9:00:00 am to from 02/14/2012 11:00:00 am: ", 1, results.size());
+	}
+	
+	public void testSearchBlankFilterSendReceive() {
+
+		SearchBadgerTestUtil.addSmsToDatabase("1-111-111-1111", date.getTime(), SearchBadgerTestUtil.MESSAGE_TYPE_INBOX, "Foo Inbox");
+		SearchBadgerTestUtil.addSmsToDatabase("1-111-111-1111", date.getTime(), SearchBadgerTestUtil.MESSAGE_TYPE_INBOX, "Bar Inbox");
+		SearchBadgerTestUtil.addSmsToDatabase("1-111-111-1111", date.getTime(), SearchBadgerTestUtil.MESSAGE_TYPE_INBOX, "Food Inbox");
+		SearchBadgerTestUtil.addSmsToDatabase("1-111-111-1111", date.getTime(), SearchBadgerTestUtil.MESSAGE_TYPE_INBOX, "Bar1 Inbox");
+		SearchBadgerTestUtil.addSmsToDatabase("1-111-111-1111", date.getTime(), SearchBadgerTestUtil.MESSAGE_TYPE_INBOX, "Bar10 Inbox");
+		
+		SearchBadgerTestUtil.addSmsToDatabase("2-222-222-2222", date.getTime(), SearchBadgerTestUtil.MESSAGE_TYPE_SENT, "Hello World Sent");
+		SearchBadgerTestUtil.addSmsToDatabase("2-222-222-2222", date.getTime(), SearchBadgerTestUtil.MESSAGE_TYPE_SENT, "Hello World Sent");
+		SearchBadgerTestUtil.addSmsToDatabase("2-222-222-2222", date.getTime(), SearchBadgerTestUtil.MESSAGE_TYPE_SENT, "Hello World Sent");
+		SearchBadgerTestUtil.addSmsToDatabase("2-222-222-2222", date.getTime(), SearchBadgerTestUtil.MESSAGE_TYPE_INBOX, "Hello World Inbox");
+		SearchBadgerTestUtil.addSmsToDatabase("2-222-222-2222", date.getTime(), SearchBadgerTestUtil.MESSAGE_TYPE_INBOX, "Hello World Inbox");
+		
+		// testing received filter
+		filter = new Search("", null, null, null, null, SendReceiveType.RECEIVED);
+		model.search(filter);
+		results = model.getSearchResultsMap();
+		assertEquals("Testing blank search with filter SendReceiveType.RECEIVED: ", 7, results.size());
+		
+		// testing send filter
+		filter = new Search("", null, null, null, null, SendReceiveType.SENT);
+		model.search(filter);
+		results = model.getSearchResultsMap();
+		assertEquals("Testing blank search with filter SendReceiveType.SENT: ", 3, results.size());
+	}
+	
+
+	public void testSearchSymbolNoFilter() {
+
+		SearchBadgerTestUtil.addSmsToDatabase("1-111-111-1111", date.getTime(), SearchBadgerTestUtil.MESSAGE_TYPE_INBOX, "Foo 12345 Inbox");
+		SearchBadgerTestUtil.addSmsToDatabase("1-111-111-1111", date.getTime(), SearchBadgerTestUtil.MESSAGE_TYPE_INBOX, "Bar Inbox");
+		SearchBadgerTestUtil.addSmsToDatabase("1-111-111-1111", date.getTime(), SearchBadgerTestUtil.MESSAGE_TYPE_INBOX, "Food Inbox");
+		SearchBadgerTestUtil.addSmsToDatabase("1-111-111-1111", date.getTime(), SearchBadgerTestUtil.MESSAGE_TYPE_INBOX, "Bar1 Inbox");
+		SearchBadgerTestUtil.addSmsToDatabase("1-111-111-1111", date.getTime(), SearchBadgerTestUtil.MESSAGE_TYPE_INBOX, "Bar10 Inbox");
+		SearchBadgerTestUtil.addSmsToDatabase("1-111-111-1111", date.getTime(), SearchBadgerTestUtil.MESSAGE_TYPE_INBOX, "Bar100 Inbox");
+		
+		SearchBadgerTestUtil.addSmsToDatabase("2-222-222-2222", date.getTime(), SearchBadgerTestUtil.MESSAGE_TYPE_SENT, "Hello 53703 World Sent");
+		SearchBadgerTestUtil.addSmsToDatabase("2-222-222-2222", date.getTime(), SearchBadgerTestUtil.MESSAGE_TYPE_SENT, "Hello World Sent");
+		SearchBadgerTestUtil.addSmsToDatabase("2-222-222-2222", date.getTime(), SearchBadgerTestUtil.MESSAGE_TYPE_SENT, "Hello World Sent");
+		SearchBadgerTestUtil.addSmsToDatabase("2-222-222-2222", date.getTime(), SearchBadgerTestUtil.MESSAGE_TYPE_INBOX, "Hello World Inbox");
+		SearchBadgerTestUtil.addSmsToDatabase("2-222-222-2222", date.getTime(), SearchBadgerTestUtil.MESSAGE_TYPE_INBOX, "Hello Worlld Inbox");
+		
+		// testing # symbol
+		filter = new Search("*#####*", null, null, null, null, null);
+		model.search(filter);
+		results = model.getSearchResultsMap();
+		assertEquals("Testing *#####* search with no filter: ", 2, results.size());
+		filter = new Search("ar#*", null, null, null, null, null);
+		model.search(filter);
+		results = model.getSearchResultsMap();
+		assertEquals("Testing bar#* search with no filter: ", 3, results.size());
+		
+		// testing * symbol
+		filter = new Search("*w*d*", null, null, null, null, null);
+		model.search(filter);
+		results = model.getSearchResultsMap();
+		assertEquals("Testing *w*d* search with no filter: ", 5, results.size());
+		filter = new Search("*inbox", null, null, null, null, null);
+		model.search(filter);
+		results = model.getSearchResultsMap();
+		assertEquals("Testing *inbox search with no filter: ", 8, results.size());
+		filter = new Search("hello*", null, null, null, null, null);
+		model.search(filter);
+		results = model.getSearchResultsMap();
+		assertEquals("Testing hello* search with no filter: ", 5, results.size());
+		
+		// testing _ symbol
+		filter = new Search("*w___d*", null, null, null, null, null);
+		model.search(filter);
+		results = model.getSearchResultsMap();
+		assertEquals("Testing *w___d* search with no filter: ", 4, results.size());
+	}
+	
+
+
+	public void testSearchBlankFilterContacts() {
+
+		SearchBadgerTestUtil.addSmsToDatabase("1-111-111-1111", date.getTime(), SearchBadgerTestUtil.MESSAGE_TYPE_INBOX, "Foo 12345 Inbox");
+		SearchBadgerTestUtil.addSmsToDatabase("1-111-111-1111", date.getTime(), SearchBadgerTestUtil.MESSAGE_TYPE_INBOX, "Bar Inbox");
+		SearchBadgerTestUtil.addSmsToDatabase("1-111-111-1111", date.getTime(), SearchBadgerTestUtil.MESSAGE_TYPE_INBOX, "Food Inbox");
+		SearchBadgerTestUtil.addSmsToDatabase("1-111-111-1111", date.getTime(), SearchBadgerTestUtil.MESSAGE_TYPE_INBOX, "Bar1 Inbox");
+		SearchBadgerTestUtil.addSmsToDatabase("1-111-111-1111", date.getTime(), SearchBadgerTestUtil.MESSAGE_TYPE_INBOX, "Bar10 Inbox");
+		SearchBadgerTestUtil.addSmsToDatabase("1-111-111-1111", date.getTime(), SearchBadgerTestUtil.MESSAGE_TYPE_INBOX, "Bar100 Inbox");
+		
+		SearchBadgerTestUtil.addSmsToDatabase("2-222-222-2222", date.getTime(), SearchBadgerTestUtil.MESSAGE_TYPE_SENT, "Hello 53703 World Sent");
+		SearchBadgerTestUtil.addSmsToDatabase("2-222-222-2222", date.getTime(), SearchBadgerTestUtil.MESSAGE_TYPE_SENT, "Hello World Sent");
+		SearchBadgerTestUtil.addSmsToDatabase("2-222-222-2222", date.getTime(), SearchBadgerTestUtil.MESSAGE_TYPE_SENT, "Hello World Sent");
+		
+		SearchBadgerTestUtil.addSmsToDatabase("3-333-333-3333", date.getTime(), SearchBadgerTestUtil.MESSAGE_TYPE_INBOX, "Hello World Inbox");
+		SearchBadgerTestUtil.addSmsToDatabase("3-333-333-3333", date.getTime(), SearchBadgerTestUtil.MESSAGE_TYPE_INBOX, "Hello Worlld Inbox");
+		
+		List<Contact> selectedContacts = new LinkedList<Contact>();
+		List<String> addresses = new LinkedList<String>();
+		
+		// testing contact filter
+		selectedContacts.clear();
+		addresses.clear();
+		addresses.add("1-111-111-1111");
+		selectedContacts.add(new ContactSMS(1, MessageSource.SMS, null, null, addresses));
+		filter = new Search("", null, null, null, selectedContacts, null);
+		model.search(filter);
+		results = model.getSearchResultsMap();
+		assertEquals("Testing blank search with filter contacts address {1-111-111-1111}: ", 6, results.size());
+
+		selectedContacts.clear();
+		addresses.clear();
+		addresses.add("2-222-222-2222");
+		selectedContacts.add(new ContactSMS(2, MessageSource.SMS, null, null, addresses));
+		filter = new Search("", null, null, null, selectedContacts, null);
+		model.search(filter);
+		results = model.getSearchResultsMap();
+		assertEquals("Testing blank search with filter contacts address {2-222-222-2222}:", 3, results.size());
+
+		selectedContacts.clear();
+		addresses.clear();
+		addresses.add("1-111-111-1111");
+		addresses.add("3-333-333-3333");
+		selectedContacts.add(new ContactSMS(3, MessageSource.SMS, null, null, addresses));
+		filter = new Search("", null, null, null, selectedContacts, null);
+		model.search(filter);
+		results = model.getSearchResultsMap();
+		assertEquals("Testing blank search with filter contacts address {1-111-111-1111, 3-333-333-3333}: ", 8, results.size());
+		
+	}
+	
+	
+}

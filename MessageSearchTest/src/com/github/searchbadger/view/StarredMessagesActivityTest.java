@@ -1,4 +1,4 @@
-package com.github.searchbadger.view.test;
+package com.github.searchbadger.view;
 
 import android.test.ActivityInstrumentationTestCase2;
 

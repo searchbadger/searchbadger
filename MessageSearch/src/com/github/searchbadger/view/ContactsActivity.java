@@ -143,5 +143,9 @@ public class ContactsActivity extends Activity {
 	protected boolean removeContact(Contact contact) {
 		return selectedContacts.remove(contact); 
 	}
+	
+	protected List<Contact> getSelectedContacts() {
+		return selectedContacts;
+	}
 
 }
