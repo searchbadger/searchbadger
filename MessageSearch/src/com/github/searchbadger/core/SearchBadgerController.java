@@ -12,6 +12,7 @@ import com.github.searchbadger.util.Contact;
 import com.github.searchbadger.util.MessageSource;
 import com.github.searchbadger.util.Search;
 import com.github.searchbadger.util.SearchGenerator;
+import com.github.searchbadger.util.SearchModel;
 import com.github.searchbadger.view.ContactsActivity;
 import com.github.searchbadger.view.SearchActivity;
 import com.github.searchbadger.view.SearchResultActivity;
@@ -19,7 +20,7 @@ import com.github.searchbadger.view.SearchResultActivity;
 public class SearchBadgerController {
 	private static final SearchBadgerController instance = 
 		new SearchBadgerController();
-	private final SearchBadgerModel model = SearchBadgerModel.getInstance();
+	private final SearchModel model = SearchBadgerApplication.getSearchModel();
 
 	public static final SearchBadgerController getInstance() {
 		return instance;

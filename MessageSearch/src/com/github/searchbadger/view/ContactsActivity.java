@@ -19,6 +19,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.github.searchbadger.R;
+import com.github.searchbadger.core.SearchBadgerApplication;
 import com.github.searchbadger.core.SearchBadgerModel;
 import com.github.searchbadger.util.Contact;
 import com.github.searchbadger.util.MessageSource;
@@ -58,7 +59,7 @@ public class ContactsActivity extends Activity {
 		if(sources.size() != 1) return;
 
         ListView list = (ListView) findViewById(R.id.listView_contact);
-        List<Contact> contacts = SearchBadgerModel.getInstance().getContacts(sources.get(0));
+        List<Contact> contacts = SearchBadgerApplication.getSearchModel().getContacts(sources.get(0));
         if(contacts == null) return;
 		ListAdapter myadapter = new ContactArrayAdapter(this,
 				R.layout.contacts_list_item,

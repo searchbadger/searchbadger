@@ -20,10 +20,10 @@ import com.github.searchbadger.util.ContactSMS;
 import com.github.searchbadger.util.Message;
 import com.github.searchbadger.util.MessageSource;
 import com.github.searchbadger.util.Search;
+import com.github.searchbadger.util.SearchModel;
 import com.github.searchbadger.util.SendReceiveType;
 
-public class SearchBadgerModel {
-	private final static SearchBadgerModel instance = new SearchBadgerModel();
+public class SearchBadgerModel implements SearchModel {
 	private Search _currentSearch;
 	
 	//private Cursor searchResultCursor;
@@ -31,10 +31,6 @@ public class SearchBadgerModel {
 	private List<Message> searchResultMessages;
 	private final static String projectionList[] = {"_id", "thread_id", "address", "date", "body", "type", "person"};
 	
-	
-	public static SearchBadgerModel getInstance() {
-		return instance;
-	}
 	
 	public void search(Search filter) {
 		this._currentSearch = filter;

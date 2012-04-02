@@ -1,26 +1,19 @@
 package com.github.searchbadger.view;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
-import android.util.TypedValue;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ScrollView;
 import android.widget.SimpleAdapter;
-import android.widget.TextView;
+
 import com.github.searchbadger.R;
-import com.github.searchbadger.core.SearchBadgerModel;
-import com.github.searchbadger.util.Message;
+import com.github.searchbadger.core.SearchBadgerApplication;
+import com.github.searchbadger.util.SearchModel;
 
 public class ThreadListFragment extends ListFragment {
 
-	private SearchBadgerModel model = SearchBadgerModel.getInstance();
+	private SearchModel model = SearchBadgerApplication.getSearchModel();
 	 /**
      * Create a new instance of DetailsFragment, initialized to
      * show the text at 'index'.
@@ -47,7 +40,10 @@ public class ThreadListFragment extends ListFragment {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
 		
+		if(getArguments() == null) return;
 		List<Map<String,String>> thread= model.getThread(getArguments().getInt("index", 0));
+		if(thread == null) return;
+		
 		SimpleAdapter adapter = new SimpleAdapter(getActivity(), thread,
 				R.layout.thread_list_item, new String[] { "Message", "Date", "From" },
 						new int[] { R.id.thread_text });

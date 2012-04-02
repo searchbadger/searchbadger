@@ -1,31 +1,25 @@
 package com.github.searchbadger.view;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.github.searchbadger.core.SearchBadgerModel;
-
-
 import android.content.Intent;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.ListFragment;
 import android.view.View;
-import android.widget.CursorAdapter;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
-import android.widget.SimpleCursorAdapter;
 
 import com.github.searchbadger.R;
+import com.github.searchbadger.core.SearchBadgerApplication;
+import com.github.searchbadger.util.SearchModel;
 
 public class SearchResultListFragment extends ListFragment {
 
 	private boolean mDualPane;
     private int mCurCheckPosition = 0;
-    private SearchBadgerModel model = SearchBadgerModel.getInstance();
+    private SearchModel model = SearchBadgerApplication.getSearchModel();
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {

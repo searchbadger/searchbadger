@@ -32,12 +32,13 @@ import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import com.github.searchbadger.R;
+import com.github.searchbadger.core.SearchBadgerApplication;
 import com.github.searchbadger.core.SearchBadgerController;
-import com.github.searchbadger.core.SearchBadgerModel;
 import com.github.searchbadger.util.Contact;
 import com.github.searchbadger.util.MessageSource;
 import com.github.searchbadger.util.Search;
 import com.github.searchbadger.util.SearchGenerator;
+import com.github.searchbadger.util.SearchModel;
 import com.github.searchbadger.util.SendReceiveType;
 
 public class SearchActivity extends Activity implements SearchGenerator {
@@ -74,7 +75,7 @@ public class SearchActivity extends Activity implements SearchGenerator {
 	private ImageButton clearSearchButton;
 
 	private SearchBadgerController controller;
-	private SearchBadgerModel model;
+	private SearchModel model;
 
 	private final SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
 	private int pickerButtonId;
@@ -95,7 +96,7 @@ public class SearchActivity extends Activity implements SearchGenerator {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.search_layout);
 
-		model = SearchBadgerModel.getInstance();
+		model = SearchBadgerApplication.getSearchModel();
 		controller = SearchBadgerController.getInstance();
 		
 		/* Android 2.3 DatePickerDiaglog cannot handle the original date passed
