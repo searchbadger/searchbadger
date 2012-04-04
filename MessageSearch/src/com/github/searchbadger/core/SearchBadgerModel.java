@@ -2,6 +2,7 @@ package com.github.searchbadger.core;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -9,7 +10,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteDatabase.CursorFactory;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
 import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.provider.ContactsContract.Contacts;
@@ -29,8 +35,12 @@ public class SearchBadgerModel implements SearchModel {
 	//private Cursor searchResultCursor;
 	private List<Map<String,String>> searchResults;
 	private List<Message> searchResultMessages;
-	private final static String projectionList[] = {"_id", "thread_id", "address", "date", "body", "type", "person"};
-	
+	private final static String projectionList[] = {"_id", "thread_id", "address", "date", "body", "type", "person"}
+	;
+	private final static String STARRED_MSGS_COLS[] = {"id", "msg_id", "msg_text", "thread_id", "date", "src_name"};
+	private final static String STARRED_MSGS_TABLE = "StarredMessage";
+	protected List<Message> starredMsgs = null;
+	protected SearchBadgerOpenHandler dbOH;
 	
 	public void search(Search filter) {
 		this._currentSearch = filter;
@@ -149,7 +159,9 @@ public class SearchBadgerModel implements SearchModel {
 						}
 
 						long messageId = searchResultCursor.getLong(0);
+						String messageId_string = String.valueOf(messageId);
 						long threadId = searchResultCursor.getLong(1);
+						String threadId_string = String.valueOf(messageId);
 						String address = searchResultCursor.getString(2);
 						long timestamp = searchResultCursor.getLong(3);
 						String body = searchResultCursor.getString(4);
@@ -157,10 +169,10 @@ public class SearchBadgerModel implements SearchModel {
 						long contactId = searchResultCursor.getLong(6);
 						String contactId_string = String.valueOf(contactId);
 						
-						Contact c = new Contact(contactId, MessageSource.SMS,
+						Contact c = new Contact(contactId_string, MessageSource.SMS,
 								contactId_string, null);
 						
-						Message msg = new Message(c, messageId, threadId, new Date (timestamp),
+						Message msg = new Message(c, messageId_string, threadId_string, new Date (timestamp),
 								body, false);
 						searchResultMessages.add(msg);
 
@@ -210,13 +222,53 @@ public class SearchBadgerModel implements SearchModel {
 	 * TODO: interface with database for persistent storage of starred msgs
 	 */
 	public List<Message> getStarredMessages() {
-		return null;
+		dbOH = new SearchBadgerOpenHandler(SearchBadgerApplication.getAppContext());
+		SQLiteDatabase db = dbOH.getReadableDatabase();
+		
+		if (this.starredMsgs == null) {
+			starredMsgs = new ArrayList<Message>();
+			Cursor starredMsgsCursor = db.query(STARRED_MSGS_TABLE, STARRED_MSGS_COLS, 
+					null, null, null, null, null);//"date");
+			if (starredMsgsCursor != null && starredMsgsCursor.getCount() > 0) {
+				starredMsgsCursor.moveToFirst();
+				do {
+					//{"id", "msg_id", "msg_text", "thread_id", "src_name"};
+					//date, msg_id, thread_id, msg_text, name
+					String msg_id = starredMsgsCursor.getString(1);
+					String msg_text = starredMsgsCursor.getString(2);
+					String thread_id = starredMsgsCursor.getString(3);
+					Long long_date = starredMsgsCursor.getLong(4);
+					Date msg_date = new Date(long_date);
+					String srcName = starredMsgsCursor.getString(5);
+					//Message msg = new Message();
+					starredMsgs.add(new Message(new Contact("1", MessageSource.valueOf(srcName), "", null), 
+								msg_id, thread_id, msg_date, msg_text, true));
+				} while (starredMsgsCursor.moveToNext());
+			}
+		}
+		return starredMsgs;
 	}
 	
 	/*
 	 * TODO: interface with database for persistent storage of starred msgs
 	 */
 	public boolean addStarredMessage(Message msg) {
+		ContentValues vals = new ContentValues();
+		/*public static final String STARRED_MESSAGE_CREATE = "CREATE TABLE StarredMessage" +
+				"(Id INTEGER PRIMARY KEY ASC, TEXT Msg_Id, TEXT Msg_Text, BIGINT Date, TEXT Thread_Id, INTEGER Src_Id);";*/
+		if (starredMsgs == null) {
+			this.getStarredMessages();
+		}
+		msg.toogleStarred();
+		starredMsgs.add(msg);
+		SQLiteDatabase db = dbOH.getReadableDatabase();
+		vals.put("Msg_Id", msg.getId());
+		vals.put("Msg_Text", msg.getText());
+		vals.put("Date", msg.getDate().getTime());
+		vals.put("Thread_Id", msg.getThreadId());
+		vals.put("src_name", msg.getContact().getSource().toString());
+		db.insert(STARRED_MSGS_TABLE, "Msg_Id", vals);
+		
 		return true;
 	}
 	
@@ -238,7 +290,7 @@ public class SearchBadgerModel implements SearchModel {
 		String url = "content://sms"; 
 		Uri uri = Uri.parse(url); 
 
-		String[] selectionArgs = new String[]{((Long)msgInThread.getThreadId()).toString()};
+		String[] selectionArgs = new String[]{msgInThread.getThreadId().toString()};
 		String selection = "thread_id = ?";
 		
 		Cursor searchResultCursor = SearchBadgerApplication.getAppContext().getContentResolver().query(uri, projectionList, selection, selectionArgs, "date DESC");
@@ -259,7 +311,9 @@ public class SearchBadgerModel implements SearchModel {
 						}
 						
 						long messageId = searchResultCursor.getLong(0);
+						String messageId_string = String.valueOf(messageId);
 						long threadId = searchResultCursor.getLong(1);
+						String threadId_string = String.valueOf(messageId);
 						String address = searchResultCursor.getString(2);
 						long timestamp = searchResultCursor.getLong(3);
 						String body = searchResultCursor.getString(4);
@@ -267,10 +321,10 @@ public class SearchBadgerModel implements SearchModel {
 						long contactId = searchResultCursor.getLong(6);
 						String contactId_string = String.valueOf(contactId);
 						
-						Contact c = new Contact(contactId, MessageSource.SMS,
+						Contact c = new Contact(contactId_string, MessageSource.SMS,
 								contactId_string, null);
 						
-						Message msg = new Message(c, messageId, threadId, new Date (timestamp),
+						Message msg = new Message(c, messageId_string, threadId_string, new Date (timestamp),
 								body, false);
 						threadMessages.add(msg);
 
@@ -324,7 +378,7 @@ public class SearchBadgerModel implements SearchModel {
 				if (count > 0) {
 					cursor.moveToFirst();
 					do {
-
+//Contacts.openContactPhotoInputStream(SearchBadgerApplication.getAppContext().getContentResolver(), contactUri)
 						// get the id and name
 						String contactId = cursor.getString(cursor.getColumnIndex(Contacts._ID));
 						String contactName = cursor.getString(cursor.getColumnIndex(Contacts.DISPLAY_NAME));
@@ -360,7 +414,7 @@ public class SearchBadgerModel implements SearchModel {
 
 						// add the new contact to the list
 						ContactSMS contact = new ContactSMS(
-								Integer.parseInt(contactId),
+								contactId,
 								MessageSource.SMS,
 								contactName,
 								null,
@@ -378,5 +432,29 @@ public class SearchBadgerModel implements SearchModel {
 		return contacts;
 	}
 	
-	
+	protected class SearchBadgerOpenHandler extends SQLiteOpenHelper {
+		public static final int DATABASE_VERSION = 1;
+		public static final String DATABASE_NAME = "searchbadger";
+		public static final String STARRED_MESSAGE_CREATE = "CREATE TABLE " + STARRED_MSGS_TABLE +
+				"(Id INTEGER PRIMARY KEY ASC, Contact_Id TEXT, Msg_Id TEXT, Msg_Text TEXT, " +
+				"Date BIGINT Date, Thread_Id TEXT, Src_Name TEXT);";
+		
+		public SearchBadgerOpenHandler(Context context) {
+			super(context, DATABASE_NAME, null, DATABASE_VERSION);
+			// TODO Auto-generated constructor stub
+		}
+
+		@Override
+		public void onCreate(SQLiteDatabase db) {
+			ContentValues values = new ContentValues();
+			db.execSQL(this.STARRED_MESSAGE_CREATE);	
+			db.setVersion(1);
+		}
+
+		@Override
+		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+			// TODO Auto-generated method stub
+			
+		}
+	}
 }

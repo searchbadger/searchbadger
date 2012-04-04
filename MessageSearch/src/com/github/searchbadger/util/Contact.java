@@ -6,12 +6,12 @@ import android.os.Parcelable;
 import android.util.Log;
 
 public class Contact implements Parcelable {
-	protected long id;
+	protected String id;
 	protected MessageSource source;
 	protected String name;
 	protected Bitmap picture;
 
-	public Contact(long id, MessageSource source, String name, Bitmap picture) {
+	public Contact(String id, MessageSource source, String name, Bitmap picture) {
 		this.id = id;
 		this.source = source;
 		this.name = name;
@@ -19,14 +19,14 @@ public class Contact implements Parcelable {
 	}
 	
 	public Contact(Parcel in){
-		id = in.readLong();
+		id = in.readString();
 		source = MessageSource.valueOf(in.readString());
 		name = in.readString();
 		picture = in.readParcelable(Bitmap.class.getClassLoader());
 		
 	}
 
-	public long getId() {
+	public String getId() {
 		return id;
 	}
 
@@ -54,7 +54,7 @@ public class Contact implements Parcelable {
 		if (!(o instanceof Contact))
 			return false;
 		Contact that = (Contact) o;
-		return (this.id == that.id) && (this.source == that.source);
+		return (this.id.toLowerCase().equals(that.id.toLowerCase())) && (this.source.equals(that.source));
 	}
 
 	public int describeContents() {
@@ -63,7 +63,7 @@ public class Contact implements Parcelable {
 	}
 
 	public void writeToParcel(Parcel dest, int flags) {
-		dest.writeLong(id);
+		dest.writeString(id);
 		dest.writeString(source.name());
 		dest.writeString(name);
 		dest.writeParcelable(picture, flags);

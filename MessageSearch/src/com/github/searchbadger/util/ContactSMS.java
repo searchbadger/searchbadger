@@ -12,7 +12,7 @@ public class ContactSMS extends Contact implements Parcelable {
 
 	protected List<String> addresses;
 	
-	public ContactSMS(long id, MessageSource source, String name, Bitmap picture, List<String> addresses) {
+	public ContactSMS(String id, MessageSource source, String name, Bitmap picture, List<String> addresses) {
 		super(id, source, name, picture);
 		this.addresses = addresses;
 	}
@@ -53,7 +53,7 @@ public class ContactSMS extends Contact implements Parcelable {
 	}
 
 	public void writeToParcel(Parcel dest, int flags) {
-		dest.writeLong(id);
+		dest.writeString(id);
 		dest.writeString(source.name());
 		dest.writeString(name);
 		dest.writeParcelable(picture, flags);
