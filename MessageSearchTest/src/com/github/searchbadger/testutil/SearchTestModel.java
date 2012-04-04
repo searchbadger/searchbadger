@@ -26,23 +26,23 @@ public class SearchTestModel implements SearchModel {
 		
 		addresses.clear();
 		addresses.add("1-111-111-1111");
-		contacts.add(new ContactSMS(1, MessageSource.SMS, "Homer Simpson", null, addresses));
+		contacts.add(new ContactSMS("1", MessageSource.SMS, "Homer Simpson", null, addresses));
 		
 		addresses.clear();
 		addresses.add("2-222-222-2222");
-		contacts.add(new ContactSMS(2, MessageSource.SMS, "Marge Simpson", null, addresses));
+		contacts.add(new ContactSMS("2", MessageSource.SMS, "Marge Simpson", null, addresses));
 		
 		addresses.clear();
 		addresses.add("3-333-333-3333");
-		contacts.add(new ContactSMS(3, MessageSource.SMS, "Lisa Simpson", null, addresses));
+		contacts.add(new ContactSMS("3", MessageSource.SMS, "Lisa Simpson", null, addresses));
 		
 		addresses.clear();
 		addresses.add("4-444-444-4444");
-		contacts.add(new ContactSMS(4, MessageSource.SMS, "Bart Simpson", null, addresses));
+		contacts.add(new ContactSMS("4", MessageSource.SMS, "Bart Simpson", null, addresses));
 		
 		addresses.clear();
 		addresses.add("5-555-555-5555");
-		contacts.add(new ContactSMS(5, MessageSource.SMS, "Maggie Simpson", null, addresses));
+		contacts.add(new ContactSMS("5", MessageSource.SMS, "Maggie Simpson", null, addresses));
 	}
 
 	public void search(Search filter) {

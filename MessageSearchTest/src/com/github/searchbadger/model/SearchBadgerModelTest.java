@@ -1,5 +1,6 @@
 package com.github.searchbadger.model;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedList;
@@ -9,11 +10,14 @@ import java.util.Map;
 import junit.framework.TestCase;
 import android.content.ContentResolver;
 import android.os.Build;
+import android.util.Log;
 
 import com.github.searchbadger.core.SearchBadgerApplication;
+import com.github.searchbadger.testutil.SearchBadgerTestModel;
 import com.github.searchbadger.testutil.SearchBadgerTestUtil;
 import com.github.searchbadger.util.Contact;
 import com.github.searchbadger.util.ContactSMS;
+import com.github.searchbadger.util.Message;
 import com.github.searchbadger.util.MessageSource;
 import com.github.searchbadger.util.Search;
 import com.github.searchbadger.util.SearchModel;
@@ -33,12 +37,12 @@ public class SearchBadgerModelTest extends TestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		
-		// DISABLE this if you want to run it on a real device
+		/*// DISABLE this if you want to run it on a real device
 		boolean inEmulator = "generic".equals(Build.BRAND.toLowerCase());
 		if(inEmulator == false)
 		{
 			throw new Exception("This script is disabled on a real device since it deletes the SMS database");
-		}
+		}*/
 		 
 		
 		model = SearchBadgerApplication.getSearchModel();
@@ -57,6 +61,37 @@ public class SearchBadgerModelTest extends TestCase {
 		SearchBadgerTestUtil.addDefaultSmsDatabase();
 	}
 	
+	public void testAStarredMessages() {
+		SearchBadgerTestModel testModel = new SearchBadgerTestModel();
+		List<Message> starredMsgs = new ArrayList<Message>();
+		int numStarredMsgs = (int) (Math.random() * 100);
+		for (int starredMsgNum = 0; starredMsgNum < numStarredMsgs; starredMsgNum++) {
+			starredMsgs.add(new Message(new Contact("1", randomMessageSource(), "", null),
+					randomId(), randomId(), new Date((long)(Math.random() * 9999999999L) ), "This is some text!" + randomId(), false));
+				
+		}
+		starredMsgs.add(new Message(new Contact("1", MessageSource.FACEBOOK, "", null),
+				randomId(), randomId(), new Date((long)(Math.random() * 9999999999L) ), "This is some text!", false));
+		SearchBadgerApplication.setSearchModel(testModel);
+		model = SearchBadgerApplication.getSearchModel();
+		testModel.removeStarredDb();
+		for (Message msg : starredMsgs) {
+			model.addStarredMessage(msg);
+		}
+		testModel.clearStarredMessagesList();
+		List<Message> retrievedStarredMsgs = testModel.getStarredMessages();
+		assertEquals(starredMsgs.size(), retrievedStarredMsgs.size());
+		for (int i = 0; i < retrievedStarredMsgs.size(); i++) {
+			assertTrue("i is " + i + " id " + retrievedStarredMsgs.get(i).getId() +  " vs " +
+					starredMsgs.get(i).getId(),
+					retrievedStarredMsgs.get(i).equals(starredMsgs.get(i)));
+		}
+		assertTrue(retrievedStarredMsgs.equals(starredMsgs));
+		//this.ass
+		
+	}
+
+
 	public void testPreconditions() {
 		assertNotNull(model);
 		assertNotNull(contentResolver);
@@ -259,7 +294,7 @@ public class SearchBadgerModelTest extends TestCase {
 		selectedContacts.clear();
 		addresses.clear();
 		addresses.add("1-111-111-1111");
-		selectedContacts.add(new ContactSMS(1, MessageSource.SMS, null, null, addresses));
+		selectedContacts.add(new ContactSMS("1", MessageSource.SMS, null, null, addresses));
 		filter = new Search("", null, null, null, selectedContacts, null);
 		model.search(filter);
 		results = model.getSearchResultsMap();
@@ -268,7 +303,7 @@ public class SearchBadgerModelTest extends TestCase {
 		selectedContacts.clear();
 		addresses.clear();
 		addresses.add("2-222-222-2222");
-		selectedContacts.add(new ContactSMS(2, MessageSource.SMS, null, null, addresses));
+		selectedContacts.add(new ContactSMS("2", MessageSource.SMS, null, null, addresses));
 		filter = new Search("", null, null, null, selectedContacts, null);
 		model.search(filter);
 		results = model.getSearchResultsMap();
@@ -278,13 +313,18 @@ public class SearchBadgerModelTest extends TestCase {
 		addresses.clear();
 		addresses.add("1-111-111-1111");
 		addresses.add("3-333-333-3333");
-		selectedContacts.add(new ContactSMS(3, MessageSource.SMS, null, null, addresses));
+		selectedContacts.add(new ContactSMS("3", MessageSource.SMS, null, null, addresses));
 		filter = new Search("", null, null, null, selectedContacts, null);
 		model.search(filter);
 		results = model.getSearchResultsMap();
 		assertEquals("Testing blank search with filter contacts address {1-111-111-1111, 3-333-333-3333}: ", 8, results.size());
 		
 	}
+	private String randomId() {
+		return ((Long)((long)(Math.random() * 9999999999L))).toString();
+	}
 	
-	
+	private MessageSource randomMessageSource() {
+		return MessageSource.values()[(int) Math.random() * (MessageSource.values().length - 1)];
+	}
 }
