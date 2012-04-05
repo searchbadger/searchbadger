@@ -10,6 +10,7 @@ import java.util.Map;
 import junit.framework.TestCase;
 import android.content.ContentResolver;
 import android.os.Build;
+import android.test.ApplicationTestCase;
 import android.util.Log;
 
 import com.github.searchbadger.core.SearchBadgerApplication;
@@ -23,15 +24,16 @@ import com.github.searchbadger.util.Search;
 import com.github.searchbadger.util.SearchModel;
 import com.github.searchbadger.util.SendReceiveType;
 
-public class SearchBadgerModelTest extends TestCase {
-
+public class SearchBadgerModelTest extends ApplicationTestCase<SearchBadgerApplication> {
 	private SearchModel model;
 	private ContentResolver contentResolver;
 	private Search filter;
 	private Date date;
 	private List<Map<String,String>> results;
 	
-
+	public SearchBadgerModelTest() {
+		super(SearchBadgerApplication.class);
+	}
 	
 	@Override
 	protected void setUp() throws Exception {
@@ -43,8 +45,8 @@ public class SearchBadgerModelTest extends TestCase {
 		{
 			throw new Exception("This script is disabled on a real device since it deletes the SMS database");
 		}*/
-		 
-		
+
+		createApplication();
 		model = SearchBadgerApplication.getSearchModel();
 		contentResolver = SearchBadgerApplication.getAppContext().getContentResolver();
 		date = new Date();
@@ -60,37 +62,6 @@ public class SearchBadgerModelTest extends TestCase {
 		SearchBadgerTestUtil.clearSmsDatabase();
 		SearchBadgerTestUtil.addDefaultSmsDatabase();
 	}
-	
-	public void testAStarredMessages() {
-		SearchBadgerTestModel testModel = new SearchBadgerTestModel();
-		List<Message> starredMsgs = new ArrayList<Message>();
-		int numStarredMsgs = (int) (Math.random() * 100);
-		for (int starredMsgNum = 0; starredMsgNum < numStarredMsgs; starredMsgNum++) {
-			starredMsgs.add(new Message(new Contact("1", randomMessageSource(), "", null),
-					randomId(), randomId(), new Date((long)(Math.random() * 9999999999L) ), "This is some text!" + randomId(), false));
-				
-		}
-		starredMsgs.add(new Message(new Contact("1", MessageSource.FACEBOOK, "", null),
-				randomId(), randomId(), new Date((long)(Math.random() * 9999999999L) ), "This is some text!", false));
-		SearchBadgerApplication.setSearchModel(testModel);
-		model = SearchBadgerApplication.getSearchModel();
-		testModel.removeStarredDb();
-		for (Message msg : starredMsgs) {
-			model.addStarredMessage(msg);
-		}
-		testModel.clearStarredMessagesList();
-		List<Message> retrievedStarredMsgs = testModel.getStarredMessages();
-		assertEquals(starredMsgs.size(), retrievedStarredMsgs.size());
-		for (int i = 0; i < retrievedStarredMsgs.size(); i++) {
-			assertTrue("i is " + i + " id " + retrievedStarredMsgs.get(i).getId() +  " vs " +
-					starredMsgs.get(i).getId(),
-					retrievedStarredMsgs.get(i).equals(starredMsgs.get(i)));
-		}
-		assertTrue(retrievedStarredMsgs.equals(starredMsgs));
-		//this.ass
-		
-	}
-
 
 	public void testPreconditions() {
 		assertNotNull(model);
@@ -320,11 +291,60 @@ public class SearchBadgerModelTest extends TestCase {
 		assertEquals("Testing blank search with filter contacts address {1-111-111-1111, 3-333-333-3333}: ", 8, results.size());
 		
 	}
+	
 	private String randomId() {
 		return ((Long)((long)(Math.random() * 9999999999L))).toString();
 	}
 	
 	private MessageSource randomMessageSource() {
 		return MessageSource.values()[(int) Math.random() * (MessageSource.values().length - 1)];
+	}
+	
+	public void testStarredMessages() {
+		SearchBadgerTestModel testModel = new SearchBadgerTestModel();
+		List<Message> starredMsgs = new ArrayList<Message>();
+		int numStarredMsgs = (int) (Math.random() * 100);
+		for (int starredMsgNum = 0; starredMsgNum < numStarredMsgs; starredMsgNum++) {
+			starredMsgs.add(new Message(new Contact("1", randomMessageSource(), "", null),
+					randomId(), randomId(), new Date((long)(Math.random() * 9999999999L) ), "This is some text!" + randomId(), false));
+				
+		}
+		SearchBadgerApplication.setSearchModel(testModel);
+		model = SearchBadgerApplication.getSearchModel();
+		testModel.removeStarredDb();
+		for (Message msg : starredMsgs) {
+			assertTrue("Adding a starred message failed!", model.addStarredMessage(msg));
+		}
+		List<Message> retrievedStarredMsgs = testModel.getStarredMessages();
+		assertTrue(retrievedStarredMsgs.equals(starredMsgs));
+		testModel.clearStarredMessagesList();
+		retrievedStarredMsgs = testModel.getStarredMessages();
+		assertNotNull("retrievedStarredMsgs is null!", retrievedStarredMsgs);
+		assertEquals(starredMsgs.size(), retrievedStarredMsgs.size());
+		for (int i = 0; i < retrievedStarredMsgs.size(); i++) {
+			assertTrue("i is " + i + " id " + retrievedStarredMsgs.get(i).getId() +  " vs " +
+					starredMsgs.get(i).getId(),
+					retrievedStarredMsgs.get(i).equals(starredMsgs.get(i)));
+		}
+		assertTrue(retrievedStarredMsgs.equals(starredMsgs));
+		assertTrue(model.removeStarredMessage(starredMsgs.get(((int)(starredMsgs.size()/2)))));
+		starredMsgs.remove(((int)(starredMsgs.size()/2)));
+		assertTrue(model.removeStarredMessage(starredMsgs.get(((int)(starredMsgs.size()/4)))));
+		starredMsgs.remove(((int)(starredMsgs.size()/4)));
+		assertTrue(model.removeStarredMessage(starredMsgs.get(((int)(starredMsgs.size()/6)))));
+		starredMsgs.remove(((int)(starredMsgs.size()/6)));
+		retrievedStarredMsgs = testModel.getStarredMessages();
+		assertTrue(retrievedStarredMsgs.equals(starredMsgs));
+		assertEquals(starredMsgs.size(), retrievedStarredMsgs.size());
+		testModel.clearStarredMessagesList();
+		retrievedStarredMsgs = testModel.getStarredMessages();
+		assertNotNull("retrievedStarredMsgs is null!", retrievedStarredMsgs);
+		assertEquals(starredMsgs.size(), retrievedStarredMsgs.size());
+		for (int i = 0; i < retrievedStarredMsgs.size(); i++) {
+			assertTrue("i is " + i + " id " + retrievedStarredMsgs.get(i).getId() +  " vs " +
+					starredMsgs.get(i).getId(),
+					retrievedStarredMsgs.get(i).equals(starredMsgs.get(i)));
+		}
+		assertTrue(retrievedStarredMsgs.equals(starredMsgs));
 	}
 }
