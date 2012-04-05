@@ -37,16 +37,6 @@ public class ContactSMS extends Contact implements Parcelable {
 		return str.toString();
 	}
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o)
-			return true;
-		if (!(o instanceof ContactSMS))
-			return false;
-		ContactSMS that = (ContactSMS) o;
-		return (this.id == that.id) && (this.source == that.source);
-	}
-
 	public int describeContents() {
 		Log.d("Contact","describeContents()");
 		return 0;
