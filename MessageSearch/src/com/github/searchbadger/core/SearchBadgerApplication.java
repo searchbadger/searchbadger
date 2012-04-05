@@ -4,12 +4,14 @@ import android.app.Application;
 import android.content.Context;
 import android.util.Log;
 
+import com.github.searchbadger.util.FacebookHelper;
 import com.github.searchbadger.util.SearchModel;
 
 public class SearchBadgerApplication extends Application{
 
     private static Context context;
     private static SearchModel searchModel;
+    private static FacebookHelper facebookHelper;
 
     public void onCreate(){
         super.onCreate();
@@ -21,6 +23,7 @@ public class SearchBadgerApplication extends Application{
         	Log.d("SearchBadger", "Using application context.");
         }
         searchModel = new SearchBadgerModel();
+        facebookHelper = new FacebookHelper();
     }
     
     protected void attachBaseContext(Context base) {
@@ -44,5 +47,9 @@ public class SearchBadgerApplication extends Application{
     
     public static SearchModel getSearchModel() {
     	return searchModel;
+    }
+    
+    public static FacebookHelper getFacebookHelper() {
+    	return facebookHelper;
     }
 }

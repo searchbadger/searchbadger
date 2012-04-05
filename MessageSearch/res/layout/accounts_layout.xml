@@ -31,14 +31,14 @@
             android:key="prefMaxResults"
             android:summary="Set the max number of results returned"
             android:inputType="number"
-            android:title="Max Results: 100" />
+            android:title="Max Results" />
         
         <EditTextPreference
             android:defaultValue="10"
             android:key="prefNumMessagesThread"
-            android:summary="Set the number of messages each thread will return"
+            android:summary="Set the number of messages each conversation will return"
             android:inputType="number"
-            android:title="Thread Messages: 10" />
+            android:title="Thread Messages" />
 
         <Preference
             android:key="prefClearSearchHistory"
