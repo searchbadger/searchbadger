@@ -2,6 +2,7 @@ package com.github.searchbadger.core;
 
 import android.app.Application;
 import android.content.Context;
+import android.util.Log;
 
 import com.github.searchbadger.util.SearchModel;
 
@@ -13,7 +14,24 @@ public class SearchBadgerApplication extends Application{
     public void onCreate(){
         super.onCreate();
         SearchBadgerApplication.context = getApplicationContext();
+        if (this.getApplicationContext() == null) {
+        	SearchBadgerApplication.context = getBaseContext();
+        	Log.d("SearchBadger", "Using base context.");
+        } else {
+        	Log.d("SearchBadger", "Using application context.");
+        }
         searchModel = new SearchBadgerModel();
+    }
+    
+    protected void attachBaseContext(Context base) {
+    	super.attachBaseContext(base);
+    	SearchBadgerApplication.context = this.getApplicationContext();
+    	if (this.getApplicationContext() == null) {
+        	Log.d("SearchBadger", "Attaching new base context!");
+        	SearchBadgerApplication.context = getBaseContext();
+    	} else {
+    		Log.d("SearchBadger", "Attaching new application base context!");
+    	}
     }
 
     public static Context getAppContext() {

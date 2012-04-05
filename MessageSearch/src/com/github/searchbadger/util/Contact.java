@@ -54,7 +54,8 @@ public class Contact implements Parcelable {
 		if (!(o instanceof Contact))
 			return false;
 		Contact that = (Contact) o;
-		return (this.id.toLowerCase().equals(that.id.toLowerCase())) && (this.source.equals(that.source));
+		return (this.id.toLowerCase().equals(that.id.toLowerCase())) &&
+				(this.source.equals(that.source));
 	}
 
 	public int describeContents() {

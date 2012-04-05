@@ -111,6 +111,10 @@ public class Message implements Parcelable {
 		if (!(o instanceof Message))
 			return false;
 		Message that = (Message) o;
-		return (this.Id.toLowerCase().equals(that.Id.toLowerCase())) && (this.contact.equals(that.contact));
+		return (this.contact.equals(that.contact)) &&
+				(this.Id.toLowerCase().equals(that.Id.toLowerCase())) && 
+				(this.threadId.toLowerCase().equals(that.threadId.toLowerCase())) &&
+				(this.date.equals(that.date)) &&
+				(this.text.equals(that.text));
 	}
 }

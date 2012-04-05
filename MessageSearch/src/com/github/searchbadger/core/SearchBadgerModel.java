@@ -38,6 +38,7 @@ public class SearchBadgerModel implements SearchModel {
 	private final static String projectionList[] = {"_id", "thread_id", "address", "date", "body", "type", "person"}
 	;
 	private final static String STARRED_MSGS_COLS[] = {"id", "msg_id", "msg_text", "thread_id", "date", "src_name"};
+	private final static String STARRED_MSGS_DEL_WHERE = "msg_id = ? AND thread_id = ? AND src_name = ?";
 	private final static String STARRED_MSGS_TABLE = "StarredMessage";
 	protected List<Message> starredMsgs = null;
 	protected SearchBadgerOpenHandler dbOH;
@@ -223,27 +224,44 @@ public class SearchBadgerModel implements SearchModel {
 	 */
 	public List<Message> getStarredMessages() {
 		dbOH = new SearchBadgerOpenHandler(SearchBadgerApplication.getAppContext());
-		SQLiteDatabase db = dbOH.getReadableDatabase();
+		SQLiteDatabase db = null;
+		try {
+			db = dbOH.getReadableDatabase();
 		
-		if (this.starredMsgs == null) {
-			starredMsgs = new ArrayList<Message>();
-			Cursor starredMsgsCursor = db.query(STARRED_MSGS_TABLE, STARRED_MSGS_COLS, 
-					null, null, null, null, null);//"date");
-			if (starredMsgsCursor != null && starredMsgsCursor.getCount() > 0) {
-				starredMsgsCursor.moveToFirst();
-				do {
-					//{"id", "msg_id", "msg_text", "thread_id", "src_name"};
-					//date, msg_id, thread_id, msg_text, name
-					String msg_id = starredMsgsCursor.getString(1);
-					String msg_text = starredMsgsCursor.getString(2);
-					String thread_id = starredMsgsCursor.getString(3);
-					Long long_date = starredMsgsCursor.getLong(4);
-					Date msg_date = new Date(long_date);
-					String srcName = starredMsgsCursor.getString(5);
-					//Message msg = new Message();
-					starredMsgs.add(new Message(new Contact("1", MessageSource.valueOf(srcName), "", null), 
-								msg_id, thread_id, msg_date, msg_text, true));
-				} while (starredMsgsCursor.moveToNext());
+			if (this.starredMsgs == null) {
+				Cursor starredMsgsCursor = db.query(STARRED_MSGS_TABLE, STARRED_MSGS_COLS, 
+						null, null, null, null, null);//"date");
+				if (starredMsgsCursor != null) {
+					starredMsgs = new ArrayList<Message>();
+					if (starredMsgsCursor.getCount() > 0) {
+						try {
+							starredMsgsCursor.moveToFirst();
+							starredMsgs = new ArrayList<Message>();
+							do {
+								//{"id", "msg_id", "msg_text", "thread_id", "src_name"};
+								//date, msg_id, thread_id, msg_text, name
+								String msg_id = starredMsgsCursor.getString(1);
+								String msg_text = starredMsgsCursor.getString(2);
+								String thread_id = starredMsgsCursor.getString(3);
+								Long long_date = starredMsgsCursor.getLong(4);
+								Date msg_date = new Date(long_date);
+								String srcName = starredMsgsCursor.getString(5);
+								//Message msg = new Message();
+								if (!starredMsgs.add(new Message(new Contact("1", MessageSource.valueOf(srcName), "", null), 
+										msg_id, thread_id, msg_date, msg_text, true))) {
+									starredMsgs = null;
+									return null;
+								}
+							} while (starredMsgsCursor.moveToNext());
+						} finally {
+							starredMsgsCursor.close();
+						}
+					}
+				}
+			}
+		} finally {
+			if (db != null) {
+				db.close();
 			}
 		}
 		return starredMsgs;
@@ -254,29 +272,62 @@ public class SearchBadgerModel implements SearchModel {
 	 */
 	public boolean addStarredMessage(Message msg) {
 		ContentValues vals = new ContentValues();
+		boolean retRes = false;
 		/*public static final String STARRED_MESSAGE_CREATE = "CREATE TABLE StarredMessage" +
 				"(Id INTEGER PRIMARY KEY ASC, TEXT Msg_Id, TEXT Msg_Text, BIGINT Date, TEXT Thread_Id, INTEGER Src_Id);";*/
 		if (starredMsgs == null) {
 			this.getStarredMessages();
 		}
 		msg.toogleStarred();
-		starredMsgs.add(msg);
-		SQLiteDatabase db = dbOH.getReadableDatabase();
-		vals.put("Msg_Id", msg.getId());
-		vals.put("Msg_Text", msg.getText());
-		vals.put("Date", msg.getDate().getTime());
-		vals.put("Thread_Id", msg.getThreadId());
-		vals.put("src_name", msg.getContact().getSource().toString());
-		db.insert(STARRED_MSGS_TABLE, "Msg_Id", vals);
+		if (!starredMsgs.add(msg)) {
+			return false;
+		}
 		
-		return true;
+		SQLiteDatabase db = null;
+		try {
+			db = dbOH.getWritableDatabase();
+		
+			vals.put("Msg_Id", msg.getId());
+			vals.put("Msg_Text", msg.getText());
+			vals.put("Date", msg.getDate().getTime());
+			vals.put("Thread_Id", msg.getThreadId());
+			vals.put("src_name", msg.getContact().getSource().toString());
+			retRes = ((db.insert(STARRED_MSGS_TABLE, "Msg_Id", vals)) != -1);
+		} finally {
+			if (db != null) {
+				db.close();
+			}
+		}
+		return retRes;
 	}
 	
 	/*
 	 * TODO: interface with database for persistent storage of starred msgs
 	 */
 	public boolean removeStarredMessage(Message msg) {
-		return true;
+		ContentValues vals = new ContentValues();
+		boolean retRes = false;
+		/*public static final String STARRED_MESSAGE_CREATE = "CREATE TABLE StarredMessage" +
+				"(Id INTEGER PRIMARY KEY ASC, TEXT Msg_Id, TEXT Msg_Text, BIGINT Date, TEXT Thread_Id, INTEGER Src_Id);";*/
+		if (starredMsgs == null) {
+			this.getStarredMessages();
+		}
+		msg.toogleStarred();
+		if (!starredMsgs.remove(msg)) {
+			return false;
+		}
+		
+		SQLiteDatabase db = null;
+		String whereArgs[] = {msg.getId(), msg.getThreadId(), msg.getContact().getSource().toString()};
+		try {
+			db = dbOH.getWritableDatabase();
+			retRes = ((db.delete(STARRED_MSGS_TABLE, STARRED_MSGS_DEL_WHERE, whereArgs)) == 1);
+		} finally {
+			if (db != null) {
+				db.close();
+			}
+		}
+		return retRes;
 	}	
 	
 	/*
