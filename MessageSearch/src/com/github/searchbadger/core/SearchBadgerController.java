@@ -3,6 +3,7 @@ package com.github.searchbadger.core;
 import java.util.ArrayList;
 
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -11,7 +12,6 @@ import android.view.View;
 import com.github.searchbadger.util.Contact;
 import com.github.searchbadger.util.MessageSource;
 import com.github.searchbadger.util.Search;
-import com.github.searchbadger.util.SearchGenerator;
 import com.github.searchbadger.util.SearchModel;
 import com.github.searchbadger.view.ContactsActivity;
 import com.github.searchbadger.view.SearchActivity;
@@ -35,7 +35,8 @@ public class SearchBadgerController {
 			// check if we can perform the search
 			if(srchGen.isFacebookSelectedAndNotReady() == true) return;
 			
-			Search filter = srchGen.generateSearch();
+			// make sure a source was selected
+			final Search filter = srchGen.generateSearch();
 			if(filter.getSources().size() == 0) {
 				AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
 				builder.setMessage("Please select a source and try again.")
@@ -51,10 +52,36 @@ public class SearchBadgerController {
 				alert.show();
 				return;
 			}
-			model.search(filter);
-			Intent resActIntent = new Intent(v.getContext(), 
-					SearchResultActivity.class);
-			v.getContext().startActivity(resActIntent);
+			
+			// show progress bar
+			final ProgressDialog dialog = ProgressDialog.show(srchGen, "", 
+                    "Searching. Please wait...", true);
+			 
+			Thread thread = new Thread(new Runnable() {
+				public void run() {
+
+					// perform search
+					model.search(filter);
+					
+					srchGen.runOnUiThread(new Runnable() {
+
+						public void run() {
+							// hide the progress bar
+							if (dialog.isShowing())
+								dialog.dismiss();
+							
+							// show search results activity
+							Intent resActIntent = new Intent(srchGen, 
+									SearchResultActivity.class);
+							srchGen.startActivity(resActIntent);
+						}
+					});
+				}
+
+			});
+			thread.start();
+
+			
 		}
 	}
 
