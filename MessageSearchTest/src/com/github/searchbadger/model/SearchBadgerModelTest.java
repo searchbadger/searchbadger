@@ -322,8 +322,8 @@ public class SearchBadgerModelTest extends ApplicationTestCase<SearchBadgerAppli
 		List<Message> starredMsgs = new ArrayList<Message>();
 		int numStarredMsgs = (int) (Math.random() * 100);
 		for (int starredMsgNum = 0; starredMsgNum < numStarredMsgs; starredMsgNum++) {
-			starredMsgs.add(new Message(new Contact("1", randomMessageSource(), "", null),
-					randomId(), randomId(), new Date((long)(Math.random() * 9999999999L) ), "This is some text!" + randomId(), false));
+			starredMsgs.add(new Message(
+					randomId(), randomId(), randomId(), randomMessageSource(), new Date((long)(Math.random() * 9999999999L) ), "This is some text!" + randomId(), false));
 				
 		}
 		SearchBadgerApplication.setSearchModel(testModel);

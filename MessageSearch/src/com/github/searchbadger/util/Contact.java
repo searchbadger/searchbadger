@@ -57,6 +57,10 @@ public class Contact implements Parcelable {
 		return (this.id.toLowerCase().equals(that.id.toLowerCase())) &&
 				(this.source.equals(that.source));
 	}
+	
+	public boolean contains(String id) {
+		return this.id.equals(id);
+	}
 
 	public int describeContents() {
 		Log.d("Contact","describeContents()");

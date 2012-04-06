@@ -45,7 +45,7 @@ public class SearchBadgerModel implements SearchModel {
 	private List<Message> searchResultMessages;
 	private final static String projectionList[] = {"_id", "thread_id", "address", "date", "body", "type", "person"}
 	;
-	private final static String STARRED_MSGS_COLS[] = {"id", "msg_id", "msg_text", "thread_id", "date", "src_name"};
+	private final static String STARRED_MSGS_COLS[] = {"id", "msg_id", "msg_text", "thread_id", "date", "src_name", "author"};
 	private final static String STARRED_MSGS_DEL_WHERE = "msg_id = ? AND thread_id = ? AND src_name = ?";
 	private final static String STARRED_MSGS_TABLE = "StarredMessage";
 	protected List<Message> starredMsgs = null;
@@ -156,7 +156,6 @@ public class SearchBadgerModel implements SearchModel {
 			if (selection.length() > 0)
 				selection += " AND ";
 			
-			//TODO: Figure out what the types are actually supposed to be. probably not "sent" and "received"
 			selection += "type = ?";
 			if (filter.getType()==SendReceiveType.SENT) {
 				arg = "2";
@@ -174,6 +173,7 @@ public class SearchBadgerModel implements SearchModel {
 
 		Cursor searchResultCursor = SearchBadgerApplication.getAppContext().getContentResolver().query(uri, projectionList, selection, selectionArgsArray, "date DESC");
 
+		List<Contact> contactsSMS = getSMSContacts();
 		if (searchResultCursor != null) {
 			try {
 				int count = searchResultCursor.getCount();
@@ -190,7 +190,7 @@ public class SearchBadgerModel implements SearchModel {
 						long messageId = searchResultCursor.getLong(0);
 						String messageId_string = String.valueOf(messageId);
 						long threadId = searchResultCursor.getLong(1);
-						String threadId_string = String.valueOf(messageId);
+						String threadId_string = String.valueOf(threadId);
 						String address = searchResultCursor.getString(2);
 						long timestamp = searchResultCursor.getLong(3);
 						String body = searchResultCursor.getString(4);
@@ -198,15 +198,17 @@ public class SearchBadgerModel implements SearchModel {
 						long contactId = searchResultCursor.getLong(6);
 						String contactId_string = String.valueOf(contactId);
 						
-						Contact c = new Contact(contactId_string, MessageSource.SMS,
-								contactId_string, null);
-						
-						Message msg = new Message(c, messageId_string, threadId_string, new Date (timestamp),
+						// convert address to author
+						String author = address;
+						Contact c = findContact(contactsSMS, address);
+						if(c != null) author = c.getName();
+						if(type == 2) author = "Me";
+						Message msg = new Message(messageId_string, threadId_string, author, MessageSource.SMS, new Date (timestamp),
 								body, false);
 						searchResultMessages.add(msg);
 
 						HashMap<String, String> map = new HashMap<String, String>();
-						map.put("Message", body);
+						map.put("Message", author + ": " + body);
 						String date = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss").format(new Date (timestamp));
 						map.put("Date", date);
 						map.put("FromAddress", address);
@@ -328,6 +330,7 @@ public class SearchBadgerModel implements SearchModel {
         JSONArray jsonArray;
         boolean requiresRegexFilter = filter.containsRegEx();
         Pattern p = Pattern.compile(filter.getJavaRegexText());
+		List<Contact> facebookContacts = getFacebookContacts();
         try {
 			jsonArray = new JSONArray(response);
 	        for(int i = 0; i < jsonArray.length(); i++) {
@@ -343,16 +346,21 @@ public class SearchBadgerModel implements SearchModel {
 	        		if(!matcher.find()) continue;
 	        	}
 
-	        	// TODO why do we need to pass a contact object to the message?
-				Contact c = new Contact(author_id, MessageSource.FACEBOOK, "TODO", null);
-				
+
+				// convert address to author
+				String author = "Me";
+				Contact c = findContact(facebookContacts, author_id);
+				if(c != null) author = c.getName();
+				// TODO we should set the default author to unknown, find the id of facebook login, then
+				// set author to Me if id equals facebook user id
+	        	
 				long timestamp = Long.parseLong(created_time) * 1000L;
-				Message msg = new Message(c, message_id, thread_id, new Date (timestamp),
+				Message msg = new Message(message_id, thread_id, author, MessageSource.FACEBOOK, new Date (timestamp),
 						body, false);
 				searchResultMessages.add(msg);
 
 				HashMap<String, String> map = new HashMap<String, String>();
-				map.put("Message", body);
+				map.put("Message", author + ": " + body);
 				String date = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss").format(new Date (timestamp));
 				map.put("Date", date);
 				map.put("FromAddress", "?");
@@ -366,63 +374,6 @@ public class SearchBadgerModel implements SearchModel {
         	return;
 		}
         
-		
-		/*	
-		// Make query to content provider and store cursor to table returned
-		String[] selectionArgsArray = new String[selectionArgList.size()];
-		selectionArgList.toArray(selectionArgsArray);
-
-		Cursor searchResultCursor = SearchBadgerApplication.getAppContext().getContentResolver().query(uri, projectionList, selection, selectionArgsArray, "date DESC");
-
-		searchResults = new ArrayList<Map<String,String>>();
-		if (searchResultCursor != null) {
-			try {
-				int count = searchResultCursor.getCount();
-				if (count > 0) {
-					searchResultCursor.moveToFirst();
-					do {
-
-						String[] columns = searchResultCursor.getColumnNames();
-						for (int i=0; i<columns.length; i++) {
-						Log.v("SearchBadger","columns " + i + ": " + columns[i] + ": "
-								+ searchResultCursor.getString(i));
-						}
-
-						long messageId = searchResultCursor.getLong(0);
-						String messageId_string = String.valueOf(messageId);
-						long threadId = searchResultCursor.getLong(1);
-						String threadId_string = String.valueOf(messageId);
-						String address = searchResultCursor.getString(2);
-						long timestamp = searchResultCursor.getLong(3);
-						String body = searchResultCursor.getString(4);
-						long type = searchResultCursor.getLong(5);
-						long contactId = searchResultCursor.getLong(6);
-						String contactId_string = String.valueOf(contactId);
-						
-						Contact c = new Contact(contactId_string, MessageSource.SMS,
-								contactId_string, null);
-						
-						Message msg = new Message(c, messageId_string, threadId_string, new Date (timestamp),
-								body, false);
-						searchResultMessages.add(msg);
-
-						HashMap<String, String> map = new HashMap<String, String>();
-						map.put("Message", body);
-						String date = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss").format(new Date (timestamp));
-						map.put("Date", date);
-						map.put("FromAddress", address);
-						map.put("ID", ((Long) messageId).toString());
-						map.put("ThreadID", ((Long) threadId).toString());
-						map.put("ContactID", contactId_string);
-						searchResults.add(map);
-					} while (searchResultCursor.moveToNext() == true);
-
-				}
-			} finally {
-				searchResultCursor.close();
-			}
-		}
-*/
 	}
 	
 	public List<Map<String,String>> getSearchResultsMap() {
@@ -475,9 +426,10 @@ public class SearchBadgerModel implements SearchModel {
 								Long long_date = starredMsgsCursor.getLong(4);
 								Date msg_date = new Date(long_date);
 								String srcName = starredMsgsCursor.getString(5);
+								String author = starredMsgsCursor.getString(6);
 								//Message msg = new Message();
-								if (!starredMsgs.add(new Message(new Contact("1", MessageSource.valueOf(srcName), "", null), 
-										msg_id, thread_id, msg_date, msg_text, true))) {
+								if (!starredMsgs.add(new Message( 
+										msg_id, thread_id, author, MessageSource.valueOf(srcName), msg_date, msg_text, true))) {
 									starredMsgs = null;
 									return null;
 								}
@@ -520,7 +472,8 @@ public class SearchBadgerModel implements SearchModel {
 			vals.put("Msg_Text", msg.getText());
 			vals.put("Date", msg.getDate().getTime());
 			vals.put("Thread_Id", msg.getThreadId());
-			vals.put("src_name", msg.getContact().getSource().toString());
+			vals.put("src_name", msg.getSource().toString());
+			vals.put("author", msg.getAuthord());
 			retRes = ((db.insert(STARRED_MSGS_TABLE, "Msg_Id", vals)) != -1);
 		} finally {
 			if (db != null) {
@@ -547,7 +500,7 @@ public class SearchBadgerModel implements SearchModel {
 		}
 		
 		SQLiteDatabase db = null;
-		String whereArgs[] = {msg.getId(), msg.getThreadId(), msg.getContact().getSource().toString()};
+		String whereArgs[] = {msg.getId(), msg.getThreadId(), msg.getSource().toString()};
 		try {
 			db = dbOH.getWritableDatabase();
 			retRes = ((db.delete(STARRED_MSGS_TABLE, STARRED_MSGS_DEL_WHERE, whereArgs)) == 1);
@@ -564,6 +517,18 @@ public class SearchBadgerModel implements SearchModel {
 	 * class for SMSSearch or other search type
 	 */
 	public List<Map<String,String>> getThread(int index) {
+		Message msgInThread = searchResultMessages.get(index);
+		switch(msgInThread.getSource()) {
+		case SMS:
+			return getThreadSMS(index);
+		case FACEBOOK:
+			return getThreadFacebook(index);
+		}
+		
+		return null;
+	}
+	
+	public List<Map<String,String>> getThreadSMS(int index) {
 		// SMS content provider uri 
 		Message msgInThread = searchResultMessages.get(index);
 		
@@ -572,9 +537,11 @@ public class SearchBadgerModel implements SearchModel {
 
 		String[] selectionArgs = new String[]{msgInThread.getThreadId().toString()};
 		String selection = "thread_id = ?";
+		Log.d("SearchBadger", msgInThread.getThreadId().toString());
 		
 		Cursor searchResultCursor = SearchBadgerApplication.getAppContext().getContentResolver().query(uri, projectionList, selection, selectionArgs, "date DESC");
 		
+		List<Contact> contactsSMS = getSMSContacts();
 		List<Map<String,String>> threadMap = new LinkedList<Map<String,String>>();
 		List<Message> threadMessages = new LinkedList<Message>();
 		if (searchResultCursor != null) {
@@ -593,7 +560,7 @@ public class SearchBadgerModel implements SearchModel {
 						long messageId = searchResultCursor.getLong(0);
 						String messageId_string = String.valueOf(messageId);
 						long threadId = searchResultCursor.getLong(1);
-						String threadId_string = String.valueOf(messageId);
+						String threadId_string = String.valueOf(threadId);
 						String address = searchResultCursor.getString(2);
 						long timestamp = searchResultCursor.getLong(3);
 						String body = searchResultCursor.getString(4);
@@ -601,15 +568,19 @@ public class SearchBadgerModel implements SearchModel {
 						long contactId = searchResultCursor.getLong(6);
 						String contactId_string = String.valueOf(contactId);
 						
-						Contact c = new Contact(contactId_string, MessageSource.SMS,
-								contactId_string, null);
+
+						// convert address to author
+						String author = address;
+						Contact c = findContact(contactsSMS, address);
+						if(c != null) author = c.getName();
+						if(type == 2) author = "Me";
 						
-						Message msg = new Message(c, messageId_string, threadId_string, new Date (timestamp),
+						Message msg = new Message(messageId_string, threadId_string, address, MessageSource.SMS, new Date (timestamp),
 								body, false);
 						threadMessages.add(msg);
 
 						HashMap<String, String> map = new HashMap<String, String>();
-						map.put("Message", body);
+						map.put("Message", author + ": " + body);
 						String date = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss").format(new Date (timestamp));
 						map.put("Date", date);
 						map.put("From", address);
@@ -628,6 +599,81 @@ public class SearchBadgerModel implements SearchModel {
 		return threadMap;
 	}
 	
+	public List<Map<String,String>> getThreadFacebook(int index) {
+		
+		Message msgInThread = searchResultMessages.get(index);
+
+		FacebookHelper facebookHelper = SearchBadgerApplication.getFacebookHelper();
+		if(facebookHelper.isReady() == false) return null;
+		StringBuilder query = new StringBuilder();
+		query.append("SELECT thread_id, message_id, author_id, created_time, body FROM message WHERE thread_id = ");
+		query.append(msgInThread.getThreadId());
+		query.append(" ORDER BY created_time DESC ");
+
+		// send the search request for the message search
+		Bundle params = new Bundle();
+        params.putString("method", "fql.query");
+        params.putString("query", query.toString());
+        String response;
+        try {
+            response = facebookHelper.facebook.request(null, params, "GET");
+    		Log.d("SearchBadger", response);
+        } catch (FileNotFoundException e) {
+        	return null;
+        } catch (MalformedURLException e) {
+        	return null;
+        } catch (IOException e) {
+        	return null;
+        }
+        
+        
+        // parse the json message
+        String thread_id, message_id, author_id, created_time, body;
+        JSONArray jsonArray;
+		List<Contact> facebookContacts = getFacebookContacts();
+		List<Map<String,String>> threadMap = new LinkedList<Map<String,String>>();
+		List<Message> threadMessages = new LinkedList<Message>();
+        try {
+			jsonArray = new JSONArray(response);
+	        for(int i = 0; i < jsonArray.length(); i++) {
+	        	thread_id = jsonArray.getJSONObject(i).getString("thread_id");
+	        	message_id = jsonArray.getJSONObject(i).getString("message_id");
+	        	author_id = jsonArray.getJSONObject(i).getString("author_id");
+	        	created_time = jsonArray.getJSONObject(i).getString("created_time");
+	        	body = jsonArray.getJSONObject(i).getString("body");
+	        	
+
+				// convert address to author
+				String author = "Me";
+				Contact c = findContact(facebookContacts, author_id);
+				if(c != null) author = c.getName();
+				// TODO we should set the default author to unknown, find the id of facebook login, then
+				// set author to Me if id equals facebook user id
+	        	
+				long timestamp = Long.parseLong(created_time) * 1000L;
+				Message msg = new Message(message_id, thread_id, author, MessageSource.FACEBOOK, new Date (timestamp),
+						body, false);
+				threadMessages.add(msg);
+
+				HashMap<String, String> map = new HashMap<String, String>();
+				map.put("Message", author + ": " + body);
+				String date = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss").format(new Date (timestamp));
+				map.put("Date", date);
+				map.put("FromAddress", "?");
+				map.put("ID", message_id);
+				map.put("ThreadID", thread_id);
+				map.put("ContactID", author_id);
+				threadMap.add(map);
+
+	        }
+		} catch (JSONException e) {
+        	return null;
+		}
+        
+		return threadMap;
+	}
+	
+	
 	/*
 	 * Given a message source this gets the contacts for that source.§
 	 */
@@ -644,6 +690,16 @@ public class SearchBadgerModel implements SearchModel {
 
 	private static final String[] CONTACT_PROJECTION = new String[] {
 			Contacts._ID, Contacts.DISPLAY_NAME };
+	
+	protected Contact findContact(List<Contact> contacts, String id) {
+		if(contacts == null) return null;
+		Iterator<Contact> iter = contacts.iterator();
+		while(iter.hasNext()) {
+			Contact c = iter.next();
+			if(c.contains(id)) return c;
+		}
+		return null;
+	}
 	
 	protected List<Contact> getSMSContacts() {
 		List<Contact> contacts = null; 
@@ -769,7 +825,7 @@ public class SearchBadgerModel implements SearchModel {
 		public static final String DATABASE_NAME = "searchbadger";
 		public static final String STARRED_MESSAGE_CREATE = "CREATE TABLE " + STARRED_MSGS_TABLE +
 				"(Id INTEGER PRIMARY KEY ASC, Contact_Id TEXT, Msg_Id TEXT, Msg_Text TEXT, " +
-				"Date BIGINT Date, Thread_Id TEXT, Src_Name TEXT);";
+				"Date BIGINT Date, Thread_Id TEXT, Src_Name TEXT, author TEXT);";
 		
 		public SearchBadgerOpenHandler(Context context) {
 			super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -780,7 +836,7 @@ public class SearchBadgerModel implements SearchModel {
 		public void onCreate(SQLiteDatabase db) {
 			ContentValues values = new ContentValues();
 			db.execSQL(this.STARRED_MESSAGE_CREATE);	
-			db.setVersion(1);
+			db.setVersion(2);
 		}
 
 		@Override

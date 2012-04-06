@@ -9,17 +9,19 @@ import android.os.Parcelable;
 import android.util.Log;
 
 public class Message implements Parcelable {
-	private final Contact contact;
 	private final String Id;
 	private final String threadId;
 	private final Date date;
 	private final String text;
+	private final String author;
+	private final MessageSource source;
 	private boolean isStarred;
 	
-	public Message(Contact contact, String Id, String threadId, Date date, String text, boolean isStarred){
-		this.contact = contact;
+	public Message(String Id, String threadId, String author, MessageSource source, Date date, String text, boolean isStarred){
 		this.Id = Id;
 		this.threadId = threadId;
+		this.author = author;
+		this.source = source;
 		this.date = date;
 		this.text = text;
 		this.isStarred = isStarred;
@@ -28,9 +30,10 @@ public class Message implements Parcelable {
 	public Message(Parcel in){		
 		Date tempDate = null;
 		
-		contact = in.readParcelable(Contact.class.getClassLoader());
 		Id = in.readString();
 		threadId = in.readString();
+		author = in.readString();
+		source = in.readParcelable(MessageSource.class.getClassLoader());
 		
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		try {
@@ -44,9 +47,6 @@ public class Message implements Parcelable {
 		isStarred = Boolean.parseBoolean(in.readString());
 	}
 	
-	public Contact getContact() {
-		return contact;
-	}
 	
 	public String getId() {
 		return Id;
@@ -54,6 +54,14 @@ public class Message implements Parcelable {
 	
 	public String getThreadId() {
 		return threadId;
+	}
+	
+	public String getAuthord() {
+		return author;
+	}
+	
+	public MessageSource getSource() {
+		return source;
 	}
 	
 	public Date getDate() {
@@ -79,9 +87,10 @@ public class Message implements Parcelable {
 	}
 
 	public void writeToParcel(Parcel dest, int flags) {
-		dest.writeParcelable(contact, flags);
 		dest.writeString(Id);
 		dest.writeString(threadId);
+		dest.writeString(author);
+		dest.writeParcelable(source, flags);
 		
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		dest.writeString(formatter.format(date));
@@ -111,10 +120,11 @@ public class Message implements Parcelable {
 		if (!(o instanceof Message))
 			return false;
 		Message that = (Message) o;
-		return (this.contact.equals(that.contact)) &&
-				(this.Id.toLowerCase().equals(that.Id.toLowerCase())) && 
+		return ((this.Id.toLowerCase().equals(that.Id.toLowerCase())) && 
 				(this.threadId.toLowerCase().equals(that.threadId.toLowerCase())) &&
+				(this.author.toLowerCase().equals(that.author.toLowerCase())) &&
+				(this.source.equals(that.source)) &&
 				(this.date.equals(that.date)) &&
-				(this.text.equals(that.text));
+				(this.text.equals(that.text)));
 	}
 }

@@ -1,5 +1,6 @@
 package com.github.searchbadger.util;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -60,5 +61,17 @@ public class ContactSMS extends Contact implements Parcelable {
 	                return new ContactSMS[size];
 	            }
 	        };
+
+	@Override
+	public boolean contains(String address) {
+		if(addresses == null) return false;
+		Iterator<String> itr = addresses.iterator();
+		while(itr.hasNext()) {
+			String contactAddress = itr.next();
+			if(contactAddress.equals(address))
+				return true;
+		}
+		return false;
+	}
 
 }
