@@ -14,5 +14,5 @@ public interface SearchModel {
 	public List<Message> getStarredMessages();
 	public boolean addStarredMessage(Message msg);
 	public boolean removeStarredMessage(Message msg) ;
-	
+	public boolean containsStarredMessage(Message message);
 }

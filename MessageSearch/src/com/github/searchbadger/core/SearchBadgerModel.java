@@ -512,6 +512,19 @@ public class SearchBadgerModel implements SearchModel {
 		return retRes;
 	}	
 	
+	public boolean containsStarredMessage(Message message) {
+		List<Message> starredMessages = getStarredMessages();
+		if(starredMessages == null) return false;
+		
+		Iterator<Message> iter = starredMessages.iterator();
+		while(iter.hasNext()) {
+			Message m = iter.next();
+			if(m.equals(message)) return true;
+		}
+		
+		return false;
+	} 
+	 
 	/*
 	 * TODO Needs to access database. This probably will go through some other 
 	 * class for SMSSearch or other search type

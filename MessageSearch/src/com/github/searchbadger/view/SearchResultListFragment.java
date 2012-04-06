@@ -149,7 +149,7 @@ public class SearchResultListFragment extends ListFragment {
         				}
         			});
         			// check the star if the message is starred
-        			if(m.isStarred())
+        			if(model.containsStarredMessage(m))
         				starButton.setChecked(true);
         			else
         				starButton.setChecked(false);
@@ -161,8 +161,6 @@ public class SearchResultListFragment extends ListFragment {
 	
 	protected void OnStarSelector(View v){
 
-		Toast.makeText(getActivity(), "Star", Toast.LENGTH_SHORT).show();
-		
 		// get the message object
 		if (!(v.getParent() instanceof View))
 			return;
@@ -175,10 +173,10 @@ public class SearchResultListFragment extends ListFragment {
 		if (!(v instanceof CheckBox))
 			return;
 		CheckBox starButton = (CheckBox) v;
-//		if (starButton.isChecked())
-//			addContact(contact);
-//		else
-//			removeContact(contact);
+		if (starButton.isChecked())
+			model.addStarredMessage(message);
+		else
+			model.removeStarredMessage(message);
 
 	}
 	
