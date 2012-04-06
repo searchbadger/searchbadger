@@ -473,7 +473,7 @@ public class SearchBadgerModel implements SearchModel {
 			vals.put("Date", msg.getDate().getTime());
 			vals.put("Thread_Id", msg.getThreadId());
 			vals.put("src_name", msg.getSource().toString());
-			vals.put("author", msg.getAuthord());
+			vals.put("author", msg.getAuthor());
 			retRes = ((db.insert(STARRED_MSGS_TABLE, "Msg_Id", vals)) != -1);
 		} finally {
 			if (db != null) {
@@ -516,7 +516,7 @@ public class SearchBadgerModel implements SearchModel {
 	 * TODO Needs to access database. This probably will go through some other 
 	 * class for SMSSearch or other search type
 	 */
-	public List<Map<String,String>> getThread(int index) {
+	public List<Message> getThread(int index) {
 		Message msgInThread = searchResultMessages.get(index);
 		switch(msgInThread.getSource()) {
 		case SMS:
@@ -528,7 +528,7 @@ public class SearchBadgerModel implements SearchModel {
 		return null;
 	}
 	
-	public List<Map<String,String>> getThreadSMS(int index) {
+	public List<Message> getThreadSMS(int index) {
 		// SMS content provider uri 
 		Message msgInThread = searchResultMessages.get(index);
 		
@@ -542,7 +542,6 @@ public class SearchBadgerModel implements SearchModel {
 		Cursor searchResultCursor = SearchBadgerApplication.getAppContext().getContentResolver().query(uri, projectionList, selection, selectionArgs, "date DESC");
 		
 		List<Contact> contactsSMS = getSMSContacts();
-		List<Map<String,String>> threadMap = new LinkedList<Map<String,String>>();
 		List<Message> threadMessages = new LinkedList<Message>();
 		if (searchResultCursor != null) {
 			try {
@@ -575,19 +574,10 @@ public class SearchBadgerModel implements SearchModel {
 						if(c != null) author = c.getName();
 						if(type == 2) author = "Me";
 						
-						Message msg = new Message(messageId_string, threadId_string, address, MessageSource.SMS, new Date (timestamp),
+						Message msg = new Message(messageId_string, threadId_string, author, MessageSource.SMS, new Date (timestamp),
 								body, false);
 						threadMessages.add(msg);
 
-						HashMap<String, String> map = new HashMap<String, String>();
-						map.put("Message", author + ": " + body);
-						String date = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss").format(new Date (timestamp));
-						map.put("Date", date);
-						map.put("From", address);
-						map.put("ID", ((Long) messageId).toString());
-						map.put("ThreadID", ((Long) threadId).toString());
-						map.put("ContactID", contactId_string);
-						threadMap.add(map);
 					} while (searchResultCursor.moveToNext() == true);
 
 				}
@@ -596,10 +586,10 @@ public class SearchBadgerModel implements SearchModel {
 			}
 		}
 
-		return threadMap;
+		return threadMessages;
 	}
 	
-	public List<Map<String,String>> getThreadFacebook(int index) {
+	public List<Message> getThreadFacebook(int index) {
 		
 		Message msgInThread = searchResultMessages.get(index);
 
@@ -631,7 +621,6 @@ public class SearchBadgerModel implements SearchModel {
         String thread_id, message_id, author_id, created_time, body;
         JSONArray jsonArray;
 		List<Contact> facebookContacts = getFacebookContacts();
-		List<Map<String,String>> threadMap = new LinkedList<Map<String,String>>();
 		List<Message> threadMessages = new LinkedList<Message>();
         try {
 			jsonArray = new JSONArray(response);
@@ -655,22 +644,12 @@ public class SearchBadgerModel implements SearchModel {
 						body, false);
 				threadMessages.add(msg);
 
-				HashMap<String, String> map = new HashMap<String, String>();
-				map.put("Message", author + ": " + body);
-				String date = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss").format(new Date (timestamp));
-				map.put("Date", date);
-				map.put("FromAddress", "?");
-				map.put("ID", message_id);
-				map.put("ThreadID", thread_id);
-				map.put("ContactID", author_id);
-				threadMap.add(map);
-
 	        }
 		} catch (JSONException e) {
         	return null;
 		}
         
-		return threadMap;
+		return threadMessages;
 	}
 	
 	

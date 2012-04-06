@@ -56,7 +56,7 @@ public class Message implements Parcelable {
 		return threadId;
 	}
 	
-	public String getAuthord() {
+	public String getAuthor() {
 		return author;
 	}
 	

@@ -35,26 +35,11 @@ public class SearchResultListFragment extends ListFragment {
 		
 		super.onCreate(savedInstanceState);
 
-//		List<Map<String,String>> results = model.getSearchResultsMap();
-//		if(results == null) return;
-//
-//		SimpleAdapter adapter = new SimpleAdapter(getActivity(), results,
-//				R.layout.search_result_list_item, new String[] { "Message",
-//						"Date" }, new int[] { R.id.search_result_text,
-//						R.id.search_result_date });
-//
-//		setListAdapter(adapter);
-
 		List<Message> results = model.getSearchResults();
+		if(results == null) return;
 		MessageArrayAdapter adapter = new MessageArrayAdapter(getActivity(), R.layout.search_result_list_item, results);
 		setListAdapter(adapter);
 
-		/*Cursor resultCursor = model.getResultCursor();
-		CursorAdapter resultsAdapter = new SimpleCursorAdapter(getActivity(), 
-				R.layout.search_result_list_item,
-				resultCursor,new String[] { "Message", "Date" }, 
-				new int[] { R.id.search_result_text, R.id.search_result_date });
-		setListAdapter(resultsAdapter);*/
 	}
 	
 
@@ -135,7 +120,7 @@ public class SearchResultListFragment extends ListFragment {
                 	// add the message
                 	TextView message = (TextView) v.findViewById(R.id.search_result_text);
                 	if(message != null)
-                		message.setText(m.getAuthord() + ": " + m.getText());
+                		message.setText(m.getAuthor() + ": " + m.getText());
                 	
                 	// add the date
                 	TextView date = (TextView) v.findViewById(R.id.search_result_date);

@@ -76,7 +76,7 @@ public class SearchTestModel implements SearchModel {
 		return true;
 	}	
 	
-	public List<Map<String,String>> getThread(int index) {
+	public List<Message> getThread(int index) {
 		return null;
 	}
 	
