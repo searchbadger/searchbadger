@@ -8,8 +8,10 @@ import java.util.Iterator;
 import java.util.List;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
@@ -35,6 +37,7 @@ import com.github.searchbadger.R;
 import com.github.searchbadger.core.SearchBadgerApplication;
 import com.github.searchbadger.core.SearchBadgerController;
 import com.github.searchbadger.util.Contact;
+import com.github.searchbadger.util.FacebookHelper;
 import com.github.searchbadger.util.MessageSource;
 import com.github.searchbadger.util.Search;
 import com.github.searchbadger.util.SearchGenerator;
@@ -336,6 +339,13 @@ public class SearchActivity extends Activity implements SearchGenerator {
 			updateTextContacts();
 			contactsButton.setEnabled(true);
 		}
+		
+		// clear the selected list once the source has changed
+		selectedContacts.clear();
+		
+		// check if the user needs to login into a source account
+		isFacebookSelectedAndNotReady();
+		
 	}
 	
 	@Override
@@ -693,6 +703,38 @@ public class SearchActivity extends Activity implements SearchGenerator {
 	public void ShowAbout() {
 		Intent intent = new Intent(this, AboutActivity.class);
 		startActivity(intent);
+	}
+	
+	public boolean isFacebookSelectedAndNotReady() {
+
+		List<MessageSource> sources = getMessageSources();
+		if(sources.size() == 1 && sources.get(0) == MessageSource.FACEBOOK) {
+			// check if the user has logged and has the required permission
+			FacebookHelper facebookHelper = SearchBadgerApplication.getFacebookHelper();
+			if(!facebookHelper.isReady()) {
+				new AlertDialog.Builder(this)
+	            .setTitle("Facebook Login Required")
+	            .setMessage("You need to log into Facebook in order to search Facebook messages. In addition, you need to give this app the required permission to access your messages. Please go into the Settings Menu to log in.")
+	            .setPositiveButton("Open Settings",
+	                    new DialogInterface.OnClickListener() {
+	                        public void onClick(DialogInterface dialog, int which) {
+	                        	ShowSettings();
+	                        }
+
+	                    })
+	            .setNegativeButton("Close",
+	                    new DialogInterface.OnClickListener() {
+	                        public void onClick(DialogInterface dialog, int which) {
+	                        	dialog.cancel();
+	                        }
+
+	                    }).show();
+				return true;
+			}
+		}
+		
+		
+		return false;
 	}
 	
 }

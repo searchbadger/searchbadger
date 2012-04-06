@@ -27,11 +27,14 @@ public class SearchBadgerController {
 	}
 
 	public class SearchButtonListener implements View.OnClickListener {
-		private SearchGenerator srchGen;
-		public SearchButtonListener(SearchGenerator srchGen) {
+		private SearchActivity srchGen;
+		public SearchButtonListener(SearchActivity srchGen) {
 			this.srchGen = srchGen;
 		}
 		public void onClick(View v) {
+			// check if we can perform the search
+			if(srchGen.isFacebookSelectedAndNotReady() == true) return;
+			
 			Search filter = srchGen.generateSearch();
 			if(filter.getSources().size() == 0) {
 				AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
@@ -71,6 +74,8 @@ public class SearchBadgerController {
 			srchGen = gen;
 		}
 		public void onClick(View v) {
+			// check if we can display the contact
+			if(srchGen.isFacebookSelectedAndNotReady() == true) return;
 		
 			// start the select contact activity
 			Context context = v.getContext();

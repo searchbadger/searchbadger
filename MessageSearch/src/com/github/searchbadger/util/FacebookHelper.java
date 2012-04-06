@@ -32,13 +32,13 @@ public class FacebookHelper {
     }
     
     private static final String FACEBOOK_APP_ID = "336829723032066"; // this is our facebook app id
-    Facebook facebook = new Facebook(FACEBOOK_APP_ID);
+    public Facebook facebook = new Facebook(FACEBOOK_APP_ID);
     private String[] permissions = { "read_mailbox" };
     private static Hashtable<String, String> currentPermissions = new Hashtable<String, String>();
     private boolean isReady = false;
     private Context context;
     private SearchBadgerPreferences prefs = SearchBadgerPreferences.getInstance();
-    private AsyncFacebookRunner asyncRunner = new AsyncFacebookRunner(facebook);
+    public AsyncFacebookRunner asyncRunner = new AsyncFacebookRunner(facebook);
     private UpdateActivityListener updateActivityListener;
     
     public FacebookHelper() {
@@ -98,14 +98,14 @@ public class FacebookHelper {
         asyncRunner.request("me/permissions", params, new PermissionsRequestListener());
 	}
 
-	public abstract class BaseDialogListener implements DialogListener {
+	public static abstract class BaseDialogListener implements DialogListener {
         public void onComplete(Bundle values) {}
         public void onFacebookError(FacebookError error) {}
         public void onError(DialogError error) {}
         public void onCancel() {}
 	}
 
-	public abstract class BaseRequestListener implements RequestListener {
+	public static abstract class BaseRequestListener implements RequestListener {
 	    public void onFacebookError(FacebookError e, final Object state) {	    }
 	    public void onFileNotFoundException(FileNotFoundException e, final Object state) {	    }
 	    public void onIOException(IOException e, final Object state) {	    }

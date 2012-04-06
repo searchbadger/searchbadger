@@ -1,8 +1,10 @@
 package com.github.searchbadger.core;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.MalformedURLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -10,19 +12,23 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
+import android.os.Bundle;
 import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.provider.ContactsContract.Contacts;
 import android.util.Log;
 
 import com.github.searchbadger.util.Contact;
 import com.github.searchbadger.util.ContactSMS;
+import com.github.searchbadger.util.FacebookHelper;
 import com.github.searchbadger.util.Message;
 import com.github.searchbadger.util.MessageSource;
 import com.github.searchbadger.util.Search;
@@ -406,6 +412,8 @@ public class SearchBadgerModel implements SearchModel {
 		switch(source) {
 		case SMS:
 			return getSMSContacts();
+		case FACEBOOK:
+			return getFacebookContacts();
 		}
 		
 		return null;
@@ -482,6 +490,56 @@ public class SearchBadgerModel implements SearchModel {
 		
 		return contacts;
 	}
+	
+
+	protected List<Contact> getFacebookContacts() {
+		List<Contact> contacts = null; 
+		FacebookHelper facebookHelper = SearchBadgerApplication.getFacebookHelper();
+		
+		// send the GET request for the facebook contact list
+		if(facebookHelper.isReady() == false) return null;
+		String query = "select name, uid, pic_square from user where uid in (select uid2 from friend where uid1=me()) order by name";
+        Bundle params = new Bundle();
+        params.putString("method", "fql.query");
+        params.putString("query", query);
+        String response;
+        try {
+            response = facebookHelper.facebook.request(null, params, "GET");
+        } catch (FileNotFoundException e) {
+        	return null;
+        } catch (MalformedURLException e) {
+        	return null;
+        } catch (IOException e) {
+        	return null;
+        }
+        
+        long id;
+        String name;
+        JSONArray jsonArray;
+        try {
+			jsonArray = new JSONArray(response);
+	        contacts = new ArrayList<Contact>(jsonArray.length());
+	        for(int i = 0; i < jsonArray.length(); i++) {
+	        	id = jsonArray.getJSONObject(i).getLong("uid");
+	        	name = jsonArray.getJSONObject(i).getString("name");
+	        	
+
+				// add the new contact to the list
+				Contact contact = new Contact(
+						String.valueOf(id),
+						MessageSource.FACEBOOK,
+						name,
+						null);
+				contacts.add(contact);
+	        }
+		} catch (JSONException e) {
+        	return null;
+		}
+		
+		return contacts;
+	}
+	
+     
 	
 	protected class SearchBadgerOpenHandler extends SQLiteOpenHelper {
 		public static final int DATABASE_VERSION = 1;
