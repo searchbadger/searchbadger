@@ -11,6 +11,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -61,8 +63,10 @@ public class SearchBadgerModel implements SearchModel {
 			switch(source) {
 			case SMS:
 				searchSMS(filter);
+				break;
 			case FACEBOOK:
 				searchFacebook(filter);
+				break;
 			}
 		}
 		
@@ -235,16 +239,13 @@ public class SearchBadgerModel implements SearchModel {
 		if (filter.getText() != null && filter.getText().length() != 0) {
 			
 			// use the glob for any text that contains regex symbols for GLOB and LIKE
-			if (filter.getText().contains("#") || filter.getText().contains("*") || filter.getText().contains("_") || filter.getText().contains("%")){
+			if (filter.containsRegEx()){
 				// get all the messages then do some post process to filter them since FQL doesn't support regex			
 			}
 			else{
 				query.append(" AND ");
 				
-				String textFilter = filter.getText().toLowerCase();
-				// TODO check if there are more escape characters
-				textFilter = textFilter.replace("\\", "\\\\");
-				textFilter = textFilter.replace("'", "\\'");
+				String textFilter = filter.getFQLText();
 				query.append(" strpos(lower(body) , '" + textFilter  + "') >= 0 ");
 			}
 
@@ -325,6 +326,8 @@ public class SearchBadgerModel implements SearchModel {
         // parse the json message
         String thread_id, message_id, author_id, created_time, body;
         JSONArray jsonArray;
+        boolean requiresRegexFilter = filter.containsRegEx();
+        Pattern p = Pattern.compile(filter.getJavaRegexText());
         try {
 			jsonArray = new JSONArray(response);
 	        for(int i = 0; i < jsonArray.length(); i++) {
@@ -334,6 +337,11 @@ public class SearchBadgerModel implements SearchModel {
 	        	created_time = jsonArray.getJSONObject(i).getString("created_time");
 	        	body = jsonArray.getJSONObject(i).getString("body");
 	        	
+	        	// post process the regex filter
+	        	if(requiresRegexFilter) {
+	        		Matcher matcher = p.matcher(body);
+	        		if(!matcher.find()) continue;
+	        	}
 
 	        	// TODO why do we need to pass a contact object to the message?
 				Contact c = new Contact(author_id, MessageSource.FACEBOOK, "TODO", null);
