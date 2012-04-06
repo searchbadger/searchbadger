@@ -1,18 +1,26 @@
 package com.github.searchbadger.view;
 
+import java.text.SimpleDateFormat;
 import java.util.List;
-import java.util.Map;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.ListFragment;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
+import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.SimpleAdapter;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.github.searchbadger.R;
 import com.github.searchbadger.core.SearchBadgerApplication;
+import com.github.searchbadger.util.Message;
 import com.github.searchbadger.util.SearchModel;
 
 public class SearchResultListFragment extends ListFragment {
@@ -20,20 +28,25 @@ public class SearchResultListFragment extends ListFragment {
 	private boolean mDualPane;
     private int mCurCheckPosition = 0;
     private SearchModel model = SearchBadgerApplication.getSearchModel();
+    SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		
 		super.onCreate(savedInstanceState);
 
-		List<Map<String,String>> results = model.getSearchResultsMap();
-		if(results == null) return;
+//		List<Map<String,String>> results = model.getSearchResultsMap();
+//		if(results == null) return;
+//
+//		SimpleAdapter adapter = new SimpleAdapter(getActivity(), results,
+//				R.layout.search_result_list_item, new String[] { "Message",
+//						"Date" }, new int[] { R.id.search_result_text,
+//						R.id.search_result_date });
+//
+//		setListAdapter(adapter);
 
-		SimpleAdapter adapter = new SimpleAdapter(getActivity(), results,
-				R.layout.search_result_list_item, new String[] { "Message",
-						"Date" }, new int[] { R.id.search_result_text,
-						R.id.search_result_date });
-
+		List<Message> results = model.getSearchResults();
+		MessageArrayAdapter adapter = new MessageArrayAdapter(getActivity(), R.layout.search_result_list_item, results);
 		setListAdapter(adapter);
 
 		/*Cursor resultCursor = model.getResultCursor();
@@ -97,4 +110,91 @@ public class SearchResultListFragment extends ListFragment {
         }
     }
 
+
+	protected class MessageArrayAdapter extends ArrayAdapter<Message> {
+
+		private List<Message> messages;
+		
+		public MessageArrayAdapter(Context context, int textViewResourceId, List<Message> objects) {
+			super(context, textViewResourceId, objects);
+			messages = objects;
+		}
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+                View v = convertView;
+                if (v == null) {
+                    LayoutInflater vi = (LayoutInflater)getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                    v = vi.inflate(R.layout.search_result_list_item, null);
+                }
+                Message m = messages.get(position);
+                if (m != null) {
+                	// save the contact into the tag
+        			v.setTag(m);
+                	
+                	// add the message
+                	TextView message = (TextView) v.findViewById(R.id.search_result_text);
+                	if(message != null)
+                		message.setText(m.getAuthord() + ": " + m.getText());
+                	
+                	// add the date
+                	TextView date = (TextView) v.findViewById(R.id.search_result_date);
+                	if(date != null)
+                		date.setText(dateFormat.format(m.getDate()));
+                	
+                	// set the icon
+                	ImageView icon = (ImageView) v.findViewById(R.id.image_search_result);
+                	if(icon != null)
+                	{
+                		switch(m.getSource()) {
+                		case SMS:
+                    		icon.setImageResource(R.drawable.sms_selected);
+                			break;
+                		case FACEBOOK:
+                    		icon.setImageResource(R.drawable.facebook_selected);
+                			break;
+                		}
+                	}
+
+        			// set the click listener for the star button
+        			CheckBox starButton = (CheckBox) v.findViewById(R.id.search_result_checkbox);
+        			starButton.setOnClickListener(new View.OnClickListener() {
+        				public void onClick(View v) {
+        					OnStarSelector(v);
+        				}
+        			});
+        			// check the star if the message is starred
+        			if(m.isStarred())
+        				starButton.setChecked(true);
+        			else
+        				starButton.setChecked(false);
+                }
+                return v;
+        }
+		
+	}
+	
+	protected void OnStarSelector(View v){
+
+		Toast.makeText(getActivity(), "Star", Toast.LENGTH_SHORT).show();
+		
+		// get the message object
+		if (!(v.getParent() instanceof View))
+			return;
+		View parentView = (View) v.getParent();
+		if (!(parentView.getTag() instanceof Message))
+			return;
+		Message message = (Message) parentView.getTag();
+
+		// add/remove contact
+		if (!(v instanceof CheckBox))
+			return;
+		CheckBox starButton = (CheckBox) v;
+//		if (starButton.isChecked())
+//			addContact(contact);
+//		else
+//			removeContact(contact);
+
+	}
+	
 }
