@@ -51,6 +51,26 @@ public class SearchBadgerModel implements SearchModel {
 	
 	public void search(Search filter) {
 		this._currentSearch = filter;
+		searchResultMessages = new ArrayList<Message>();
+		searchResults = new ArrayList<Map<String,String>>();
+		
+		List<MessageSource> sources = filter.getSources();
+		Iterator<MessageSource> iter = sources.iterator();
+		while (iter.hasNext()){
+			MessageSource source = iter.next();
+			switch(source) {
+			case SMS:
+				searchSMS(filter);
+			case FACEBOOK:
+				searchFacebook(filter);
+			}
+		}
+		
+
+		// TODO need to sort the results
+	}
+	
+	public void searchSMS(Search filter) {
 		// SMS content provider uri 
 		String url = "content://sms/"; 
 
@@ -150,8 +170,6 @@ public class SearchBadgerModel implements SearchModel {
 
 		Cursor searchResultCursor = SearchBadgerApplication.getAppContext().getContentResolver().query(uri, projectionList, selection, selectionArgsArray, "date DESC");
 
-		searchResults = new ArrayList<Map<String,String>>();
-		searchResultMessages = new ArrayList<Message>();
 		if (searchResultCursor != null) {
 			try {
 				int count = searchResultCursor.getCount();
@@ -200,6 +218,203 @@ public class SearchBadgerModel implements SearchModel {
 			}
 		}
 
+	}
+	
+
+	public void searchFacebook(Search filter) {
+
+		FacebookHelper facebookHelper = SearchBadgerApplication.getFacebookHelper();
+
+		if(facebookHelper.isReady() == false) return;
+		StringBuilder query = new StringBuilder();
+		query.append("SELECT thread_id, message_id, author_id, created_time, body FROM message WHERE thread_id IN (SELECT thread_id FROM thread WHERE folder_id = 0) ");
+		
+		// thread_id IN (SELECT thread_id FROM thread WHERE folder_id = 0) AND author_id != me() ORDER BY created_time ASC
+		
+		// Go through each possible search type, and build SQL query
+		if (filter.getText() != null && filter.getText().length() != 0) {
+			
+			// use the glob for any text that contains regex symbols for GLOB and LIKE
+			if (filter.getText().contains("#") || filter.getText().contains("*") || filter.getText().contains("_") || filter.getText().contains("%")){
+				// get all the messages then do some post process to filter them since FQL doesn't support regex			
+			}
+			else{
+				query.append(" AND ");
+				
+				String textFilter = filter.getText().toLowerCase();
+				// TODO check if there are more escape characters
+				textFilter = textFilter.replace("\\", "\\\\");
+				textFilter = textFilter.replace("'", "\\'");
+				query.append(" strpos(lower(body) , '" + textFilter  + "') >= 0 ");
+			}
+
+		}
+		if (filter.getContacts() != null){
+			List<Contact> contacts = filter.getContacts();
+			Iterator<Contact> iter = contacts.iterator();
+			if(contacts.size() != 0) {
+				query.append(" AND ");
+					
+				query.append("(");
+				boolean firstAddress = true;
+				while (iter.hasNext()){
+					Contact c = iter.next();
+					String id = c.getId();
+					if(firstAddress == true)
+						firstAddress = false;
+					else
+						query.append(" OR ");
+					query.append(" author_id = " + id + " ");
+					
+				}
+				query.append(")");				
+			}			
+		}
+		
+		if (filter.getBegin() != null){
+			query.append(" AND ");
+			
+			// NOTE: time is in unix time in seconds
+			query.append(" created_time >= ");
+			query.append(((Long)(filter.getBegin().getTime() / 1000L )).toString());
+			
+		}
+		
+		if (filter.getEnd() != null){
+			query.append(" AND ");
+			
+			// NOTE: time is in unix time in seconds
+			query.append(" created_time <= ");
+			query.append(((Long)(filter.getEnd().getTime() / 1000L )).toString());
+			
+		}
+		
+		if (filter.getType() != null){
+			query.append(" AND ");
+			
+			if (filter.getType()==SendReceiveType.SENT) {
+				query.append(" author_id = me() ");
+			}
+			else if (filter.getType()==SendReceiveType.RECEIVED) {
+				query.append(" author_id != me() ");
+			}
+		}
+
+		// add the date sort
+		query.append("  ORDER BY created_time DESC ");
+		
+		Log.d("SearchBadger", query.toString());
+		
+		// send the search request for the message search
+		Bundle params = new Bundle();
+        params.putString("method", "fql.query");
+        params.putString("query", query.toString());
+        String response;
+        try {
+            response = facebookHelper.facebook.request(null, params, "GET");
+    		Log.d("SearchBadger", response);
+        } catch (FileNotFoundException e) {
+        	return;
+        } catch (MalformedURLException e) {
+        	return;
+        } catch (IOException e) {
+        	return;
+        }
+        
+        
+        // parse the json message
+        String thread_id, message_id, author_id, created_time, body;
+        JSONArray jsonArray;
+        try {
+			jsonArray = new JSONArray(response);
+	        for(int i = 0; i < jsonArray.length(); i++) {
+	        	thread_id = jsonArray.getJSONObject(i).getString("thread_id");
+	        	message_id = jsonArray.getJSONObject(i).getString("message_id");
+	        	author_id = jsonArray.getJSONObject(i).getString("author_id");
+	        	created_time = jsonArray.getJSONObject(i).getString("created_time");
+	        	body = jsonArray.getJSONObject(i).getString("body");
+	        	
+
+	        	// TODO why do we need to pass a contact object to the message?
+				Contact c = new Contact(author_id, MessageSource.FACEBOOK, "TODO", null);
+				
+				long timestamp = Long.parseLong(created_time) * 1000L;
+				Message msg = new Message(c, message_id, thread_id, new Date (timestamp),
+						body, false);
+				searchResultMessages.add(msg);
+
+				HashMap<String, String> map = new HashMap<String, String>();
+				map.put("Message", body);
+				String date = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss").format(new Date (timestamp));
+				map.put("Date", date);
+				map.put("FromAddress", "?");
+				map.put("ID", message_id);
+				map.put("ThreadID", thread_id);
+				map.put("ContactID", author_id);
+				searchResults.add(map);
+
+	        }
+		} catch (JSONException e) {
+        	return;
+		}
+        
+		
+		/*	
+		// Make query to content provider and store cursor to table returned
+		String[] selectionArgsArray = new String[selectionArgList.size()];
+		selectionArgList.toArray(selectionArgsArray);
+
+		Cursor searchResultCursor = SearchBadgerApplication.getAppContext().getContentResolver().query(uri, projectionList, selection, selectionArgsArray, "date DESC");
+
+		searchResults = new ArrayList<Map<String,String>>();
+		if (searchResultCursor != null) {
+			try {
+				int count = searchResultCursor.getCount();
+				if (count > 0) {
+					searchResultCursor.moveToFirst();
+					do {
+
+						String[] columns = searchResultCursor.getColumnNames();
+						for (int i=0; i<columns.length; i++) {
+						Log.v("SearchBadger","columns " + i + ": " + columns[i] + ": "
+								+ searchResultCursor.getString(i));
+						}
+
+						long messageId = searchResultCursor.getLong(0);
+						String messageId_string = String.valueOf(messageId);
+						long threadId = searchResultCursor.getLong(1);
+						String threadId_string = String.valueOf(messageId);
+						String address = searchResultCursor.getString(2);
+						long timestamp = searchResultCursor.getLong(3);
+						String body = searchResultCursor.getString(4);
+						long type = searchResultCursor.getLong(5);
+						long contactId = searchResultCursor.getLong(6);
+						String contactId_string = String.valueOf(contactId);
+						
+						Contact c = new Contact(contactId_string, MessageSource.SMS,
+								contactId_string, null);
+						
+						Message msg = new Message(c, messageId_string, threadId_string, new Date (timestamp),
+								body, false);
+						searchResultMessages.add(msg);
+
+						HashMap<String, String> map = new HashMap<String, String>();
+						map.put("Message", body);
+						String date = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss").format(new Date (timestamp));
+						map.put("Date", date);
+						map.put("FromAddress", address);
+						map.put("ID", ((Long) messageId).toString());
+						map.put("ThreadID", ((Long) threadId).toString());
+						map.put("ContactID", contactId_string);
+						searchResults.add(map);
+					} while (searchResultCursor.moveToNext() == true);
+
+				}
+			} finally {
+				searchResultCursor.close();
+			}
+		}
+*/
 	}
 	
 	public List<Map<String,String>> getSearchResultsMap() {
