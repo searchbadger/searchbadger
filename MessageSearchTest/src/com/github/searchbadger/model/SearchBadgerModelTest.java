@@ -82,7 +82,9 @@ public class SearchBadgerModelTest extends ApplicationTestCase<SearchBadgerAppli
 		SearchBadgerTestUtil.addSmsToDatabase("2-222-222-2222", date.getTime(), SearchBadgerTestUtil.MESSAGE_TYPE_INBOX, "Hello World Inbox");
 		SearchBadgerTestUtil.addSmsToDatabase("2-222-222-2222", date.getTime(), SearchBadgerTestUtil.MESSAGE_TYPE_INBOX, "Hello World Inbox");
 		
-		filter = new Search("", null, null, null, null, null);
+		List<MessageSource> sources = new LinkedList<MessageSource>();
+		sources.add(MessageSource.SMS);
+		filter = new Search("", null, null, sources, null, null);
 		model.search(filter);
 		results = model.getSearchResultsMap();
 		assertEquals("Testing blank search with no filters: ", 10, results.size());
@@ -101,15 +103,18 @@ public class SearchBadgerModelTest extends ApplicationTestCase<SearchBadgerAppli
 		SearchBadgerTestUtil.addSmsToDatabase("2-222-222-2222", date.getTime(), SearchBadgerTestUtil.MESSAGE_TYPE_SENT, "Hello World Sent");
 		SearchBadgerTestUtil.addSmsToDatabase("2-222-222-2222", date.getTime(), SearchBadgerTestUtil.MESSAGE_TYPE_INBOX, "Hello World Inbox");
 		SearchBadgerTestUtil.addSmsToDatabase("2-222-222-2222", date.getTime(), SearchBadgerTestUtil.MESSAGE_TYPE_INBOX, "Hello World Inbox");
+
+		List<MessageSource> sources = new LinkedList<MessageSource>();
+		sources.add(MessageSource.SMS);
 		
 		// testing text search
-		filter = new Search("Hello", null, null, null, null, null);
+		filter = new Search("Hello", null, null, sources, null, null);
 		model.search(filter);
 		results = model.getSearchResultsMap();
 		assertEquals("Testing 'Hello' search with no filters: ", 5, results.size());
 		
 		// testing another text search
-		filter = new Search("foo", null, null, null, null, null);
+		filter = new Search("foo", null, null, sources, null, null);
 		model.search(filter);
 		results = model.getSearchResultsMap();
 		assertEquals("Testing 'foo' search with no filters: ", 2, results.size());
@@ -138,11 +143,14 @@ public class SearchBadgerModelTest extends ApplicationTestCase<SearchBadgerAppli
 		SearchBadgerTestUtil.addSmsToDatabase("2-222-222-2222", date.getTime(), SearchBadgerTestUtil.MESSAGE_TYPE_SENT, "Hello World Sent");
 		SearchBadgerTestUtil.addSmsToDatabase("2-222-222-2222", date.getTime(), SearchBadgerTestUtil.MESSAGE_TYPE_INBOX, "Hello World Inbox");
 		SearchBadgerTestUtil.addSmsToDatabase("2-222-222-2222", date.getTime(), SearchBadgerTestUtil.MESSAGE_TYPE_INBOX, "Hello World Inbox");
+
+		List<MessageSource> sources = new LinkedList<MessageSource>();
+		sources.add(MessageSource.SMS);
 		
 		// testing before filter
 		cal.set(2012, 2, 14, 9, 0, 0); // 02/14/2012 9:00:00 am
 		end = cal.getTime();
-		filter = new Search("", null, end, null, null, null);
+		filter = new Search("", null, end, sources, null, null);
 		model.search(filter);
 		results = model.getSearchResultsMap();
 		assertEquals("Testing blank search with filter date before 02/14/2012 9:00:00 am: ", 4, results.size());
@@ -150,7 +158,7 @@ public class SearchBadgerModelTest extends ApplicationTestCase<SearchBadgerAppli
 		// testing after filter
 		cal.set(2012, 2, 14, 11, 0, 0); // 02/14/2012 11:00:00 am
 		begin = cal.getTime();
-		filter = new Search("", begin, null, null, null, null);
+		filter = new Search("", begin, null, sources, null, null);
 		model.search(filter);
 		results = model.getSearchResultsMap();
 		assertEquals("Testing blank search with filter date after 02/14/2012 11:00:00 am: ", 3, results.size());
@@ -160,7 +168,7 @@ public class SearchBadgerModelTest extends ApplicationTestCase<SearchBadgerAppli
 		begin = cal.getTime();
 		cal.set(2012, 2, 14, 11, 0, 0); // 02/14/2012 11:00:00 am
 		end = cal.getTime();
-		filter = new Search("", begin, end, null, null, null);
+		filter = new Search("", begin, end, sources, null, null);
 		model.search(filter);
 		results = model.getSearchResultsMap();
 		assertEquals("Testing blank search with filter date from 02/14/2012 9:00:00 am to from 02/14/2012 11:00:00 am: ", 1, results.size());
@@ -179,15 +187,18 @@ public class SearchBadgerModelTest extends ApplicationTestCase<SearchBadgerAppli
 		SearchBadgerTestUtil.addSmsToDatabase("2-222-222-2222", date.getTime(), SearchBadgerTestUtil.MESSAGE_TYPE_SENT, "Hello World Sent");
 		SearchBadgerTestUtil.addSmsToDatabase("2-222-222-2222", date.getTime(), SearchBadgerTestUtil.MESSAGE_TYPE_INBOX, "Hello World Inbox");
 		SearchBadgerTestUtil.addSmsToDatabase("2-222-222-2222", date.getTime(), SearchBadgerTestUtil.MESSAGE_TYPE_INBOX, "Hello World Inbox");
+
+		List<MessageSource> sources = new LinkedList<MessageSource>();
+		sources.add(MessageSource.SMS);
 		
 		// testing received filter
-		filter = new Search("", null, null, null, null, SendReceiveType.RECEIVED);
+		filter = new Search("", null, null, sources, null, SendReceiveType.RECEIVED);
 		model.search(filter);
 		results = model.getSearchResultsMap();
 		assertEquals("Testing blank search with filter SendReceiveType.RECEIVED: ", 7, results.size());
 		
 		// testing send filter
-		filter = new Search("", null, null, null, null, SendReceiveType.SENT);
+		filter = new Search("", null, null, sources, null, SendReceiveType.SENT);
 		model.search(filter);
 		results = model.getSearchResultsMap();
 		assertEquals("Testing blank search with filter SendReceiveType.SENT: ", 3, results.size());
@@ -208,33 +219,36 @@ public class SearchBadgerModelTest extends ApplicationTestCase<SearchBadgerAppli
 		SearchBadgerTestUtil.addSmsToDatabase("2-222-222-2222", date.getTime(), SearchBadgerTestUtil.MESSAGE_TYPE_SENT, "Hello World Sent");
 		SearchBadgerTestUtil.addSmsToDatabase("2-222-222-2222", date.getTime(), SearchBadgerTestUtil.MESSAGE_TYPE_INBOX, "Hello World Inbox");
 		SearchBadgerTestUtil.addSmsToDatabase("2-222-222-2222", date.getTime(), SearchBadgerTestUtil.MESSAGE_TYPE_INBOX, "Hello Worlld Inbox");
+
+		List<MessageSource> sources = new LinkedList<MessageSource>();
+		sources.add(MessageSource.SMS);
 		
 		// testing # symbol
-		filter = new Search("*#####*", null, null, null, null, null);
+		filter = new Search("*#####*", null, null, sources, null, null);
 		model.search(filter);
 		results = model.getSearchResultsMap();
 		assertEquals("Testing *#####* search with no filter: ", 2, results.size());
-		filter = new Search("ar#*", null, null, null, null, null);
+		filter = new Search("ar#*", null, null, sources, null, null);
 		model.search(filter);
 		results = model.getSearchResultsMap();
 		assertEquals("Testing bar#* search with no filter: ", 3, results.size());
 		
 		// testing * symbol
-		filter = new Search("*w*d*", null, null, null, null, null);
+		filter = new Search("*w*d*", null, null, sources, null, null);
 		model.search(filter);
 		results = model.getSearchResultsMap();
 		assertEquals("Testing *w*d* search with no filter: ", 5, results.size());
-		filter = new Search("*inbox", null, null, null, null, null);
+		filter = new Search("*inbox", null, null, sources, null, null);
 		model.search(filter);
 		results = model.getSearchResultsMap();
 		assertEquals("Testing *inbox search with no filter: ", 8, results.size());
-		filter = new Search("hello*", null, null, null, null, null);
+		filter = new Search("hello*", null, null, sources, null, null);
 		model.search(filter);
 		results = model.getSearchResultsMap();
 		assertEquals("Testing hello* search with no filter: ", 5, results.size());
 		
 		// testing _ symbol
-		filter = new Search("*w___d*", null, null, null, null, null);
+		filter = new Search("*w___d*", null, null, sources, null, null);
 		model.search(filter);
 		results = model.getSearchResultsMap();
 		assertEquals("Testing *w___d* search with no filter: ", 4, results.size());
@@ -260,13 +274,16 @@ public class SearchBadgerModelTest extends ApplicationTestCase<SearchBadgerAppli
 		
 		List<Contact> selectedContacts = new LinkedList<Contact>();
 		List<String> addresses = new LinkedList<String>();
+
+		List<MessageSource> sources = new LinkedList<MessageSource>();
+		sources.add(MessageSource.SMS);
 		
 		// testing contact filter
 		selectedContacts.clear();
 		addresses.clear();
 		addresses.add("1-111-111-1111");
 		selectedContacts.add(new ContactSMS("1", MessageSource.SMS, null, null, addresses));
-		filter = new Search("", null, null, null, selectedContacts, null);
+		filter = new Search("", null, null, sources, selectedContacts, null);
 		model.search(filter);
 		results = model.getSearchResultsMap();
 		assertEquals("Testing blank search with filter contacts address {1-111-111-1111}: ", 6, results.size());
@@ -275,7 +292,7 @@ public class SearchBadgerModelTest extends ApplicationTestCase<SearchBadgerAppli
 		addresses.clear();
 		addresses.add("2-222-222-2222");
 		selectedContacts.add(new ContactSMS("2", MessageSource.SMS, null, null, addresses));
-		filter = new Search("", null, null, null, selectedContacts, null);
+		filter = new Search("", null, null, sources, selectedContacts, null);
 		model.search(filter);
 		results = model.getSearchResultsMap();
 		assertEquals("Testing blank search with filter contacts address {2-222-222-2222}:", 3, results.size());
@@ -285,7 +302,7 @@ public class SearchBadgerModelTest extends ApplicationTestCase<SearchBadgerAppli
 		addresses.add("1-111-111-1111");
 		addresses.add("3-333-333-3333");
 		selectedContacts.add(new ContactSMS("3", MessageSource.SMS, null, null, addresses));
-		filter = new Search("", null, null, null, selectedContacts, null);
+		filter = new Search("", null, null, sources, selectedContacts, null);
 		model.search(filter);
 		results = model.getSearchResultsMap();
 		assertEquals("Testing blank search with filter contacts address {1-111-111-1111, 3-333-333-3333}: ", 8, results.size());
