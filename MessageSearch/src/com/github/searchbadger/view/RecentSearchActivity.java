@@ -1,11 +1,11 @@
 package com.github.searchbadger.view;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import android.app.ListActivity;
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,12 +15,14 @@ import android.widget.TextView;
 
 import com.github.searchbadger.R;
 import com.github.searchbadger.core.SearchBadgerApplication;
+import com.github.searchbadger.util.Message;
 import com.github.searchbadger.util.Search;
 import com.github.searchbadger.util.SearchModel;
 
 public class RecentSearchActivity extends ListActivity {
 
     private SearchModel model = SearchBadgerApplication.getSearchModel();
+    private List<Search> recentSearches;
     
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -32,8 +34,15 @@ public class RecentSearchActivity extends ListActivity {
     @Override
 	public void onResume() {
 		super.onResume();	
-		List<Search> recentSearches = model.getRecentSearches();
-		if(recentSearches == null) return;
+		List<Search> searches = model.getRecentSearches();
+		if(searches == null) return;
+		
+		// make a copy of the starred message in case the list is changed 
+		recentSearches = new ArrayList<Search>(searches.size());
+	    for(Search item: searches) {
+	    	recentSearches.add(new Search(item));
+	    }
+	    
 		SearchArrayAdapter adapter = new SearchArrayAdapter(this, R.layout.recent_search_list_item, recentSearches);
 		setListAdapter(adapter);
 
@@ -42,8 +51,15 @@ public class RecentSearchActivity extends ListActivity {
 	@Override
     public void onListItemClick(ListView l, View v, int position, long id) {
 
+        // store the data into the application object
 		Search s = (Search) v.getTag();
-        Log.d("SearchBadger", s.getText());
+        SearchBadgerApplication.pushRecentSearch(s);
+        
+        // switch tab to the search tab
+        if (!(this.getParent() instanceof MainTabActivity))
+			return;
+        MainTabActivity tabView = (MainTabActivity) this.getParent();
+        tabView.getTabHost().setCurrentTab(0);
     }
 
 	protected class SearchArrayAdapter extends ArrayAdapter<Search> {

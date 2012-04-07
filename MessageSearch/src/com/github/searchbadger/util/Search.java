@@ -22,7 +22,16 @@ public class Search {
 		this.contacts = contacts;
 		this.type = type;
 	}
-
+	
+	public Search(Search copy) {
+		this.text = copy.text;
+		this.begin = copy.begin;
+		this.end = copy.end;
+		this.sources = copy.sources;
+		this.contacts = copy.contacts;
+		this.type = copy.type;		
+	}
+ 
 	public String getText() {
 		return text;
 	}

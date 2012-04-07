@@ -1,4 +1,4 @@
-package com.github.searchbadger.model;
+package com.github.searchbadger.core;
 
 import java.util.ArrayList;
 import java.util.Calendar;

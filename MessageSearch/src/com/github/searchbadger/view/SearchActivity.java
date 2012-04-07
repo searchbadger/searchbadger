@@ -19,6 +19,7 @@ import android.text.Html;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -253,12 +254,99 @@ public class SearchActivity extends Activity implements SearchGenerator {
 
 	@Override
 	protected void onResume() {
-		// TODO Auto-generated method stub
 		super.onResume();
 
-		// XXX updateTextContacts();
+		Search recentSearchToLoad = SearchBadgerApplication.popRecentSearch();
+		if(recentSearchToLoad != null) {
+			loadRecentSearch(recentSearchToLoad);
+		}
 	}
 
+	protected void loadRecentSearch(Search search) {
+		
+		// load the search text
+		searchInputText.setText(search.getText());
+		List<MessageSource> sources = search.getSources();
+		
+		// load the source
+		smsButton.setChecked(false);
+		smsButton.setChecked(false);
+		smsButton.setChecked(false);
+		smsButton.setChecked(false);
+		if(sources != null) {
+			Iterator<MessageSource> iter = sources.iterator();
+			while(iter.hasNext()) {
+				switch(iter.next()) {
+				case SMS:
+					smsButton.setChecked(true);
+					break;
+				case FACEBOOK:
+					facebookButton.setChecked(true);
+					break;
+				case TWITTER:
+					twitterButton.setChecked(true);
+					break;
+				case STARRED:
+					starButton.setChecked(true);
+					break;
+				}
+			}
+		}
+		
+		// load the date
+		beforeDate = new Date();
+		afterDate = new Date();
+		fromDate = new Date();
+		toDate = new Date();
+		radioGroupDate.check(R.id.radioToday);
+		checkBoxFilterDate.setChecked(false);
+		Date start = search.getBegin();
+		Date end = search.getEnd();
+		if(start == null && end == null) {
+			// do nothing since default is set to be disabled
+		} else if(start != null && end == null) {
+			checkBoxFilterDate.setChecked(true);
+			radioGroupDate.check(R.id.radioAfter);
+			afterDate = start;
+			
+		} else if(start == null && end != null) {
+			checkBoxFilterDate.setChecked(true);
+			radioGroupDate.check(R.id.radioBefore);
+			beforeDate = end;
+			
+		} else {
+			checkBoxFilterDate.setChecked(true);
+			radioGroupDate.check(R.id.radioFrom);
+			fromDate = start;
+			toDate = end;
+		}
+		toggleFilterDate();
+		updateDateButtons();
+
+		
+		// load the selected contacts
+		checkBoxFilterContacts.setChecked(false);
+		selectedContacts.clear();
+		List<Contact> contacts = search.getContacts();
+		if(contacts != null) {
+			checkBoxFilterContacts.setChecked(true);
+			selectedContacts = contacts;
+		}
+		toggleFilterContacts();
+		updateTextContacts();
+		
+		
+		// load the type
+		sendReceiveRadioGroup.check(R.id.radioSent);
+		checkBoxFilterSentReceived.setChecked(false);
+		SendReceiveType type = search.getType();
+		if(type != null) {
+			checkBoxFilterSentReceived.setChecked(true);
+			if(type == SendReceiveType.RECEIVED)
+				sendReceiveRadioGroup.check(R.id.radioReceived);
+		}
+		toggleFilterSentReceived();
+	}
 
 	private int getDatePickerId() {
 		return pickerButtonId;

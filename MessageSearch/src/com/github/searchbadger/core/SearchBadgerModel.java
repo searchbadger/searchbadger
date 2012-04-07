@@ -540,7 +540,7 @@ public class SearchBadgerModel implements SearchModel {
 		
 			if (this.recentSearches == null) {
 				Cursor recentSearchesCursor = db.query(RECENT_SEARCH_TABLE, RECENT_SEARCH_COLS, 
-						null, null, null, null, null);
+						null, null, null, null, "id DESC");
 				if (recentSearchesCursor != null) {
 					recentSearches = new ArrayList<Search>();
 					if (recentSearchesCursor.getCount() > 0) {
@@ -554,11 +554,11 @@ public class SearchBadgerModel implements SearchModel {
 								
 								Date dateStart = null;
 								Long Date_Start = recentSearchesCursor.getLong(2);
-								if(Date_Start != null) dateStart = new Date(Date_Start);
+								if(Date_Start != null && Date_Start != 0) dateStart = new Date(Date_Start);
 
 								Date dateEnd = null;
 								Long Date_End = recentSearchesCursor.getLong(3);
-								if(Date_End != null) dateEnd = new Date(Date_End);
+								if(Date_End != null && Date_End != 0) dateEnd = new Date(Date_End);
 								
 								SendReceiveType type = null;
 								String Type = recentSearchesCursor.getString(4);
@@ -568,7 +568,7 @@ public class SearchBadgerModel implements SearchModel {
 								Cursor sourcesCursor = db.query(RECENT_SEARCH_SOURCES_TABLE, RECENT_SEARCH_SOURCES_COLS, 
 										"RecentSearch_ID = ?", new String[] { id.toString() }, null, null, null);
 								if(sourcesCursor != null) {
-									try {
+									try { 
 										if(sourcesCursor.getCount() > 0) {
 											
 											sources = new LinkedList<MessageSource>();	
@@ -591,9 +591,10 @@ public class SearchBadgerModel implements SearchModel {
 
 											List<Contact> contacts = getContacts(sources.get(0));
 											
-											selectContacts = new LinkedList<Contact>();	
+											selectContacts = new ArrayList<Contact>();	
 											while(contactsCursor.moveToNext()){
-												String Contact_Id = recentSearchesCursor.getString(2);
+												
+												String Contact_Id = contactsCursor.getString(2);
 												Contact c = findContact(contacts, Contact_Id);
 												if(c != null)
 													selectContacts.add(c);
@@ -632,9 +633,7 @@ public class SearchBadgerModel implements SearchModel {
 		if (recentSearches == null) {
 			this.getRecentSearches();
 		}
-		if (!recentSearches.add(search)) {
-			return false;
-		}
+		recentSearches.add(0, search);
 		
 		SQLiteDatabase db = null;
 		try {
@@ -643,6 +642,7 @@ public class SearchBadgerModel implements SearchModel {
 			vals.put("Search_Txt", search.getText());
 			if(search.getBegin() != null) vals.put("Date_Start", search.getBegin().getTime());
 			if(search.getEnd() != null) vals.put("Date_End", search.getEnd().getTime());
+			if(search.getType() != null) vals.put("Type", search.getType().toString());
 			long row_id = db.insert(RECENT_SEARCH_TABLE, null, vals);
 			retRes = (row_id == -1);
 			
@@ -666,7 +666,7 @@ public class SearchBadgerModel implements SearchModel {
 					ContentValues valsContacts = new ContentValues();
 					valsContacts.put("Contact_Id", contact.getId());
 					valsContacts.put("RecentSearch_ID", row_id);
-					retRes |= ((db.insert(RECENT_SEARCH_SOURCES_TABLE, null, valsContacts)) != -1);
+					retRes |= ((db.insert(RECENT_SEARCH_CONTACTS_TABLE, null, valsContacts)) != -1);
 				}
 			}
 		} finally {

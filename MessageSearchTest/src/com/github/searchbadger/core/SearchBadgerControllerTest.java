@@ -1,4 +1,4 @@
-package com.github.searchbadger.model;
+package com.github.searchbadger.core;
 
 import android.app.Activity;
 import android.app.Instrumentation;
@@ -9,7 +9,9 @@ import android.widget.Button;
 import android.widget.CheckBox;
 
 import com.github.searchbadger.R;
+import com.github.searchbadger.core.SearchBadgerApplication;
 import com.github.searchbadger.core.SearchBadgerController;
+import com.github.searchbadger.testutil.SearchTestModel;
 import com.github.searchbadger.view.ContactsActivity;
 import com.github.searchbadger.view.SearchActivity;
 import com.github.searchbadger.view.SearchResultActivity;
@@ -22,6 +24,8 @@ public class SearchBadgerControllerTest extends InstrumentationTestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		controller = SearchBadgerController.getInstance();
+		SearchTestModel testModel = new SearchTestModel();
+		SearchBadgerApplication.setSearchModel(testModel);
 	}
 	
 
