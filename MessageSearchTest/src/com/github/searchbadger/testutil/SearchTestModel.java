@@ -76,12 +76,16 @@ public class SearchTestModel implements SearchModel {
 		return true;
 	}	
 	
-	public List<Message> getThread(int index) {
+	public List<Message> getThread(Message message) {
 		return null;
 	}
 	
 	public List<Contact> getContacts(MessageSource source) {
 		return contacts;
+	}
+
+	public boolean containsStarredMessage(Message message) {
+		return false;
 	}
 
 }

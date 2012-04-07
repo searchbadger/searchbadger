@@ -28,14 +28,15 @@ public class SearchResultListFragment extends ListFragment {
 	private boolean mDualPane;
     private int mCurCheckPosition = 0;
     private SearchModel model = SearchBadgerApplication.getSearchModel();
-    SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+    private List<Message> results;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		
 		super.onCreate(savedInstanceState);
 
-		List<Message> results = model.getSearchResults();
+		results = model.getSearchResults();
 		if(results == null) return;
 		MessageArrayAdapter adapter = new MessageArrayAdapter(getActivity(), R.layout.search_result_list_item, results);
 		setListAdapter(adapter);
@@ -90,7 +91,7 @@ public class SearchResultListFragment extends ListFragment {
             // the dialog fragment with selected text.
             Intent intent = new Intent();
             intent.setClass(getActivity(), ThreadActivity.class);
-            intent.putExtra("index", index);
+            intent.putExtra("message", results.get(index));
             startActivity(intent);
         }
     }

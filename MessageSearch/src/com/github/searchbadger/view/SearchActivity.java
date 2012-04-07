@@ -708,7 +708,7 @@ public class SearchActivity extends Activity implements SearchGenerator {
 	public boolean isFacebookSelectedAndNotReady() {
 
 		List<MessageSource> sources = getMessageSources();
-		if(sources.size() == 1 && sources.get(0) == MessageSource.FACEBOOK) {
+		if(sources.contains(MessageSource.FACEBOOK)) {
 			// check if the user has logged and has the required permission
 			FacebookHelper facebookHelper = SearchBadgerApplication.getFacebookHelper();
 			if(!facebookHelper.isReady()) {

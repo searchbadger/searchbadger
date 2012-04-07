@@ -529,21 +529,21 @@ public class SearchBadgerModel implements SearchModel {
 	 * TODO Needs to access database. This probably will go through some other 
 	 * class for SMSSearch or other search type
 	 */
-	public List<Message> getThread(int index) {
-		Message msgInThread = searchResultMessages.get(index);
+	public List<Message> getThread(Message message) {
+		Message msgInThread = message;
 		switch(msgInThread.getSource()) {
 		case SMS:
-			return getThreadSMS(index);
+			return getThreadSMS(message);
 		case FACEBOOK:
-			return getThreadFacebook(index);
+			return getThreadFacebook(message);
 		}
 		
 		return null;
 	}
 	
-	public List<Message> getThreadSMS(int index) {
+	public List<Message> getThreadSMS(Message message) {
 		// SMS content provider uri 
-		Message msgInThread = searchResultMessages.get(index);
+		Message msgInThread = message;
 		
 		String url = "content://sms"; 
 		Uri uri = Uri.parse(url); 
@@ -602,9 +602,9 @@ public class SearchBadgerModel implements SearchModel {
 		return threadMessages;
 	}
 	
-	public List<Message> getThreadFacebook(int index) {
+	public List<Message> getThreadFacebook(Message message) {
 		
-		Message msgInThread = searchResultMessages.get(index);
+		Message msgInThread = message;
 
 		FacebookHelper facebookHelper = SearchBadgerApplication.getFacebookHelper();
 		if(facebookHelper.isReady() == false) return null;

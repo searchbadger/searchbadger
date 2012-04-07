@@ -27,6 +27,16 @@ public class Message implements Parcelable {
 		this.isStarred = isStarred;
 	}
 	
+	public Message(Message copy) {
+		this.Id = copy.Id;
+		this.threadId = copy.threadId;
+		this.author = copy.author;
+		this.source = copy.source;
+		this.date = copy.date;
+		this.text = copy.text;
+		this.isStarred = copy.isStarred;
+	}
+	
 	public Message(Parcel in){		
 		Date tempDate = null;
 		

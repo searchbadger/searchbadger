@@ -1,7 +1,6 @@
 package com.github.searchbadger.view;
 
 import java.util.List;
-import java.util.Map;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -10,16 +9,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.CheckBox;
-import android.widget.ImageView;
-import android.widget.SimpleAdapter;
 import android.widget.TextView;
 
 import com.github.searchbadger.R;
 import com.github.searchbadger.core.SearchBadgerApplication;
 import com.github.searchbadger.util.Message;
 import com.github.searchbadger.util.SearchModel;
-import com.github.searchbadger.view.SearchResultListFragment.MessageArrayAdapter;
 
 public class ThreadListFragment extends ListFragment {
 
@@ -51,10 +46,17 @@ public class ThreadListFragment extends ListFragment {
 		super.onCreate(savedInstanceState);
 		
 		if(getArguments() == null) return;
-		List<Message> thread= model.getThread(getArguments().getInt("index", 0));
+		Message m = getArguments().getParcelable("message");
+		List<Message> thread= model.getThread(m);
 		if(thread == null) return;
 		MessageArrayAdapter adapter = new MessageArrayAdapter(getActivity(), R.layout.search_result_list_item, thread);
 		setListAdapter(adapter);
+	}
+
+
+	@Override
+	public void onResume() {
+		super.onResume();
 	}
 
 

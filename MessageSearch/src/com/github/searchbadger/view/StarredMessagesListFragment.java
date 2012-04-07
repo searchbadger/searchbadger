@@ -1,89 +1,65 @@
 package com.github.searchbadger.view;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.ListFragment;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
+import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.SimpleAdapter;
+import android.widget.TextView;
+
 import com.github.searchbadger.R;
+import com.github.searchbadger.core.SearchBadgerApplication;
+import com.github.searchbadger.util.Message;
+import com.github.searchbadger.util.SearchModel;
 
 public class StarredMessagesListFragment extends ListFragment {
 
 	private boolean mDualPane;
     private int mCurCheckPosition = 0;
+    private SearchModel model = SearchBadgerApplication.getSearchModel();
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+    private List<Message> results;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-		
-		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
-
-
-		
-		// TODO Remove the following
-		List<Map<String, String>> dataList = new ArrayList<Map<String, String>>();
-
-		HashMap<String, String> dataMap;
-
-		dataMap = new HashMap<String, String>();
-		dataMap.put("Date", "12/25/2009\n11:00 AM");
-		dataMap.put("Message", "This is a test message");
-		dataList.add(dataMap);
-
-		dataMap = new HashMap<String, String>();
-		dataMap.put("Date", "1/1/2010\n11:00 AM");
-		dataMap.put("Message", "This is yet another test message");
-		dataList.add(dataMap);
-		
-		dataMap = new HashMap<String, String>();
-		dataMap.put("Date", "1/1/2010\n11:00 AM");
-		dataMap.put("Message", "This is a very very very very very very very very very very very very very long message");
-		dataList.add(dataMap);
-		
-
-		SimpleAdapter adapter = new SimpleAdapter(getActivity(), dataList,
-				R.layout.starred_messages_list_item, new String[] { "Message",
-						"Date" }, new int[] { R.id.starred_messages_text,
-						R.id.starred_messages_date });
-
-		setListAdapter(adapter);
-		
-	
-		/*
-		// Check to see if we have a frame in which to embed the details
-        // fragment directly in the containing UI.
-        View threadFrame = getActivity().findViewById(R.id.thread_view);
-        mDualPane = threadFrame != null && threadFrame.getVisibility() == View.VISIBLE;
-
-        if (savedInstanceState != null) {
-            // Restore last state for checked position.
-            mCurCheckPosition = savedInstanceState.getInt("curChoice", 0);
-        }
-
-        if (mDualPane) {
-            // In dual-pane mode, the list view highlights the selected item.
-            getListView().setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-            
-            
-            // Make sure our UI is in the correct state.
-            showDetails(mCurCheckPosition);
-        }
-        
-        */
 
 	}
 	
 
     @Override
+	public void onResume() {
+		super.onResume();
+		
+		List<Message> messages = model.getStarredMessages();
+		if(messages == null) return;
+		
+		// make a copy of the starred message in case the list is changed 
+		results = new ArrayList<Message>(messages.size());
+	    for(Message item: messages) {
+	    	results.add(new Message(item));
+	    }
+		MessageArrayAdapter adapter = new MessageArrayAdapter(getActivity(), R.layout.starred_messages_list_item, results);
+		setListAdapter(adapter);
+	}
+
+
+	@Override
     public void onListItemClick(ListView l, View v, int position, long id) {
-        showDetails(position);
+
+		Message message = (Message) v.getTag();
+        showDetails(position, message);
     }
 
     /**
@@ -91,7 +67,7 @@ public class StarredMessagesListFragment extends ListFragment {
      * displaying a fragment in-place in the current UI, or starting a
      * whole new activity in which it is displayed.
      */
-    private void showDetails(int index) {
+    private void showDetails(int index, Message message) {
     	
 
 		// Check to see if we have a frame in which to embed the details
@@ -128,9 +104,93 @@ public class StarredMessagesListFragment extends ListFragment {
             // the dialog fragment with selected text.
             Intent intent = new Intent();
             intent.setClass(getActivity(), ThreadActivity.class);
-            intent.putExtra("index", index);
+            intent.putExtra("message", message);
             startActivity(intent);
         }
     }
 
+	protected class MessageArrayAdapter extends ArrayAdapter<Message> {
+
+		private List<Message> messages;
+		
+		public MessageArrayAdapter(Context context, int textViewResourceId, List<Message> objects) {
+			super(context, textViewResourceId, objects);
+			messages = objects;
+		}
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+                View v = convertView;
+                if (v == null) {
+                    LayoutInflater vi = (LayoutInflater)getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                    v = vi.inflate(R.layout.search_result_list_item, null);
+                }
+                Message m = messages.get(position);
+                if (m != null) {
+                	// save the contact into the tag
+        			v.setTag(m);
+        			// new Message(m.getId(), m.getThreadId(), m.getAuthor(), m.getSource(), m.getDate(), m.getText(), false)
+                	
+                	// add the message
+                	TextView message = (TextView) v.findViewById(R.id.search_result_text);
+                	if(message != null)
+                		message.setText(m.getAuthor() + ": " + m.getText());
+                	
+                	// add the date
+                	TextView date = (TextView) v.findViewById(R.id.search_result_date);
+                	if(date != null)
+                		date.setText(dateFormat.format(m.getDate()));
+                	
+                	// set the icon
+                	ImageView icon = (ImageView) v.findViewById(R.id.image_search_result);
+                	if(icon != null)
+                	{
+                		switch(m.getSource()) {
+                		case SMS:
+                    		icon.setImageResource(R.drawable.sms_selected);
+                			break;
+                		case FACEBOOK:
+                    		icon.setImageResource(R.drawable.facebook_selected);
+                			break;
+                		}
+                	}
+
+        			// set the click listener for the star button
+        			CheckBox starButton = (CheckBox) v.findViewById(R.id.search_result_checkbox);
+        			starButton.setOnClickListener(new View.OnClickListener() {
+        				public void onClick(View v) {
+        					OnStarSelector(v);
+        				}
+        			});
+        			// check the star if the message is starred
+        			if(model.containsStarredMessage(m))
+        				starButton.setChecked(true);
+        			else
+        				starButton.setChecked(false);
+                }
+                return v;
+        }
+		
+	}
+	
+	protected void OnStarSelector(View v){
+
+		// get the message object
+		if (!(v.getParent() instanceof View))
+			return;
+		View parentView = (View) v.getParent();
+		if (!(parentView.getTag() instanceof Message))
+			return;
+		Message message = (Message) parentView.getTag();
+
+		// add/remove contact
+		if (!(v instanceof CheckBox))
+			return;
+		CheckBox starButton = (CheckBox) v;
+		if (starButton.isChecked())
+			model.addStarredMessage(message);
+		else
+			model.removeStarredMessage(message);
+
+	}
 }

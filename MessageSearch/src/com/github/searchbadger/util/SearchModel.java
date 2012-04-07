@@ -9,7 +9,7 @@ public interface SearchModel {
 	public List<Map<String,String>> getSearchResultsMap();
 	public List<Message> getSearchResults();
 	public Search getCurrentSearch();
-	public List<Message> getThread(int index);
+	public List<Message> getThread(Message message);
 	public List<Search> getRecentSearches();
 	public List<Message> getStarredMessages();
 	public boolean addStarredMessage(Message msg);
