@@ -15,6 +15,7 @@ import com.github.searchbadger.R;
 import com.github.searchbadger.core.SearchBadgerApplication;
 import com.github.searchbadger.core.SearchBadgerPreferences;
 import com.github.searchbadger.util.FacebookHelper;
+import com.github.searchbadger.util.SearchModel;
 
 public class AccountsActivity extends PreferenceActivity {
 	
@@ -28,6 +29,7 @@ public class AccountsActivity extends PreferenceActivity {
     private Handler handler;
     private EditTextPreference maxResult;
     private EditTextPreference numMessageThread;
+    private Preference clearSearchButton;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +68,15 @@ public class AccountsActivity extends PreferenceActivity {
 		});
 		updateNumMessageThread();
 		
+		// setup the clear searches preference
+		clearSearchButton = (Preference) findPreference("prefClearSearchHistory");
+		clearSearchButton.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+			public boolean onPreferenceClick(Preference preference) {
+				SearchModel model = SearchBadgerApplication.getSearchModel();
+				model.clearRecentSearches();
+				return true;
+			}
+		});
 	}
 	
 

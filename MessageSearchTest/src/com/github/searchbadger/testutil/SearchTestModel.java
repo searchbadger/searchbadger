@@ -88,4 +88,11 @@ public class SearchTestModel implements SearchModel {
 		return false;
 	}
 
+	public boolean addRecentSearch(Search search) {
+		return false;
+	}
+
+	public void clearRecentSearches() {
+	}
+
 }

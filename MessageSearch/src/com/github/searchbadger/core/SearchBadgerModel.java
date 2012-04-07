@@ -43,13 +43,22 @@ public class SearchBadgerModel implements SearchModel {
 	//private Cursor searchResultCursor;
 	private List<Map<String,String>> searchResults;
 	private List<Message> searchResultMessages;
-	private final static String projectionList[] = {"_id", "thread_id", "address", "date", "body", "type", "person"}
-	;
+	private final static String projectionList[] = {"_id", "thread_id", "address", "date", "body", "type", "person"};
 	private final static String STARRED_MSGS_COLS[] = {"id", "msg_id", "msg_text", "thread_id", "date", "src_name", "author"};
 	private final static String STARRED_MSGS_DEL_WHERE = "msg_id = ? AND thread_id = ? AND src_name = ?";
 	private final static String STARRED_MSGS_TABLE = "StarredMessage";
+	
+	private final static String RECENT_SEARCH_COLS[] = {"id", "Search_Txt", "Date_Start", "Date_End", "Type"};
+	private final static String RECENT_SEARCH_TABLE = "RecentSearch";
+	
+	private final static String RECENT_SEARCH_CONTACTS_COLS[] = {"id", "RecentSearch_ID", "Contact_Id"};
+	private final static String RECENT_SEARCH_CONTACTS_TABLE = "RecentSearchContacts";
+	private final static String RECENT_SEARCH_SOURCES_COLS[] = {"id", "RecentSearch_ID", "Src_Name"};
+	private final static String RECENT_SEARCH_SOURCES_TABLE = "RecentSearchSources";
+
+	protected List<Search> recentSearches = null;
 	protected List<Message> starredMsgs = null;
-	protected SearchBadgerOpenHandler dbOH;
+	protected SearchBadgerOpenHandler dbOH = new SearchBadgerOpenHandler(SearchBadgerApplication.getAppContext());
 	
 	public void search(Search filter) {
 		this._currentSearch = filter;
@@ -72,6 +81,9 @@ public class SearchBadgerModel implements SearchModel {
 		
 
 		// TODO need to sort the results
+		
+		// save the search into the recent search
+		addRecentSearch(filter);
 	}
 	
 	public void searchSMS(Search filter) {
@@ -388,25 +400,14 @@ public class SearchBadgerModel implements SearchModel {
 		return _currentSearch;
 	}
 	
-	/*
-	 * A list of recent searches is returned. 
-	 * Note: not messages, these are actual searches.
-	 * The search can be performed again by the user, who sees the filters set
-	 * the searches are stored in a database so that we can access them again 
-	 * even if the user shuts off their phone
-	 */
-	public List<Search> getRecentSearches() {
-		return null;
-	}
 	
 	/*
 	 * TODO: interface with database for persistent storage of starred msgs
 	 */
 	public List<Message> getStarredMessages() {
-		dbOH = new SearchBadgerOpenHandler(SearchBadgerApplication.getAppContext());
 		SQLiteDatabase db = null;
 		try {
-			db = dbOH.getReadableDatabase();
+			db = dbOH.getWritableDatabase();
 		
 			if (this.starredMsgs == null) {
 				Cursor starredMsgsCursor = db.query(STARRED_MSGS_TABLE, STARRED_MSGS_COLS, 
@@ -524,7 +525,175 @@ public class SearchBadgerModel implements SearchModel {
 		
 		return false;
 	} 
-	 
+
+	/*
+	 * A list of recent searches is returned. 
+	 * Note: not messages, these are actual searches.
+	 * The search can be performed again by the user, who sees the filters set
+	 * the searches are stored in a database so that we can access them again 
+	 * even if the user shuts off their phone
+	 */
+	public List<Search> getRecentSearches() {
+		SQLiteDatabase db = null;
+		try {
+			db = dbOH.getWritableDatabase();
+		
+			if (this.recentSearches == null) {
+				Cursor recentSearchesCursor = db.query(RECENT_SEARCH_TABLE, RECENT_SEARCH_COLS, 
+						null, null, null, null, null);
+				if (recentSearchesCursor != null) {
+					recentSearches = new ArrayList<Search>();
+					if (recentSearchesCursor.getCount() > 0) {
+						try {
+							recentSearchesCursor.moveToFirst();
+							recentSearches = new ArrayList<Search>();
+							do {
+
+								Long id = recentSearchesCursor.getLong(0);
+								String Search_Txt = recentSearchesCursor.getString(1);
+								
+								Date dateStart = null;
+								Long Date_Start = recentSearchesCursor.getLong(2);
+								if(Date_Start != null) dateStart = new Date(Date_Start);
+
+								Date dateEnd = null;
+								Long Date_End = recentSearchesCursor.getLong(3);
+								if(Date_End != null) dateEnd = new Date(Date_End);
+								
+								SendReceiveType type = null;
+								String Type = recentSearchesCursor.getString(4);
+								if(Type != null) type = SendReceiveType.valueOf(Type);
+
+								List<MessageSource> sources = null;
+								Cursor sourcesCursor = db.query(RECENT_SEARCH_SOURCES_TABLE, RECENT_SEARCH_SOURCES_COLS, 
+										"RecentSearch_ID = ?", new String[] { id.toString() }, null, null, null);
+								if(sourcesCursor != null) {
+									try {
+										if(sourcesCursor.getCount() > 0) {
+											
+											sources = new LinkedList<MessageSource>();	
+											while(sourcesCursor.moveToNext()){
+												String srcName = sourcesCursor.getString(2);
+												sources.add(MessageSource.valueOf(srcName));
+											}
+										}
+									} finally {
+										sourcesCursor.close();
+									}
+								}
+								
+								List<Contact> selectContacts = null;
+								Cursor contactsCursor = db.query(RECENT_SEARCH_CONTACTS_TABLE, RECENT_SEARCH_CONTACTS_COLS, 
+										"RecentSearch_ID = ?", new String[] { id.toString() }, null, null, null);
+								if(contactsCursor != null) {
+									try {
+										if(contactsCursor.getCount() > 0 && sources.size() == 1) {
+
+											List<Contact> contacts = getContacts(sources.get(0));
+											
+											selectContacts = new LinkedList<Contact>();	
+											while(contactsCursor.moveToNext()){
+												String Contact_Id = recentSearchesCursor.getString(2);
+												Contact c = findContact(contacts, Contact_Id);
+												if(c != null)
+													selectContacts.add(c);
+											}
+										}
+									} finally {
+										contactsCursor.close();
+									}
+								}
+								
+								if (!recentSearches.add(new Search( 
+										Search_Txt, dateStart, dateEnd, 
+										sources, selectContacts, type))) {
+									recentSearches = null;
+									return null;
+								}
+							} while (recentSearchesCursor.moveToNext());
+						} finally {
+							recentSearchesCursor.close();
+						}
+					}
+				}
+			}
+		} finally {
+			if (db != null) {
+				db.close();
+			}
+		}
+		return recentSearches;
+	}
+	
+
+	public boolean addRecentSearch(Search search) {
+		ContentValues vals = new ContentValues();
+		boolean retRes = false;
+		if (recentSearches == null) {
+			this.getRecentSearches();
+		}
+		if (!recentSearches.add(search)) {
+			return false;
+		}
+		
+		SQLiteDatabase db = null;
+		try {
+			db = dbOH.getWritableDatabase();
+		
+			vals.put("Search_Txt", search.getText());
+			if(search.getBegin() != null) vals.put("Date_Start", search.getBegin().getTime());
+			if(search.getEnd() != null) vals.put("Date_End", search.getEnd().getTime());
+			long row_id = db.insert(RECENT_SEARCH_TABLE, null, vals);
+			retRes = (row_id == -1);
+			
+			List<MessageSource> sources = search.getSources();
+			if(sources != null) {
+				Iterator<MessageSource> iter = sources.iterator();
+				while(iter.hasNext()) {
+					MessageSource source = iter.next();
+					ContentValues valsSource = new ContentValues();
+					valsSource.put("Src_Name", source.toString());
+					valsSource.put("RecentSearch_ID", row_id);
+					retRes |= ((db.insert(RECENT_SEARCH_SOURCES_TABLE, null, valsSource)) != -1);
+				}
+			}
+			
+			List<Contact> selectedContacts = search.getContacts();
+			if(selectedContacts != null) {
+				Iterator<Contact> iter = selectedContacts.iterator();
+				while(iter.hasNext()) {
+					Contact contact = iter.next();
+					ContentValues valsContacts = new ContentValues();
+					valsContacts.put("Contact_Id", contact.getId());
+					valsContacts.put("RecentSearch_ID", row_id);
+					retRes |= ((db.insert(RECENT_SEARCH_SOURCES_TABLE, null, valsContacts)) != -1);
+				}
+			}
+		} finally {
+			if (db != null) {
+				db.close();
+			}
+		}
+		return retRes;
+	}
+	
+	
+	public void clearRecentSearches() {
+		if(recentSearches != null) recentSearches.clear();
+		
+		SQLiteDatabase db = null;
+		try {
+			db = dbOH.getWritableDatabase();
+			db.delete(RECENT_SEARCH_TABLE, null, null);
+			db.delete(RECENT_SEARCH_SOURCES_TABLE, null, null);
+			db.delete(RECENT_SEARCH_CONTACTS_TABLE, null, null);
+		} finally {
+			if (db != null) {
+				db.close();
+			}
+		}
+	}	
+	
 	/*
 	 * TODO Needs to access database. This probably will go through some other 
 	 * class for SMSSearch or other search type
@@ -813,28 +982,42 @@ public class SearchBadgerModel implements SearchModel {
      
 	
 	protected class SearchBadgerOpenHandler extends SQLiteOpenHelper {
-		public static final int DATABASE_VERSION = 1;
+		public static final int DATABASE_VERSION = 3;
 		public static final String DATABASE_NAME = "searchbadger";
+		
 		public static final String STARRED_MESSAGE_CREATE = "CREATE TABLE " + STARRED_MSGS_TABLE +
 				"(Id INTEGER PRIMARY KEY ASC, Contact_Id TEXT, Msg_Id TEXT, Msg_Text TEXT, " +
 				"Date BIGINT Date, Thread_Id TEXT, Src_Name TEXT, author TEXT);";
+
+		public static final String RECENT_SEARCH_CREATE = "CREATE TABLE " + RECENT_SEARCH_TABLE +
+				"(Id INTEGER PRIMARY KEY ASC, Search_Txt TEXT, " +
+				"Date_Start BIGINT Date, Date_End BIGINT Date, Type TEXT);";
+
+		public static final String RECENT_SEARCH_CONTACTS_CREATE = "CREATE TABLE " + RECENT_SEARCH_CONTACTS_TABLE +
+				"(Id INTEGER PRIMARY KEY ASC, RecentSearch_ID INTEGER, Contact_Id TEXT);";
+		
+		public static final String RECENT_SEARCH_SOURCES_CREATE = "CREATE TABLE " + RECENT_SEARCH_SOURCES_TABLE +
+				"(Id INTEGER PRIMARY KEY ASC, RecentSearch_ID INTEGER, Src_Name TEXT);";
 		
 		public SearchBadgerOpenHandler(Context context) {
 			super(context, DATABASE_NAME, null, DATABASE_VERSION);
-			// TODO Auto-generated constructor stub
 		}
 
 		@Override
 		public void onCreate(SQLiteDatabase db) {
-			ContentValues values = new ContentValues();
-			db.execSQL(this.STARRED_MESSAGE_CREATE);	
-			db.setVersion(2);
+			db.execSQL(STARRED_MESSAGE_CREATE);	
+			db.execSQL(RECENT_SEARCH_CREATE);	
+			db.execSQL(RECENT_SEARCH_CONTACTS_CREATE);
+			db.execSQL(RECENT_SEARCH_SOURCES_CREATE);
 		}
 
 		@Override
 		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-			// TODO Auto-generated method stub
-			
+			db.execSQL("DROP TABLE IF EXISTS " + STARRED_MSGS_TABLE);
+			db.execSQL("DROP TABLE IF EXISTS " + RECENT_SEARCH_TABLE);
+			db.execSQL("DROP TABLE IF EXISTS " + RECENT_SEARCH_CONTACTS_TABLE);
+			db.execSQL("DROP TABLE IF EXISTS " + RECENT_SEARCH_SOURCES_TABLE);
+			onCreate(db);
 		}
 	}
 }

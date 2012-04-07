@@ -71,6 +71,10 @@ public class ContactSMS extends Contact implements Parcelable {
 			if(contactAddress.equals(address))
 				return true;
 		}
+		
+		if(id.equals(address))
+			return true;
+		
 		return false;
 	}
 

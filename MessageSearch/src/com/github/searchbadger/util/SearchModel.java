@@ -15,4 +15,6 @@ public interface SearchModel {
 	public boolean addStarredMessage(Message msg);
 	public boolean removeStarredMessage(Message msg) ;
 	public boolean containsStarredMessage(Message message);
+	public boolean addRecentSearch(Search search);
+	public void clearRecentSearches();
 }
