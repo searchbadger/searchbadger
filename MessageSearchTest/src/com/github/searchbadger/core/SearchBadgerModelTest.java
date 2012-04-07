@@ -363,5 +363,8 @@ public class SearchBadgerModelTest extends ApplicationTestCase<SearchBadgerAppli
 					retrievedStarredMsgs.get(i).equals(starredMsgs.get(i)));
 		}
 		assertTrue(retrievedStarredMsgs.equals(starredMsgs));
+		
+		// TODO move this to TearDown
+		testModel.clearStarredMessageDb();
 	}
 }

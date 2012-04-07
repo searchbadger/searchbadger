@@ -158,7 +158,7 @@ public class SearchActivity extends Activity implements SearchGenerator {
 
 		View.OnClickListener searchSourceSelected = new View.OnClickListener() {
 			public void onClick(View v) {
-				updateSourceSelection(v);
+				updateSourceSelection();
 			}
 		};
 		smsButton.setOnClickListener(searchSourceSelected);
@@ -346,6 +346,8 @@ public class SearchActivity extends Activity implements SearchGenerator {
 				sendReceiveRadioGroup.check(R.id.radioReceived);
 		}
 		toggleFilterSentReceived();
+		
+		updateSourceSelectionContact();
 	}
 
 	private int getDatePickerId() {
@@ -415,9 +417,8 @@ public class SearchActivity extends Activity implements SearchGenerator {
 		searchInputText.setSelection(start + 1);
 	}
 
+	private void updateSourceSelectionContact() {
 
-	private void updateSourceSelection(View v) {
-		
 		// this will enable/disable the select contact button depending on the sources selected
 		List<MessageSource> sources = getMessageSources();
 		if(sources.size() != 1) {
@@ -427,6 +428,11 @@ public class SearchActivity extends Activity implements SearchGenerator {
 			updateTextContacts();
 			contactsButton.setEnabled(true);
 		}
+		
+	}
+
+	private void updateSourceSelection() {
+		updateSourceSelectionContact();
 		
 		// clear the selected list once the source has changed
 		selectedContacts.clear();

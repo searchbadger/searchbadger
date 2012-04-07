@@ -46,7 +46,7 @@ public class SearchBadgerModel implements SearchModel {
 	private final static String projectionList[] = {"_id", "thread_id", "address", "date", "body", "type", "person"};
 	private final static String STARRED_MSGS_COLS[] = {"id", "msg_id", "msg_text", "thread_id", "date", "src_name", "author"};
 	private final static String STARRED_MSGS_DEL_WHERE = "msg_id = ? AND thread_id = ? AND src_name = ?";
-	private final static String STARRED_MSGS_TABLE = "StarredMessage";
+	protected final static String STARRED_MSGS_TABLE = "StarredMessage";
 	
 	private final static String RECENT_SEARCH_COLS[] = {"id", "Search_Txt", "Date_Start", "Date_End", "Type"};
 	private final static String RECENT_SEARCH_TABLE = "RecentSearch";
@@ -76,6 +76,10 @@ public class SearchBadgerModel implements SearchModel {
 			case FACEBOOK:
 				searchFacebook(filter);
 				break;
+			case TWITTER:
+				searchTwitter(filter);
+			case STARRED:
+				searchStarred(filter);
 			}
 		}
 		
@@ -387,6 +391,127 @@ public class SearchBadgerModel implements SearchModel {
 		}
         
 	}
+
+	public void searchTwitter(Search filter) {
+		
+	}
+
+	public void searchStarred(Search filter) {
+		
+		List<String> selectionArgList = new LinkedList<String>();
+		String selection = "";
+		String arg = "";
+		
+		// Go through each possible search type, and build SQL query
+		if (filter.getText() != null && filter.getText().length() != 0) {
+			selection += "msg_text";
+			
+			// use the glob for any text that contains regex symbols for GLOB and LIKE
+			if (filter.getText().contains("#") || filter.getText().contains("*") || filter.getText().contains("_") || filter.getText().contains("%")){
+				selection += " GLOB ?";
+				arg = filter.getGlobText();				
+			}
+			else{
+				selection += " LIKE ?";
+				arg = "%" + filter.getText() + "%";
+			}
+
+			selectionArgList.add(arg);
+		}
+				
+		if (filter.getBegin() != null){
+			if (selection.length() > 0)
+				selection += " AND ";
+			
+			selection += "date >= ?";
+			arg = ((Long)(filter.getBegin().getTime())).toString();
+			
+			selectionArgList.add(arg);
+		}
+		
+		if (filter.getEnd() != null){
+			if (selection.length() > 0)
+				selection += " AND ";
+			
+			selection += "date <= ?";
+			arg = ((Long)(filter.getEnd().getTime())).toString();
+			
+			selectionArgList.add(arg);
+		}
+		
+		if (filter.getType() != null){
+			if (selection.length() > 0)
+				selection += " AND ";
+			
+			if (filter.getType()==SendReceiveType.SENT) {
+				selection += "author = ?";
+				arg = "Me";
+				selectionArgList.add(arg);
+			}
+			else if (filter.getType()==SendReceiveType.RECEIVED) {
+				selection += "author != ?"; // TODO
+				arg = "Me";
+				selectionArgList.add(arg);
+			}
+		}
+				
+		// Make query to content provider and store cursor to table returned
+		String[] selectionArgsArray = new String[selectionArgList.size()];
+		selectionArgList.toArray(selectionArgsArray);
+
+		
+
+		SQLiteDatabase db = null;
+		try {
+			db = dbOH.getWritableDatabase();
+		
+			Cursor searchResultCursor = db.query(STARRED_MSGS_TABLE, STARRED_MSGS_COLS, 
+					selection, selectionArgsArray, null, null, null);
+
+			if (searchResultCursor != null) {
+				try {
+					int count = searchResultCursor.getCount();
+					if (count > 0) {
+						searchResultCursor.moveToFirst();
+						do {
+
+							String[] columns = searchResultCursor.getColumnNames();
+							for (int i=0; i<columns.length; i++) {
+							Log.v("SearchBadger","columns " + i + ": " + columns[i] + ": "
+									+ searchResultCursor.getString(i));
+							}
+
+							//"id", "msg_id", "msg_text", "thread_id", "date", "src_name", "author"	
+							String messageId_string = searchResultCursor.getString(1);
+							String body = searchResultCursor.getString(2);
+							String threadId_string = searchResultCursor.getString(3);
+							long timestamp = searchResultCursor.getLong(4);
+							String srcName = searchResultCursor.getString(5);
+							MessageSource source = MessageSource.valueOf(srcName);
+							String author = searchResultCursor.getString(6);
+														
+							Message msg = new Message(messageId_string, threadId_string, author, source, new Date (timestamp),
+									body, false);
+							searchResultMessages.add(msg);
+
+						} while (searchResultCursor.moveToNext() == true);
+
+					}
+				} finally {
+					searchResultCursor.close();
+				}
+			}
+			
+
+		} finally {
+			if (db != null) {
+				db.close();
+			}
+		}
+		
+
+	}
+	
 	
 	public List<Map<String,String>> getSearchResultsMap() {
 		return searchResults;
