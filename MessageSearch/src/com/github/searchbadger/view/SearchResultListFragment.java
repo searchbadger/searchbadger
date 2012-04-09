@@ -46,7 +46,8 @@ public class SearchResultListFragment extends ListFragment {
 
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
-        showDetails(position);
+		Message message = (Message) v.getTag();
+        showDetails(position, message);
     }
 
     /**
@@ -54,7 +55,7 @@ public class SearchResultListFragment extends ListFragment {
      * displaying a fragment in-place in the current UI, or starting a
      * whole new activity in which it is displayed.
      */
-    private void showDetails(int index) {
+    private void showDetails(int index, Message message) {
     	
 
 		// Check to see if we have a frame in which to embed the details
@@ -76,7 +77,7 @@ public class SearchResultListFragment extends ListFragment {
                     getFragmentManager().findFragmentById(R.id.thread_view);
             if (details == null || details.getShownIndex() != index) {
                 // Make new fragment to show this selection.
-                details = ThreadListFragment.newInstance(index);
+                details = ThreadListFragment.newInstance(message);
 
                 // Execute a transaction, replacing any existing fragment
                 // with this one inside the frame.

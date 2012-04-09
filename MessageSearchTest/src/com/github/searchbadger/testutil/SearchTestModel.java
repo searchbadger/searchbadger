@@ -13,7 +13,6 @@ import com.github.searchbadger.util.SearchModel;
 
 public class SearchTestModel implements SearchModel {
 
-	private List<Map<String,String>> searchResults;
 	private List<Message> searchResultMessages;
 
 	private List<Contact> contacts = new ArrayList<Contact>();
@@ -46,10 +45,6 @@ public class SearchTestModel implements SearchModel {
 	}
 
 	public void search(Search filter) {
-	}
-	
-	public List<Map<String,String>> getSearchResultsMap() {
-		return searchResults;
 	}
 	
 	public List<Message> getSearchResults() {

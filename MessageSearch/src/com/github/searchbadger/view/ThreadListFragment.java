@@ -23,12 +23,12 @@ public class ThreadListFragment extends ListFragment {
      * Create a new instance of DetailsFragment, initialized to
      * show the text at 'index'.
      */
-    public static ThreadListFragment newInstance(int index) {
+    public static ThreadListFragment newInstance(Message message) {
     	ThreadListFragment f = new ThreadListFragment();
 
         // Supply index input as an argument.
         Bundle args = new Bundle();
-        args.putInt("index", index);
+        args.putParcelable("message", message);
         f.setArguments(args);
 
         return f;
@@ -47,6 +47,7 @@ public class ThreadListFragment extends ListFragment {
 		
 		if(getArguments() == null) return;
 		Message m = getArguments().getParcelable("message");
+		if(m == null) return;
 		List<Message> thread= model.getThread(m);
 		if(thread == null) return;
 		MessageArrayAdapter adapter = new MessageArrayAdapter(getActivity(), R.layout.search_result_list_item, thread);

@@ -6,7 +6,6 @@ import java.util.Map;
 public interface SearchModel {
 	public void search(Search filter);
 	public List<Contact> getContacts(MessageSource source);
-	public List<Map<String,String>> getSearchResultsMap();
 	public List<Message> getSearchResults();
 	public Search getCurrentSearch();
 	public List<Message> getThread(Message message);

@@ -89,7 +89,7 @@ public class StarredMessagesListFragment extends ListFragment {
                     getFragmentManager().findFragmentById(R.id.thread_view);
             if (details == null || details.getShownIndex() != index) {
                 // Make new fragment to show this selection.
-                details = ThreadListFragment.newInstance(index);
+                details = ThreadListFragment.newInstance(message);
 
                 // Execute a transaction, replacing any existing fragment
                 // with this one inside the frame.

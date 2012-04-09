@@ -41,7 +41,6 @@ public class SearchBadgerModel implements SearchModel {
 	private Search _currentSearch;
 	
 	//private Cursor searchResultCursor;
-	private List<Map<String,String>> searchResults;
 	private List<Message> searchResultMessages;
 	private final static String projectionList[] = {"_id", "thread_id", "address", "date", "body", "type", "person"};
 	private final static String STARRED_MSGS_COLS[] = {"id", "msg_id", "msg_text", "thread_id", "date", "src_name", "author"};
@@ -63,7 +62,6 @@ public class SearchBadgerModel implements SearchModel {
 	public void search(Search filter) {
 		this._currentSearch = filter;
 		searchResultMessages = new ArrayList<Message>();
-		searchResults = new ArrayList<Map<String,String>>();
 		
 		List<MessageSource> sources = filter.getSources();
 		Iterator<MessageSource> iter = sources.iterator();
@@ -223,15 +221,6 @@ public class SearchBadgerModel implements SearchModel {
 								body, false);
 						searchResultMessages.add(msg);
 
-						HashMap<String, String> map = new HashMap<String, String>();
-						map.put("Message", author + ": " + body);
-						String date = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss").format(new Date (timestamp));
-						map.put("Date", date);
-						map.put("FromAddress", address);
-						map.put("ID", ((Long) messageId).toString());
-						map.put("ThreadID", ((Long) threadId).toString());
-						map.put("ContactID", contactId_string);
-						searchResults.add(map);
 					} while (searchResultCursor.moveToNext() == true);
 
 				}
@@ -375,15 +364,6 @@ public class SearchBadgerModel implements SearchModel {
 						body, false);
 				searchResultMessages.add(msg);
 
-				HashMap<String, String> map = new HashMap<String, String>();
-				map.put("Message", author + ": " + body);
-				String date = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss").format(new Date (timestamp));
-				map.put("Date", date);
-				map.put("FromAddress", "?");
-				map.put("ID", message_id);
-				map.put("ThreadID", thread_id);
-				map.put("ContactID", author_id);
-				searchResults.add(map);
 
 	        }
 		} catch (JSONException e) {
@@ -512,10 +492,6 @@ public class SearchBadgerModel implements SearchModel {
 
 	}
 	
-	
-	public List<Map<String,String>> getSearchResultsMap() {
-		return searchResults;
-	}
 	
 	public List<Message> getSearchResults() {
 		return searchResultMessages;
