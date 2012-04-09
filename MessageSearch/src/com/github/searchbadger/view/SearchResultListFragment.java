@@ -77,7 +77,7 @@ public class SearchResultListFragment extends ListFragment {
                     getFragmentManager().findFragmentById(R.id.thread_view);
             if (details == null || details.getShownIndex() != index) {
                 // Make new fragment to show this selection.
-                details = ThreadListFragment.newInstance(message);
+                details = ThreadListFragment.newInstance(index, message);
 
                 // Execute a transaction, replacing any existing fragment
                 // with this one inside the frame.
@@ -92,6 +92,7 @@ public class SearchResultListFragment extends ListFragment {
             // the dialog fragment with selected text.
             Intent intent = new Intent();
             intent.setClass(getActivity(), ThreadActivity.class);
+            intent.putExtra("index", index);
             intent.putExtra("message", results.get(index));
             startActivity(intent);
         }
