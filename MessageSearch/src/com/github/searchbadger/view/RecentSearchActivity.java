@@ -4,12 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.app.ListActivity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -18,33 +20,65 @@ import com.github.searchbadger.core.SearchBadgerApplication;
 import com.github.searchbadger.util.Message;
 import com.github.searchbadger.util.Search;
 import com.github.searchbadger.util.SearchModel;
+import com.github.searchbadger.view.ContactsActivity.ContactArrayAdapter;
 
 public class RecentSearchActivity extends ListActivity {
 
     private SearchModel model = SearchBadgerApplication.getSearchModel();
     private List<Search> recentSearches;
+    private ListActivity thisActivity;
     
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 
 		super.onCreate(savedInstanceState);
+		thisActivity = this;
 
 	}
 	
     @Override
 	public void onResume() {
 		super.onResume();	
-		List<Search> searches = model.getRecentSearches();
-		if(searches == null) return;
 		
-		// make a copy of the starred message in case the list is changed 
-		recentSearches = new ArrayList<Search>(searches.size());
-	    for(Search item: searches) {
-	    	recentSearches.add(new Search(item));
-	    }
-	    
-		SearchArrayAdapter adapter = new SearchArrayAdapter(this, R.layout.recent_search_list_item, recentSearches);
-		setListAdapter(adapter);
+
+		// show progress bar
+		final ProgressDialog dialog = ProgressDialog.show(this, "", 
+                "Please wait...", true);
+		 
+		Thread thread = new Thread(new Runnable() {
+			public void run() {
+
+				recentSearches = null;
+				List<Search> searches = model.getRecentSearches();
+				if(searches != null) {
+				
+					// make a copy of the starred message in case the list is changed 
+					recentSearches = new ArrayList<Search>(searches.size());
+				    for(Search item: searches) {
+				    	recentSearches.add(new Search(item));
+				    }
+				}
+		    
+				runOnUiThread(new Runnable() {
+
+					public void run() {
+						try {
+							// hide the progress bar
+							dialog.dismiss();
+					    } catch (Exception e) {
+					    }
+						
+						if(recentSearches == null) return;
+						SearchArrayAdapter adapter = new SearchArrayAdapter(thisActivity, R.layout.recent_search_list_item, recentSearches);
+						setListAdapter(adapter);
+					}
+				});
+				
+			}
+
+		});
+		thread.start();
+
 
 	}
 

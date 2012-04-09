@@ -692,6 +692,8 @@ public class SearchBadgerModel implements SearchModel {
 									try {
 										if(contactsCursor.getCount() > 0 && sources.size() == 1) {
 
+											// TODO this might be slow if there are a bunch recent searches
+											// with selected contacts (do we want to cash getContacts?)
 											List<Contact> contacts = getContacts(sources.get(0));
 											
 											selectContacts = new ArrayList<Contact>();	

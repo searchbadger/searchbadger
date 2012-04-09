@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.view.View;
+import android.view.WindowManager;
 
 import com.github.searchbadger.util.Contact;
 import com.github.searchbadger.util.MessageSource;
@@ -60,22 +61,24 @@ public class SearchBadgerController {
 			Thread thread = new Thread(new Runnable() {
 				public void run() {
 
-					// perform search
-					model.search(filter);
-					
-					srchGen.runOnUiThread(new Runnable() {
-
-						public void run() {
-							// hide the progress bar
-							if (dialog.isShowing())
+					try {
+						// perform search
+						model.search(filter);
+						
+						srchGen.runOnUiThread(new Runnable() {
+							public void run() {
+								// hide the progress bar
 								dialog.dismiss();
-							
-							// show search results activity
-							Intent resActIntent = new Intent(srchGen, 
-									SearchResultActivity.class);
-							srchGen.startActivity(resActIntent);
-						}
-					});
+								
+								// show search results activity
+								Intent resActIntent = new Intent(srchGen, 
+										SearchResultActivity.class);
+								srchGen.startActivity(resActIntent);
+							}
+						});
+					
+				    } catch (Exception e) {
+				    }
 				}
 
 			});

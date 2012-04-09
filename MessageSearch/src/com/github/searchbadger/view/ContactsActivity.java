@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -28,11 +29,14 @@ public class ContactsActivity extends Activity {
 
 	private List<MessageSource> sources;
 	private List<Contact> selectedContacts;
+	private List<Contact> contacts;
+	private ContactsActivity thisActivity;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
         setContentView(R.layout.contacts_layout);
+        thisActivity = this;
         
 
         // set the click event for the done button
@@ -58,13 +62,43 @@ public class ContactsActivity extends Activity {
         if(selectedContacts == null) return;
 		if(sources.size() != 1) return;
 
-        ListView list = (ListView) findViewById(R.id.listView_contact);
-        List<Contact> contacts = SearchBadgerApplication.getSearchModel().getContacts(sources.get(0));
-        if(contacts == null) return;
-		ListAdapter myadapter = new ContactArrayAdapter(this,
-				R.layout.contacts_list_item,
-				contacts);
-        list.setAdapter(myadapter);
+		
+
+		// show progress bar
+		final ProgressDialog dialog = ProgressDialog.show(this, "", 
+                "Please wait...", true);
+		 
+		Thread thread = new Thread(new Runnable() {
+			public void run() {
+
+				// perform search
+		        contacts = SearchBadgerApplication.getSearchModel().getContacts(sources.get(0)); 
+				
+				runOnUiThread(new Runnable() {
+
+					public void run() {
+						try {
+							// hide the progress bar
+							dialog.dismiss();
+					    } catch (Exception e) {
+					    }
+						
+
+				        ListView list = (ListView) findViewById(R.id.listView_contact);
+				        if(contacts == null) return;
+						ListAdapter myadapter = new ContactArrayAdapter(thisActivity,
+								R.layout.contacts_list_item,
+								contacts);
+				        list.setAdapter(myadapter);
+					}
+				});
+				
+			}
+
+		});
+		thread.start();
+
+		
 
 	}
 	
