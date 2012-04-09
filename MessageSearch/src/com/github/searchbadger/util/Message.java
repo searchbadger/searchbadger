@@ -8,7 +8,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
 
-public class Message implements Parcelable {
+public class Message implements Parcelable, Comparable {
 	private final String Id;
 	private final String threadId;
 	private final Date date;
@@ -136,5 +136,11 @@ public class Message implements Parcelable {
 				(this.source.equals(that.source)) &&
 				(this.date.equals(that.date)) &&
 				(this.text.equals(that.text)));
+	}
+
+	public int compareTo(Object arg0) {
+		//For sorting, orders by date
+		Message m2 = (Message) arg0;
+		return m2.getDate().compareTo(date);
 	}
 }

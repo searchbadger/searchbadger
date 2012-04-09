@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -83,6 +84,7 @@ public class SearchBadgerModel implements SearchModel {
 		
 
 		// TODO need to sort the results
+		Collections.sort(searchResultMessages);
 		
 		// save the search into the recent search
 		addRecentSearch(filter);
