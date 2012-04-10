@@ -38,20 +38,22 @@ public class Message implements Parcelable, Comparable {
 	}
 	
 	public Message(Parcel in){		
-		Date tempDate = null;
+		//Date tempDate = null;
 		
 		Id = in.readString();
 		threadId = in.readString();
 		author = in.readString();
 		source = in.readParcelable(MessageSource.class.getClassLoader());
 		
-		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		try {
-			tempDate = (formatter).parse(in.readString());
-		} catch (ParseException e) {}
-		finally{
-			date = tempDate;
-		}
+		//SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		//try {
+		//	tempDate = (formatter).parse(in.readString());
+		//} catch (ParseException e) {}
+		//finally{
+		//	date = tempDate;
+		//}
+		long lDate = in.readLong();
+		date = new Date(lDate);
 		
 		text = in.readString();
 		isStarred = Boolean.parseBoolean(in.readString());
@@ -102,8 +104,9 @@ public class Message implements Parcelable, Comparable {
 		dest.writeString(author);
 		dest.writeParcelable(source, flags);
 		
-		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		dest.writeString(formatter.format(date));
+		//SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		//dest.writeString(formatter.format(date));
+		dest.writeLong(date.getTime());
 		
 		
 		dest.writeString(text);
