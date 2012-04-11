@@ -17,6 +17,7 @@ public class SearchTestModel implements SearchModel {
 
 	public List<Message> searchResultMessages = new ArrayList<Message>();
 	public List<Contact> contacts = new ArrayList<Contact>();
+	public List<Search> searches = new ArrayList<Search>();
 	public int sleepDelay = 0;
 	
 	public SearchTestModel() {
@@ -50,6 +51,12 @@ public class SearchTestModel implements SearchModel {
 		searchResultMessages.add(new Message("3", "12", "Me", MessageSource.TWITTER, new Date(), "message 3", false));
 		searchResultMessages.add(new Message("4", "13", "You", MessageSource.SMS, new Date(), "message 4", false));
 		searchResultMessages.add(new Message("5", "14", "Me", MessageSource.FACEBOOK, new Date(), "message 5", false));
+		
+		List<MessageSource> sources = new ArrayList<MessageSource>();
+		sources.add(MessageSource.SMS);
+		searches.add(new Search("Hello World", null, null, sources, null, null));
+		searches.add(new Search("Foo Bar", null, null, sources, null, null));
+		searches.add(new Search("Bye World", null, null, sources, null, null));
 	}
 
 	public void search(Search filter) {
@@ -69,7 +76,11 @@ public class SearchTestModel implements SearchModel {
 	}
 	
 	public List<Search> getRecentSearches() {
-		return null;
+		try {
+			Thread.sleep(sleepDelay);
+		} catch (InterruptedException e) {
+		}
+		return searches;
 	}
 	
 	public List<Message> getStarredMessages() {

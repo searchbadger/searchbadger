@@ -139,4 +139,5 @@ public class StarredMessagesActivityTest extends
 		testActivity.finish();
 	}
 
+	
 }

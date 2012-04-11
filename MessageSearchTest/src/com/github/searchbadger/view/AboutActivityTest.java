@@ -22,5 +22,8 @@ public class AboutActivityTest extends
 		assertNotNull(testActivity);
 	}
 
+	public void testPreferences() {
+		
+	}
 
 }
