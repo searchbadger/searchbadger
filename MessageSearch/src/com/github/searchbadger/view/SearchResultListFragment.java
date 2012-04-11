@@ -20,14 +20,16 @@ import android.widget.Toast;
 
 import com.github.searchbadger.R;
 import com.github.searchbadger.core.SearchBadgerApplication;
+import com.github.searchbadger.core.SearchBadgerController;
+import com.github.searchbadger.core.SearchBadgerController.StarredMessageListener;
 import com.github.searchbadger.util.Message;
 import com.github.searchbadger.util.SearchModel;
 
 public class SearchResultListFragment extends ListFragment {
 
 	private boolean mDualPane;
-    private int mCurCheckPosition = 0;
     private SearchModel model = SearchBadgerApplication.getSearchModel();
+    private SearchBadgerController controller = SearchBadgerController.getInstance();
     private SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
     private List<Message> results;
 	
@@ -62,8 +64,6 @@ public class SearchResultListFragment extends ListFragment {
         // fragment directly in the containing UI.
         View threadFrame = getActivity().findViewById(R.id.thread_view);
         mDualPane = threadFrame != null && threadFrame.getVisibility() == View.VISIBLE;
-
-        mCurCheckPosition = index;
 
         if (mDualPane) {
 
@@ -121,7 +121,7 @@ public class SearchResultListFragment extends ListFragment {
         			v.setTag(m);
                 	
                 	// add the message
-                	TextView message = (TextView) v.findViewById(R.id.search_result_text);
+                	TextView message = (TextView) v.findViewById(R.id.messages_text);
                 	if(message != null)
                 		message.setText(m.getAuthor() + ": " + m.getText());
                 	
@@ -145,12 +145,8 @@ public class SearchResultListFragment extends ListFragment {
                 	}
 
         			// set the click listener for the star button
-        			CheckBox starButton = (CheckBox) v.findViewById(R.id.search_result_checkbox);
-        			starButton.setOnClickListener(new View.OnClickListener() {
-        				public void onClick(View v) {
-        					OnStarSelector(v);
-        				}
-        			});
+        			CheckBox starButton = (CheckBox) v.findViewById(R.id.starred_checkbox);
+        			starButton.setOnClickListener(controller.new StarredMessageListener());
         			// check the star if the message is starred
         			if(model.containsStarredMessage(m))
         				starButton.setChecked(true);
@@ -162,25 +158,5 @@ public class SearchResultListFragment extends ListFragment {
 		
 	}
 	
-	protected void OnStarSelector(View v){
-
-		// get the message object
-		if (!(v.getParent() instanceof View))
-			return;
-		View parentView = (View) v.getParent();
-		if (!(parentView.getTag() instanceof Message))
-			return;
-		Message message = (Message) parentView.getTag();
-
-		// add/remove contact
-		if (!(v instanceof CheckBox))
-			return;
-		CheckBox starButton = (CheckBox) v;
-		if (starButton.isChecked())
-			model.addStarredMessage(message);
-		else
-			model.removeStarredMessage(message);
-
-	}
 	
 }
