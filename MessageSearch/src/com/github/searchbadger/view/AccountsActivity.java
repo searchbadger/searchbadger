@@ -25,17 +25,17 @@ import com.github.searchbadger.util.SearchModel;
 public class AccountsActivity extends PreferenceActivity {
 	
 	
-	private FacebookHelper facebookHelper = SearchBadgerApplication.getFacebookHelper();
-	private TwitterHelper twitterHelper = SearchBadgerApplication.getTwitterHelper();
-    private SearchBadgerPreferences prefs = SearchBadgerPreferences.getInstance();
+	protected FacebookHelper facebookHelper = SearchBadgerApplication.getFacebookHelper();
+	protected TwitterHelper twitterHelper = SearchBadgerApplication.getTwitterHelper();
+	protected SearchBadgerPreferences prefs = SearchBadgerPreferences.getInstance();
     
     final static int AUTHORIZE_FACEBOOK_DIALOG = 0;
     
-    private Preference facebookConnect;
-    private Preference twitterConnect;
-    private Handler handler;
-    private EditTextPreference maxResult;
-    private EditTextPreference numMessageThread;
+    protected Preference facebookConnect;
+    protected Preference twitterConnect;
+    protected Handler handler;
+    protected EditTextPreference maxResult;
+    protected EditTextPreference numMessageThread;
     protected Preference clearSearchButton;
 
 	
@@ -230,6 +230,8 @@ public class AccountsActivity extends PreferenceActivity {
                 
                 prefs.saveTwitterToken(userKey);
                 prefs.saveTwitterSecret(userSecret);
+                
+        		updateTwitterButton();
 
             } catch(Exception e){
             	Log.d("TWITTER_OAUTH", "Error in processing callback.");

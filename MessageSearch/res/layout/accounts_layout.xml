@@ -31,6 +31,7 @@
             android:key="prefMaxResults"
             android:summary="Set the max number of results returned"
             android:inputType="number"
+            android:maxLength="6"
             android:title="Max Results" />
         
         <EditTextPreference
@@ -38,6 +39,7 @@
             android:key="prefNumMessagesThread"
             android:summary="Set the number of messages each conversation will return"
             android:inputType="number"
+            android:maxLength="6"
             android:title="Thread Messages" />
 
         <Preference

@@ -91,7 +91,7 @@ public class SearchActivityTest extends
 		assertNotNull(testActivity);
 		assertNotNull(dateLayout);
 		assertNotNull(contactsLayout);
-		assertNotNull(sentLayout);
+		assertNotNull(sendReceiveRadioGroup);
 		assertNotNull(contactsCheck);
 		assertNotNull(sentCheck);
 	}
@@ -134,7 +134,7 @@ public class SearchActivityTest extends
 		sentCheck.performClick();
 		assertTrue(sentCheck.isChecked());
 		assertEquals("Sent/received layout visibility",
-				sentLayout.getVisibility(), View.VISIBLE);
+				sendReceiveRadioGroup.getVisibility(), View.VISIBLE);
 		
 
 		testActivity.findViewById(R.id.radioReceived).performClick();
@@ -143,7 +143,7 @@ public class SearchActivityTest extends
 		sentCheck.performClick();
 		assertTrue(!sentCheck.isChecked());
 		assertEquals("Sent/received layout visibility",
-				sentLayout.getVisibility(), View.GONE);
+				sendReceiveRadioGroup.getVisibility(), View.GONE);
 	}
 	
 	@UiThreadTest

@@ -29,12 +29,9 @@
         
       
         <activity android:name=".view.AccountsActivity"
-            android:label="@string/settings" android:launchMode="singleInstance">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+            android:label="@string/settings" android:launchMode="singleTask">
         	<intent-filter>
+                <action android:name="android.intent.action.MAIN" />
 	            <action android:name="android.intent.action.VIEW" />
 	            <category android:name="android.intent.category.DEFAULT" />
 	            <category android:name="android.intent.category.BROWSABLE" />
