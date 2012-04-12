@@ -9,8 +9,10 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.CheckBox;
 
 import com.github.searchbadger.util.Contact;
+import com.github.searchbadger.util.Message;
 import com.github.searchbadger.util.MessageSource;
 import com.github.searchbadger.util.Search;
 import com.github.searchbadger.util.SearchModel;
@@ -90,6 +92,25 @@ public class SearchBadgerController {
 
 	public final class StarredMessageListener implements View.OnClickListener {
 		public void onClick(View v) {
+
+			// get the message object
+			if (v.getParent() instanceof View) {
+				View parentView = (View) v.getParent();
+				if (parentView.getTag() instanceof Message) {
+					Message message = (Message) parentView.getTag();
+
+					// add/remove contact
+					if (v instanceof CheckBox) {
+						CheckBox starButton = (CheckBox) v;
+						if (starButton.isChecked())
+							model.addStarredMessage(message);
+						else
+							model.removeStarredMessage(message);
+						
+					}
+				}
+			}
+			
 		}
 	}
 

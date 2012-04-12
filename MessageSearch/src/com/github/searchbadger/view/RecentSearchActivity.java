@@ -90,10 +90,10 @@ public class RecentSearchActivity extends ListActivity {
         SearchBadgerApplication.pushRecentSearch(s);
         
         // switch tab to the search tab
-        if (!(this.getParent() instanceof MainTabActivity))
-			return;
-        MainTabActivity tabView = (MainTabActivity) this.getParent();
-        tabView.getTabHost().setCurrentTab(0);
+        if (this.getParent() instanceof MainTabActivity) {
+            MainTabActivity tabView = (MainTabActivity) this.getParent();
+            tabView.getTabHost().setCurrentTab(0);
+        }
     }
 
 	protected class SearchArrayAdapter extends ArrayAdapter<Search> {

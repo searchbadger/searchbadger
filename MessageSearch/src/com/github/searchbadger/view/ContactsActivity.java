@@ -27,10 +27,10 @@ import com.github.searchbadger.util.MessageSource;
 
 public class ContactsActivity extends Activity {
 
-	private List<MessageSource> sources;
-	private List<Contact> selectedContacts;
-	private List<Contact> contacts;
-	private ContactsActivity thisActivity;
+	protected List<MessageSource> sources;
+	protected List<Contact> selectedContacts;
+	protected List<Contact> contacts;
+	protected ContactsActivity thisActivity;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -85,7 +85,6 @@ public class ContactsActivity extends Activity {
 						
 
 				        ListView list = (ListView) findViewById(R.id.listView_contact);
-				        if(contacts == null) return;
 						ListAdapter myadapter = new ContactArrayAdapter(thisActivity,
 								R.layout.contacts_list_item,
 								contacts);
@@ -149,21 +148,20 @@ public class ContactsActivity extends Activity {
 	protected void OnContactSelector(View v){
 
 		// get the contact object
-		if (!(v.getParent() instanceof View))
-			return;
-		View parentView = (View) v.getParent();
-		if (!(parentView.getTag() instanceof Contact))
-			return;
-		Contact contact = (Contact) parentView.getTag();
-
-		// add/remove contact
-		if (!(v instanceof CheckBox))
-			return;
-		CheckBox checkbox = (CheckBox) v;
-		if (checkbox.isChecked())
-			addContact(contact);
-		else
-			removeContact(contact);
+		if (v.getParent() instanceof View) {
+			View parentView = (View) v.getParent();
+			if (parentView.getTag() instanceof Contact) {
+				Contact contact = (Contact) parentView.getTag();
+				// add/remove contact
+				if (v instanceof CheckBox) {
+					CheckBox checkbox = (CheckBox) v;
+					if (checkbox.isChecked())
+						addContact(contact);
+					else
+						removeContact(contact);
+				}
+			}
+		}
 
 	}
 	

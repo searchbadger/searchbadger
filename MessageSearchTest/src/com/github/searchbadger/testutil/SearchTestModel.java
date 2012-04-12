@@ -1,8 +1,10 @@
 package com.github.searchbadger.testutil;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
-import java.util.Map;
+
+import android.util.Log;
 
 import com.github.searchbadger.util.Contact;
 import com.github.searchbadger.util.ContactSMS;
@@ -13,10 +15,10 @@ import com.github.searchbadger.util.SearchModel;
 
 public class SearchTestModel implements SearchModel {
 
-	private List<Message> searchResultMessages;
-
-	private List<Contact> contacts = new ArrayList<Contact>();
-	
+	public List<Message> searchResultMessages = new ArrayList<Message>();
+	public List<Contact> contacts = new ArrayList<Contact>();
+	public List<Search> searches = new ArrayList<Search>();
+	public int sleepDelay = 0;
 	
 	public SearchTestModel() {
 		super();
@@ -42,12 +44,30 @@ public class SearchTestModel implements SearchModel {
 		addresses.clear();
 		addresses.add("5-555-555-5555");
 		contacts.add(new ContactSMS("5", MessageSource.SMS, "Maggie Simpson", null, addresses));
+		
+
+		searchResultMessages.add(new Message("1", "10", "You", MessageSource.SMS, new Date(), "message 1", false));
+		searchResultMessages.add(new Message("2", "11", "You", MessageSource.FACEBOOK, new Date(), "message 2", false));
+		searchResultMessages.add(new Message("3", "12", "Me", MessageSource.TWITTER, new Date(), "message 3", false));
+		searchResultMessages.add(new Message("4", "13", "You", MessageSource.SMS, new Date(), "message 4", false));
+		searchResultMessages.add(new Message("5", "14", "Me", MessageSource.FACEBOOK, new Date(), "message 5", false));
+		
+		List<MessageSource> sources = new ArrayList<MessageSource>();
+		sources.add(MessageSource.SMS);
+		searches.add(new Search("Hello World", null, null, sources, null, null));
+		searches.add(new Search("Foo Bar", null, null, sources, null, null));
+		searches.add(new Search("Bye World", null, null, sources, null, null));
 	}
 
 	public void search(Search filter) {
 	}
 	
 	public List<Message> getSearchResults() {
+		try {
+			Thread.sleep(sleepDelay);
+		} catch (InterruptedException e) {
+		}
+		
 		return searchResultMessages;
 	}
 	
@@ -56,11 +76,15 @@ public class SearchTestModel implements SearchModel {
 	}
 	
 	public List<Search> getRecentSearches() {
-		return null;
+		try {
+			Thread.sleep(sleepDelay);
+		} catch (InterruptedException e) {
+		}
+		return searches;
 	}
 	
 	public List<Message> getStarredMessages() {
-		return null;
+		return getSearchResults();
 	}
 	
 	public boolean addStarredMessage(Message msg) {
@@ -72,14 +96,21 @@ public class SearchTestModel implements SearchModel {
 	}	
 	
 	public List<Message> getThread(Message message) {
-		return null;
+		return getSearchResults();
 	}
 	
 	public List<Contact> getContacts(MessageSource source) {
+		try {
+			Thread.sleep(sleepDelay);
+		} catch (InterruptedException e) {
+		}
 		return contacts;
 	}
 
 	public boolean containsStarredMessage(Message message) {
+		if(message.getId().equals("2")) {
+			return true;
+		}
 		return false;
 	}
 

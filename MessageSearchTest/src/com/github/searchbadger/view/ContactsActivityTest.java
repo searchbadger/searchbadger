@@ -33,6 +33,13 @@ public class ContactsActivityTest extends
 	public void testPreconditions() {
 		testActivity = this.getActivity();
 		assertNotNull(testActivity);
+		
+		
+		// test addContact error checking
+		testActivity.selectedContacts = new ArrayList<Contact>();
+		testActivity.addContact(null);
+		testActivity.addContact(new Contact("1", MessageSource.SMS, null, null));
+		testActivity.addContact(new Contact("1", MessageSource.SMS, null, null));
 	}
 	
 
@@ -52,15 +59,24 @@ public class ContactsActivityTest extends
 	}
 
 	public void testSource2Plus() {
+		// switch to the model to use the test model
+		SearchTestModel testModel = new SearchTestModel();
+		SearchBadgerApplication.setSearchModel(testModel);
+		
 		List<MessageSource> source = new ArrayList<MessageSource>();
 		source.add(MessageSource.SMS);
 		source.add(MessageSource.FACEBOOK);
+		
+		// add the first contact of the test contacts as being selected
+		List<Contact> contacts = testModel.getContacts(MessageSource.SMS);
+		List<Contact> selectContacts = new ArrayList<Contact>();
+		selectContacts.add(contacts.get(0));
 		
 		Intent intent = new Intent();
 		intent.putParcelableArrayListExtra(SearchActivity.INTENT_DATA_SOURCES, 
 				(ArrayList<MessageSource>)source);
 		intent.putParcelableArrayListExtra(SearchActivity.INTENT_DATA_CONTACTS, 
-				(ArrayList<Contact>)null);
+				(ArrayList<Contact>)selectContacts);
 		setActivityIntent(intent);
 
 		testActivity = this.getActivity();
@@ -138,6 +154,36 @@ public class ContactsActivityTest extends
 	    TouchUtils.clickView(this, buttonDone);
 		assertEquals("Make sure activity has finished", true, testActivity.isFinishing());
 		
+	}
+	
+
+	public void testRecreateActivity() {
+
+		// switch to the model to use the test model
+		SearchTestModel testModel = new SearchTestModel();
+		SearchBadgerApplication.setSearchModel(testModel);
+		
+		// test the ContactsActivity functionality with SMS contacts
+		List<MessageSource> source = new ArrayList<MessageSource>();
+		source.add(MessageSource.SMS);
+		
+		// add the first contact of the test contacts as being selected
+		List<Contact> contacts = testModel.getContacts(MessageSource.SMS);
+		List<Contact> selectContacts = new ArrayList<Contact>();
+		selectContacts.add(contacts.get(0));
+		
+		// create the intent data
+		Intent intent = new Intent();
+		intent.putParcelableArrayListExtra(SearchActivity.INTENT_DATA_SOURCES, 
+				(ArrayList<MessageSource>)source);
+		intent.putParcelableArrayListExtra(SearchActivity.INTENT_DATA_CONTACTS, 
+				(ArrayList<Contact>)selectContacts);
+		setActivityIntent(intent);
+
+		// start activity
+		testModel.sleepDelay = 10000;
+		testActivity = this.getActivity();
+		testActivity.finish();
 	}
 	
 

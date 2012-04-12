@@ -20,16 +20,16 @@ import com.github.searchbadger.util.SearchModel;
 public class AccountsActivity extends PreferenceActivity {
 	
 	
-	private FacebookHelper facebookHelper = SearchBadgerApplication.getFacebookHelper();
-    private SearchBadgerPreferences prefs = SearchBadgerPreferences.getInstance();
+	protected FacebookHelper facebookHelper = SearchBadgerApplication.getFacebookHelper();
+	protected SearchBadgerPreferences prefs = SearchBadgerPreferences.getInstance();
     
     final static int AUTHORIZE_FACEBOOK_DIALOG = 0;
     
-    private Preference facebookConnect;
-    private Handler handler;
-    private EditTextPreference maxResult;
-    private EditTextPreference numMessageThread;
-    private Preference clearSearchButton;
+    protected Preference facebookConnect;
+    protected Handler handler;
+    protected EditTextPreference maxResult;
+    protected EditTextPreference numMessageThread;
+    protected Preference clearSearchButton;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -109,7 +109,7 @@ public class AccountsActivity extends PreferenceActivity {
     	numMessageThread.setTitle("Thread Messages: " + prefs.getNumMessagePerThread());
     }
     
-    private class FacebookClickListener implements OnPreferenceClickListener {
+    protected class FacebookClickListener implements OnPreferenceClickListener {
 
     	PreferenceActivity activity;
     	
@@ -129,7 +129,7 @@ public class AccountsActivity extends PreferenceActivity {
     	
     }
     
-    private class FacebookUpdateListner implements FacebookHelper.UpdateActivityListener {
+    protected class FacebookUpdateListner implements FacebookHelper.UpdateActivityListener {
 
 		public void Update() {
 			// call the update in the original thread
@@ -151,7 +151,7 @@ public class AccountsActivity extends PreferenceActivity {
     	
     }
  
-    private Context getActvityContext() {
+    protected Context getActvityContext() {
     	return this;
     }
 }
