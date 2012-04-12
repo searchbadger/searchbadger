@@ -61,8 +61,6 @@ public class SearchActivityTest extends
 				.findViewById(com.github.searchbadger.R.id.linearFilterDateOptions);
 		contactsLayout = (LinearLayout) testActivity
 				.findViewById(com.github.searchbadger.R.id.linearFilterContactsOptions);
-		sentLayout = (LinearLayout) testActivity
-				.findViewById(com.github.searchbadger.R.id.linearFilterSentReceivedOptions);
 		dateCheck = (CheckBox) testActivity
 				.findViewById(com.github.searchbadger.R.id.checkBoxFilterDate);
 		contactsCheck = (CheckBox) testActivity
