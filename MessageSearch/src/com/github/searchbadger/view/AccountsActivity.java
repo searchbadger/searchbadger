@@ -18,7 +18,9 @@ import com.github.searchbadger.R;
 import com.github.searchbadger.core.SearchBadgerApplication;
 import com.github.searchbadger.core.SearchBadgerPreferences;
 import com.github.searchbadger.util.FacebookHelper;
+
 import com.github.searchbadger.util.TwitterHelper;
+import com.github.searchbadger.util.SearchModel;
 
 public class AccountsActivity extends PreferenceActivity {
 	
@@ -34,6 +36,8 @@ public class AccountsActivity extends PreferenceActivity {
     private Handler handler;
     private EditTextPreference maxResult;
     private EditTextPreference numMessageThread;
+    protected Preference clearSearchButton;
+
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -81,6 +85,15 @@ public class AccountsActivity extends PreferenceActivity {
 		});
 		updateNumMessageThread();
 		
+		// setup the clear searches preference
+		clearSearchButton = (Preference) findPreference("prefClearSearchHistory");
+		clearSearchButton.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+			public boolean onPreferenceClick(Preference preference) {
+				SearchModel model = SearchBadgerApplication.getSearchModel();
+				model.clearRecentSearches();
+				return true;
+			}
+		});
 	}
 	
 
@@ -125,7 +138,7 @@ public class AccountsActivity extends PreferenceActivity {
     	numMessageThread.setTitle("Thread Messages: " + prefs.getNumMessagePerThread());
     }
     
-    private class FacebookClickListener implements OnPreferenceClickListener {
+    protected class FacebookClickListener implements OnPreferenceClickListener {
 
     	PreferenceActivity activity;
     	
@@ -168,7 +181,8 @@ public class AccountsActivity extends PreferenceActivity {
     	
     }
     
-    private class FacebookUpdateListner implements FacebookHelper.UpdateActivityListener {
+
+    protected class FacebookUpdateListner implements FacebookHelper.UpdateActivityListener {
 
 		public void Update() {
 			// call the update in the original thread
@@ -189,8 +203,8 @@ public class AccountsActivity extends PreferenceActivity {
 		}
     	
     }
-    
-    private Context getActvityContext() {
+ 
+    protected Context getActvityContext() {
     	return this;
     }
     

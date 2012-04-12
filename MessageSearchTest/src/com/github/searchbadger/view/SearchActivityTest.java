@@ -1,9 +1,8 @@
 package com.github.searchbadger.view;
 
+import java.util.ArrayList;
 import java.util.Date;
-
-import com.github.searchbadger.view.SearchActivity;
-
+import java.util.List;
 
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.UiThreadTest;
@@ -15,6 +14,12 @@ import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.ToggleButton;
+
+import com.github.searchbadger.R;
+import com.github.searchbadger.util.Contact;
+import com.github.searchbadger.util.MessageSource;
+import com.github.searchbadger.util.Search;
+import com.github.searchbadger.util.SendReceiveType;
 
 public class SearchActivityTest extends
 		ActivityInstrumentationTestCase2<SearchActivity> {
@@ -56,8 +61,6 @@ public class SearchActivityTest extends
 				.findViewById(com.github.searchbadger.R.id.linearFilterDateOptions);
 		contactsLayout = (LinearLayout) testActivity
 				.findViewById(com.github.searchbadger.R.id.linearFilterContactsOptions);
-		sentLayout = (LinearLayout) testActivity
-				.findViewById(com.github.searchbadger.R.id.linearFilterSentReceivedOptions);
 		dateCheck = (CheckBox) testActivity
 				.findViewById(com.github.searchbadger.R.id.checkBoxFilterDate);
 		contactsCheck = (CheckBox) testActivity
@@ -99,6 +102,15 @@ public class SearchActivityTest extends
 		assertTrue(dateCheck.isChecked());
 		assertEquals("Date layout visibility",
 				dateLayout.getVisibility(), View.VISIBLE);
+		
+		testActivity.findViewById(R.id.radioAfter).performClick();
+		testActivity.findViewById(R.id.radioBefore).performClick();
+		testActivity.findViewById(R.id.radioFrom).performClick();
+		testActivity.findViewById(R.id.radioPastMonth).performClick();
+		testActivity.findViewById(R.id.radioPaskWeek).performClick();
+		testActivity.findViewById(R.id.radioSinceYesterday).performClick();
+		testActivity.findViewById(R.id.radioToday).performClick();
+		
 		dateCheck.performClick();
 		assertTrue(!dateCheck.isChecked());
 		assertEquals("Date layout visibility",
@@ -123,6 +135,11 @@ public class SearchActivityTest extends
 		assertTrue(sentCheck.isChecked());
 		assertEquals("Sent/received layout visibility",
 				sentLayout.getVisibility(), View.VISIBLE);
+		
+
+		testActivity.findViewById(R.id.radioReceived).performClick();
+		testActivity.findViewById(R.id.radioSent).performClick();
+		
 		sentCheck.performClick();
 		assertTrue(!sentCheck.isChecked());
 		assertEquals("Sent/received layout visibility",
@@ -131,22 +148,111 @@ public class SearchActivityTest extends
 	
 	@UiThreadTest
 	public void testInsertTextSymbol() {
-		searchInputText.setText("something to search");
-		searchInputText.setSelection(9, 13);
-		symbolPoundButton.performClick();
-		assertEquals("Search box text",  "something#search", searchInputText.getText().toString());
+		testActivity.searchInputText.setText("something to search");
+		testActivity.searchInputText.setSelection(9, 13);
+		testActivity.symbolPoundButton.performClick();
+		assertEquals("Search box text",  "something#search", testActivity.searchInputText.getText().toString());
 		symbolStarButton.performClick();
-		assertEquals("Search box text",  "something#*search", searchInputText.getText().toString());
+		assertEquals("Search box text",  "something#*search", testActivity.searchInputText.getText().toString());
 		searchInputText.setSelection(0, 3);
-		symbolUnderscoreButton.performClick();
-		assertEquals("Search box text",  "_ething#*search", searchInputText.getText().toString());
+		testActivity.symbolUnderscoreButton.performClick();
+		assertEquals("Search box text",  "_ething#*search", testActivity.searchInputText.getText().toString());
+		searchInputText.setSelection(3, 0);
+		testActivity.symbolUnderscoreButton.performClick();
+		assertEquals("Search box text",  "_hing#*search", testActivity.searchInputText.getText().toString());
 		
 	}
 	
 	@UiThreadTest
-	public void testShowDatePicker() {
-		beforeButton.performClick();
+	public void testClickButtons() {
+		testActivity.beforeButton.performClick();
+		testActivity.afterButton.performClick();
+		testActivity.fromButton.performClick();
+		testActivity.toButton.performClick();
+		testActivity.clearSearchButton.performClick();
+		testActivity.starButton.performClick();
+		testActivity.facebookButton.performClick();
+		testActivity.twitterButton.performClick();
+	}
+	
+	@UiThreadTest
+	public void testOtherFunctions() {
+		testActivity.getDatePickerId();
+		testActivity.onCreateDialog(-1);
 		
+		Date now = new Date();
+		testActivity.setDateBefore(now);
+		assertEquals(testActivity.beforeDate.getTime(), now.getTime());
+		testActivity.setDateAfter(now);
+		assertEquals(testActivity.afterDate.getTime(), now.getTime());
+		testActivity.setDateFrom(now);
+		testActivity.setDateTo(now);
+		
+	}
+
+	@UiThreadTest
+	public void testGenerateSearch() {
+		testActivity.checkBoxFilterDate.setChecked(false);
+		testActivity.checkBoxFilterContacts.setChecked(false);
+		testActivity.checkBoxFilterSentReceived.setChecked(false);
+		testActivity.generateSearch();
+		
+
+		testActivity.checkBoxFilterDate.setChecked(false);
+		testActivity.checkBoxFilterContacts.setChecked(false);
+		testActivity.checkBoxFilterSentReceived.setChecked(true);
+		testActivity.findViewById(R.id.radioReceived).performClick();
+		testActivity.generateSearch();
+		testActivity.findViewById(R.id.radioSent).performClick();
+		testActivity.generateSearch();
+		
+
+		testActivity.checkBoxFilterDate.setChecked(false);
+		testActivity.checkBoxFilterContacts.setChecked(true);
+		testActivity.checkBoxFilterSentReceived.setChecked(false);
+		testActivity.selectedContacts.add(new Contact("1", MessageSource.SMS, null, null));
+		testActivity.generateSearch();
+
+		testActivity.checkBoxFilterDate.setChecked(true);
+		testActivity.checkBoxFilterContacts.setChecked(false);
+		testActivity.checkBoxFilterSentReceived.setChecked(false);
+		testActivity.findViewById(R.id.radioAfter).performClick();
+		testActivity.generateSearch();
+		testActivity.findViewById(R.id.radioBefore).performClick();
+		testActivity.generateSearch();
+		testActivity.findViewById(R.id.radioFrom).performClick();
+		testActivity.generateSearch();
+		testActivity.findViewById(R.id.radioPastMonth).performClick();
+		testActivity.generateSearch();
+		testActivity.findViewById(R.id.radioPaskWeek).performClick();
+		testActivity.generateSearch();
+		testActivity.findViewById(R.id.radioSinceYesterday).performClick();
+		testActivity.generateSearch();
+		testActivity.findViewById(R.id.radioToday).performClick();
+		testActivity.generateSearch();
+	}
+
+	@UiThreadTest
+	public void testLoadSearch() {
+
+		String text = "foo";
+		Date begin = new Date();
+		Date end = new Date(begin.getTime() + 1000);
+		List<MessageSource> sources = new ArrayList<MessageSource>();
+		sources.add(MessageSource.SMS);
+		sources.add(MessageSource.FACEBOOK);
+		sources.add(MessageSource.TWITTER);
+		sources.add(MessageSource.STARRED);
+		List<Contact> contacts = new ArrayList<Contact>();
+		contacts.add(new Contact("1", MessageSource.SMS, null, null));
+		contacts.add(new Contact("2", MessageSource.SMS, null, null));
+		SendReceiveType type = SendReceiveType.SENT;
+		testActivity.loadRecentSearch(new Search(text, begin, end, sources, contacts, type));
+		testActivity.loadRecentSearch(new Search(text, null, null, null, null, null));
+		testActivity.loadRecentSearch(new Search(text, begin, end, sources, contacts, type));
+		testActivity.loadRecentSearch(new Search(text, begin, null, sources, contacts, type));
+		testActivity.loadRecentSearch(new Search(text, null, end, sources, contacts, type));
+		testActivity.loadRecentSearch(new Search(text, begin, end, sources, null, type));
 	}
 	
 

@@ -5,6 +5,7 @@ import java.util.List;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,16 +20,18 @@ import com.github.searchbadger.util.SearchModel;
 public class ThreadListFragment extends ListFragment {
 
 	private SearchModel model = SearchBadgerApplication.getSearchModel();
+	private List<Message> thread_msg;
 	 /**
      * Create a new instance of DetailsFragment, initialized to
      * show the text at 'index'.
      */
-    public static ThreadListFragment newInstance(int index) {
+    public static ThreadListFragment newInstance(int index, Message message) {
     	ThreadListFragment f = new ThreadListFragment();
 
         // Supply index input as an argument.
         Bundle args = new Bundle();
         args.putInt("index", index);
+        args.putParcelable("message", message);
         f.setArguments(args);
 
         return f;
@@ -42,15 +45,39 @@ public class ThreadListFragment extends ListFragment {
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
+		setListAdapter(null);
 		
-		if(getArguments() == null) return;
-		Message m = getArguments().getParcelable("message");
-		List<Message> thread= model.getThread(m);
-		if(thread == null) return;
-		MessageArrayAdapter adapter = new MessageArrayAdapter(getActivity(), R.layout.search_result_list_item, thread);
-		setListAdapter(adapter);
+		
+		Thread thread = new Thread(new Runnable() {
+			public void run() {
+
+					
+					if(getArguments() == null) return;
+					Message m = getArguments().getParcelable("message");
+					if(m == null) return;
+					thread_msg = model.getThread(m);
+
+					try {
+						getActivity().runOnUiThread(new Runnable() {
+							public void run() {
+								if(thread_msg == null) return;
+								try {
+									MessageArrayAdapter adapter = new MessageArrayAdapter(getActivity(), R.layout.search_result_list_item, thread_msg);
+									setListAdapter(adapter);
+									setEmptyText(getString(R.string.thread_error));
+								} catch(Exception e) {
+								}
+							}
+						});
+					} catch(Exception e) {
+					}
+
+				
+			}
+
+		});
+		thread.start();
 	}
 
 
@@ -90,7 +117,22 @@ public class ThreadListFragment extends ListFragment {
                 }
                 return v;
         }
-		
+
+		@Override
+		public int getCount() {
+			if (this.messages == null) {
+				return 0;
+			}
+			return super.getCount();
+		}	
 	}
+	
+	@Override
+	public void onViewCreated(View view, Bundle savedInstanceState) {
+		// TODO Auto-generated method stub
+		super.onViewCreated(view, savedInstanceState);
+		setEmptyText(getString(R.string.thread_error));
+	}
+
 	
 }

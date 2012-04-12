@@ -20,14 +20,15 @@ import android.widget.TextView;
 
 import com.github.searchbadger.R;
 import com.github.searchbadger.core.SearchBadgerApplication;
+import com.github.searchbadger.core.SearchBadgerController;
 import com.github.searchbadger.util.Message;
 import com.github.searchbadger.util.SearchModel;
 
 public class StarredMessagesListFragment extends ListFragment {
 
 	private boolean mDualPane;
-    private int mCurCheckPosition = 0;
     private SearchModel model = SearchBadgerApplication.getSearchModel();
+    private SearchBadgerController controller = SearchBadgerController.getInstance();
     private SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
     private List<Message> results;
 	
@@ -43,15 +44,19 @@ public class StarredMessagesListFragment extends ListFragment {
 		super.onResume();
 		
 		List<Message> messages = model.getStarredMessages();
-		if(messages == null) return;
-		
-		// make a copy of the starred message in case the list is changed 
-		results = new ArrayList<Message>(messages.size());
-	    for(Message item: messages) {
-	    	results.add(new Message(item));
-	    }
+		results = null;
+		if (messages != null) {
+			// make a copy of the starred message in case the list is changed 
+			results = new ArrayList<Message>(messages.size());
+			results.addAll(messages);
+		}
 		MessageArrayAdapter adapter = new MessageArrayAdapter(getActivity(), R.layout.starred_messages_list_item, results);
 		setListAdapter(adapter);
+		if (results == null) {
+			setEmptyText(getString(R.string.starred_error));
+		} else {
+			setEmptyText(getString(R.string.no_starred_messages));
+		}
 	}
 
 
@@ -61,6 +66,15 @@ public class StarredMessagesListFragment extends ListFragment {
 		Message message = (Message) v.getTag();
         showDetails(position, message);
     }
+	
+	@Override
+	public void onViewCreated(View view, Bundle savedInstanceState) {
+		if (results == null) {
+			setEmptyText(getString(R.string.starred_error));
+		} else {
+			setEmptyText(getString(R.string.no_starred_messages));
+		}
+	}
 
     /**
      * Helper function to show the details of a selected item, either by
@@ -75,8 +89,6 @@ public class StarredMessagesListFragment extends ListFragment {
         View threadFrame = getActivity().findViewById(R.id.thread_view);
         mDualPane = threadFrame != null && threadFrame.getVisibility() == View.VISIBLE;
 
-        mCurCheckPosition = index;
-
         if (mDualPane) {
 
             
@@ -89,7 +101,7 @@ public class StarredMessagesListFragment extends ListFragment {
                     getFragmentManager().findFragmentById(R.id.thread_view);
             if (details == null || details.getShownIndex() != index) {
                 // Make new fragment to show this selection.
-                details = ThreadListFragment.newInstance(index);
+                details = ThreadListFragment.newInstance(index, message);
 
                 // Execute a transaction, replacing any existing fragment
                 // with this one inside the frame.
@@ -104,6 +116,7 @@ public class StarredMessagesListFragment extends ListFragment {
             // the dialog fragment with selected text.
             Intent intent = new Intent();
             intent.setClass(getActivity(), ThreadActivity.class);
+            intent.putExtra("index", index);
             intent.putExtra("message", message);
             startActivity(intent);
         }
@@ -117,9 +130,12 @@ public class StarredMessagesListFragment extends ListFragment {
 			super(context, textViewResourceId, objects);
 			messages = objects;
 		}
-
+		
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
+        		if (messages == null) {
+        			return null;
+        		}
                 View v = convertView;
                 if (v == null) {
                     LayoutInflater vi = (LayoutInflater)getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -132,7 +148,7 @@ public class StarredMessagesListFragment extends ListFragment {
         			// new Message(m.getId(), m.getThreadId(), m.getAuthor(), m.getSource(), m.getDate(), m.getText(), false)
                 	
                 	// add the message
-                	TextView message = (TextView) v.findViewById(R.id.search_result_text);
+                	TextView message = (TextView) v.findViewById(R.id.messages_text);
                 	if(message != null)
                 		message.setText(m.getAuthor() + ": " + m.getText());
                 	
@@ -156,12 +172,8 @@ public class StarredMessagesListFragment extends ListFragment {
                 	}
 
         			// set the click listener for the star button
-        			CheckBox starButton = (CheckBox) v.findViewById(R.id.search_result_checkbox);
-        			starButton.setOnClickListener(new View.OnClickListener() {
-        				public void onClick(View v) {
-        					OnStarSelector(v);
-        				}
-        			});
+        			CheckBox starButton = (CheckBox) v.findViewById(R.id.starred_checkbox);
+        			starButton.setOnClickListener(controller.new StarredMessageListener());
         			// check the star if the message is starred
         			if(model.containsStarredMessage(m))
         				starButton.setChecked(true);
@@ -170,27 +182,14 @@ public class StarredMessagesListFragment extends ListFragment {
                 }
                 return v;
         }
-		
+
+		@Override
+		public int getCount() {
+			if (this.messages == null) {
+				return 0;
+			}
+			return super.getCount();
+		}
 	}
 	
-	protected void OnStarSelector(View v){
-
-		// get the message object
-		if (!(v.getParent() instanceof View))
-			return;
-		View parentView = (View) v.getParent();
-		if (!(parentView.getTag() instanceof Message))
-			return;
-		Message message = (Message) parentView.getTag();
-
-		// add/remove contact
-		if (!(v instanceof CheckBox))
-			return;
-		CheckBox starButton = (CheckBox) v;
-		if (starButton.isChecked())
-			model.addStarredMessage(message);
-		else
-			model.removeStarredMessage(message);
-
-	}
 }

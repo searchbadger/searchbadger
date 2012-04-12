@@ -8,7 +8,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
 
-public class Message implements Parcelable {
+public class Message implements Parcelable, Comparable {
 	private final String Id;
 	private final String threadId;
 	private final Date date;
@@ -38,20 +38,22 @@ public class Message implements Parcelable {
 	}
 	
 	public Message(Parcel in){		
-		Date tempDate = null;
+		//Date tempDate = null;
 		
 		Id = in.readString();
 		threadId = in.readString();
 		author = in.readString();
 		source = in.readParcelable(MessageSource.class.getClassLoader());
 		
-		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		try {
-			tempDate = (formatter).parse(in.readString());
-		} catch (ParseException e) {}
-		finally{
-			date = tempDate;
-		}
+		//SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		//try {
+		//	tempDate = (formatter).parse(in.readString());
+		//} catch (ParseException e) {}
+		//finally{
+		//	date = tempDate;
+		//}
+		long lDate = in.readLong();
+		date = new Date(lDate);
 		
 		text = in.readString();
 		isStarred = Boolean.parseBoolean(in.readString());
@@ -102,8 +104,9 @@ public class Message implements Parcelable {
 		dest.writeString(author);
 		dest.writeParcelable(source, flags);
 		
-		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		dest.writeString(formatter.format(date));
+		//SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		//dest.writeString(formatter.format(date));
+		dest.writeLong(date.getTime());
 		
 		
 		dest.writeString(text);
@@ -136,5 +139,11 @@ public class Message implements Parcelable {
 				(this.source.equals(that.source)) &&
 				(this.date.equals(that.date)) &&
 				(this.text.equals(that.text)));
+	}
+
+	public int compareTo(Object arg0) {
+		//For sorting, orders by date
+		Message m2 = (Message) arg0;
+		return m2.getDate().compareTo(date);
 	}
 }

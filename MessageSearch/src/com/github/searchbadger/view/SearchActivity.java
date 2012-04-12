@@ -19,6 +19,7 @@ import android.text.Html;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -46,49 +47,48 @@ import com.github.searchbadger.util.SendReceiveType;
 
 public class SearchActivity extends Activity implements SearchGenerator {
 
-	static private final int DATE_DIALOG_ID = 0;
+	static public final int DATE_DIALOG_ID = 0;
 	static public final int PICK_CONTACT_REQUEST = 1;
 	static public final String INTENT_DATA_SOURCES = "messageSources";
 	static public final String INTENT_DATA_CONTACTS = "selectedContacts";
 
-	private LinearLayout layoutFilterDate;
-	private LinearLayout layoutFilterContacts;
-	private LinearLayout layoutFilterSentReceived;
-	private LinearLayout layoutButtonSymbols;
-	private CheckBox checkBoxFilterDate;
-	private CheckBox checkBoxFilterContacts;
-	private CheckBox checkBoxFilterSentReceived;
-	private Button searchButton;
-	private Button contactsButton;
-	private ToggleButton smsButton;
-	private ToggleButton facebookButton;
-	private ToggleButton twitterButton;
-	private ToggleButton starButton;
-	private Button symbolPoundButton;
-	private Button symbolStarButton;
-	private Button symbolUnderscoreButton;
-	private EditText searchInputText;
-	private RadioGroup sendReceiveRadioGroup;
-	private RadioGroup radioGroupDate;
-	private Button beforeButton;
-	private Button afterButton;
-	private Button fromButton;
-	private Button toButton;
-	private TextView contactsText;
-	private ImageButton clearSearchButton;
+	protected LinearLayout layoutFilterDate;
+	protected LinearLayout layoutFilterContacts;
+	protected LinearLayout layoutButtonSymbols;
+	protected CheckBox checkBoxFilterDate;
+	protected CheckBox checkBoxFilterContacts;
+	protected CheckBox checkBoxFilterSentReceived;
+	protected Button searchButton;
+	protected Button contactsButton;
+	protected ToggleButton smsButton;
+	protected ToggleButton facebookButton;
+	protected ToggleButton twitterButton;
+	protected ToggleButton starButton;
+	protected Button symbolPoundButton;
+	protected Button symbolStarButton;
+	protected Button symbolUnderscoreButton;
+	protected EditText searchInputText;
+	protected RadioGroup sendReceiveRadioGroup;
+	protected RadioGroup radioGroupDate;
+	protected Button beforeButton;
+	protected Button afterButton;
+	protected Button fromButton;
+	protected Button toButton;
+	protected TextView contactsText;
+	protected ImageButton clearSearchButton;
 
-	private SearchBadgerController controller;
-	private SearchModel model;
+	protected SearchBadgerController controller;
+	protected SearchModel model;
 
-	private final SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
-	private int pickerButtonId;
-	private DatePickerDialog pickerDate;
-	private Date beforeDate;
-	private Date afterDate;
-	private Date fromDate;
-	private Date toDate;
+	protected final SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
+	protected int pickerButtonId;
+	protected DatePickerDialog pickerDate;
+	protected Date beforeDate;
+	protected Date afterDate;
+	protected Date fromDate;
+	protected Date toDate;
 	
-	private TextWatcher watcher;
+	protected TextWatcher watcher;
 	
 	protected List<Contact> selectedContacts = new ArrayList<Contact>();
 
@@ -110,7 +110,6 @@ public class SearchActivity extends Activity implements SearchGenerator {
 
 		layoutFilterDate = (LinearLayout) findViewById(R.id.linearFilterDateOptions);
 		layoutFilterContacts = (LinearLayout) findViewById(R.id.linearFilterContactsOptions);
-		layoutFilterSentReceived = (LinearLayout) findViewById(R.id.linearFilterSentReceivedOptions);
 		layoutButtonSymbols = (LinearLayout) findViewById(R.id.linearLayoutButtonSymbols);
 		checkBoxFilterDate = (CheckBox) findViewById(R.id.checkBoxFilterDate);
 		checkBoxFilterContacts = (CheckBox) findViewById(R.id.checkBoxFilterContacts);
@@ -157,7 +156,7 @@ public class SearchActivity extends Activity implements SearchGenerator {
 
 		View.OnClickListener searchSourceSelected = new View.OnClickListener() {
 			public void onClick(View v) {
-				updateSourceSelection(v);
+				updateSourceSelection();
 			}
 		};
 		smsButton.setOnClickListener(searchSourceSelected);
@@ -253,46 +252,135 @@ public class SearchActivity extends Activity implements SearchGenerator {
 
 	@Override
 	protected void onResume() {
-		// TODO Auto-generated method stub
 		super.onResume();
 
-		// XXX updateTextContacts();
+		Search recentSearchToLoad = SearchBadgerApplication.popRecentSearch();
+		if(recentSearchToLoad != null) {
+			loadRecentSearch(recentSearchToLoad);
+		}
 	}
 
+	protected void loadRecentSearch(Search search) {
+		
+		// load the search text
+		searchInputText.setText(search.getText());
+		List<MessageSource> sources = search.getSources();
+		
+		// load the source
+		smsButton.setChecked(false);
+		smsButton.setChecked(false);
+		smsButton.setChecked(false);
+		smsButton.setChecked(false);
+		if(sources != null) {
+			Iterator<MessageSource> iter = sources.iterator();
+			while(iter.hasNext()) {
+				switch(iter.next()) {
+				case SMS:
+					smsButton.setChecked(true);
+					break;
+				case FACEBOOK:
+					facebookButton.setChecked(true);
+					break;
+				case TWITTER:
+					twitterButton.setChecked(true);
+					break;
+				case STARRED:
+					starButton.setChecked(true);
+					break;
+				}
+			}
+		}
+		
+		// load the date
+		beforeDate = new Date();
+		afterDate = new Date();
+		fromDate = new Date();
+		toDate = new Date();
+		radioGroupDate.check(R.id.radioToday);
+		checkBoxFilterDate.setChecked(false);
+		Date start = search.getBegin();
+		Date end = search.getEnd();
+		if(start == null && end == null) {
+			// do nothing since default is set to be disabled
+		} else if(start != null && end == null) {
+			checkBoxFilterDate.setChecked(true);
+			radioGroupDate.check(R.id.radioAfter);
+			afterDate = start;
+			
+		} else if(start == null && end != null) {
+			checkBoxFilterDate.setChecked(true);
+			radioGroupDate.check(R.id.radioBefore);
+			beforeDate = end;
+			
+		} else {
+			checkBoxFilterDate.setChecked(true);
+			radioGroupDate.check(R.id.radioFrom);
+			fromDate = start;
+			toDate = end;
+		}
+		toggleFilterDate();
+		updateDateButtons();
 
-	private int getDatePickerId() {
+		
+		// load the selected contacts
+		checkBoxFilterContacts.setChecked(false);
+		selectedContacts.clear();
+		List<Contact> contacts = search.getContacts();
+		if(contacts != null) {
+			checkBoxFilterContacts.setChecked(true);
+			selectedContacts = contacts;
+		}
+		toggleFilterContacts();
+		updateTextContacts();
+		
+		
+		// load the type
+		sendReceiveRadioGroup.check(R.id.radioSent);
+		checkBoxFilterSentReceived.setChecked(false);
+		SendReceiveType type = search.getType();
+		if(type != null) {
+			checkBoxFilterSentReceived.setChecked(true);
+			if(type == SendReceiveType.RECEIVED)
+				sendReceiveRadioGroup.check(R.id.radioReceived);
+		}
+		toggleFilterSentReceived();
+		
+		updateSourceSelectionContact();
+	}
+
+	protected int getDatePickerId() {
 		return pickerButtonId;
 	}
 
-	private void toggleFilterSentReceived() {
+	protected void toggleFilterSentReceived() {
 		if (checkBoxFilterSentReceived.isChecked())
-			layoutFilterSentReceived.setVisibility(View.VISIBLE);
+			sendReceiveRadioGroup.setVisibility(View.VISIBLE);
 		else
-			layoutFilterSentReceived.setVisibility(View.GONE);
+			sendReceiveRadioGroup.setVisibility(View.GONE);
 	}
 
-	private void toggleFilterContacts() {
+	protected void toggleFilterContacts() {
 		if (checkBoxFilterContacts.isChecked())
 			layoutFilterContacts.setVisibility(View.VISIBLE);
 		else
 			layoutFilterContacts.setVisibility(View.GONE);
 	}
 
-	private void toggleFilterDate() {
+	protected void toggleFilterDate() {
 		if (checkBoxFilterDate.isChecked())
 			layoutFilterDate.setVisibility(View.VISIBLE);
 		else
 			layoutFilterDate.setVisibility(View.GONE);
 	}
 	
-	private void toggleButtonSymbols(boolean hasFocus) {
+	protected void toggleButtonSymbols(boolean hasFocus) {
 		if(hasFocus)
 			layoutButtonSymbols.setVisibility(View.VISIBLE);
 		else
 			layoutButtonSymbols.setVisibility(View.GONE);
 	}
 
-	private void insertTextSymbol(View v) {
+	protected void insertTextSymbol(View v) {
 
 		// determine the button type
 		String symbol = "";
@@ -327,9 +415,8 @@ public class SearchActivity extends Activity implements SearchGenerator {
 		searchInputText.setSelection(start + 1);
 	}
 
+	public void updateSourceSelectionContact() {
 
-	private void updateSourceSelection(View v) {
-		
 		// this will enable/disable the select contact button depending on the sources selected
 		List<MessageSource> sources = getMessageSources();
 		if(sources.size() != 1) {
@@ -339,6 +426,11 @@ public class SearchActivity extends Activity implements SearchGenerator {
 			updateTextContacts();
 			contactsButton.setEnabled(true);
 		}
+		
+	}
+
+	protected void updateSourceSelection() {
+		updateSourceSelectionContact();
 		
 		// clear the selected list once the source has changed
 		selectedContacts.clear();
@@ -357,7 +449,7 @@ public class SearchActivity extends Activity implements SearchGenerator {
 		return null;
 	}
 
-	private void showDatePicker(View v) {
+	protected void showDatePicker(View v) {
 
 		// determine the date picker type
 		Calendar cal = Calendar.getInstance();
@@ -390,19 +482,19 @@ public class SearchActivity extends Activity implements SearchGenerator {
 	
 	//the callback received when the user sets the date in the dialog
 
-	private void setDateBefore(Date date) {
+	protected void setDateBefore(Date date) {
 		beforeDate = date;
 	}
-	private void setDateAfter(Date date) {
+	protected void setDateAfter(Date date) {
 		afterDate = date;
 	}
-	private void setDateFrom(Date date) {
+	protected void setDateFrom(Date date) {
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(date);
 		this.calToBeginningOfDay(cal);
 		fromDate = cal.getTime();
 	}
-	private void setDateTo(Date date) {
+	protected void setDateTo(Date date) {
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(date);
 		this.calToEndOfDay(cal);
@@ -412,7 +504,7 @@ public class SearchActivity extends Activity implements SearchGenerator {
 	 * update the text on the before, after, from and to buttons
 	 * to match the date picked
 	 */
-	private void updateDateButtons() {
+	protected void updateDateButtons() {
 		beforeButton.setText(dateFormat.format(beforeDate));
 		afterButton.setText(dateFormat.format(afterDate));
 		fromButton.setText(dateFormat.format(fromDate));
@@ -420,7 +512,7 @@ public class SearchActivity extends Activity implements SearchGenerator {
 	}
 
 
-	private class DatePickerSelected implements DatePickerDialog.OnDateSetListener {
+	protected class DatePickerSelected implements DatePickerDialog.OnDateSetListener {
 
 		private SearchActivity searchActivity;
 
@@ -466,14 +558,14 @@ public class SearchActivity extends Activity implements SearchGenerator {
 		}
 	}
 
-	private void calToBeginningOfDay(Calendar cal) {
+	protected void calToBeginningOfDay(Calendar cal) {
 		cal.set(Calendar.HOUR_OF_DAY, 0);
 		cal.set(Calendar.MINUTE, 0);
 		cal.set(Calendar.SECOND, 0);
 		cal.set(Calendar.MILLISECOND, 0);
 	}
 	
-	private void calToEndOfDay(Calendar cal) {
+	protected void calToEndOfDay(Calendar cal) {
 		cal.set(Calendar.HOUR_OF_DAY, 23);
 		cal.set(Calendar.MINUTE, 59);
 		cal.set(Calendar.SECOND, 59);

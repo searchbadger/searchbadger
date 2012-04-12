@@ -1,50 +1,142 @@
 package com.github.searchbadger.view;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import android.app.ListActivity;
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.os.Bundle;
-import android.widget.SimpleAdapter;
+
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.ListAdapter;
+import android.widget.ListView;
+import android.widget.TextView;
 
 import com.github.searchbadger.R;
+import com.github.searchbadger.core.SearchBadgerApplication;
+import com.github.searchbadger.util.Message;
+import com.github.searchbadger.util.Search;
+import com.github.searchbadger.util.SearchModel;
+import com.github.searchbadger.view.ContactsActivity.ContactArrayAdapter;
 
 public class RecentSearchActivity extends ListActivity {
 
+    private SearchModel model = SearchBadgerApplication.getSearchModel();
+    private List<Search> recentSearches;
+    private ListActivity thisActivity;
+    
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 
 		super.onCreate(savedInstanceState);
+		thisActivity = this;
 
-		// TODO Remove the following
-		List<Map<String, String>> dataList = new ArrayList<Map<String, String>>();
+	}
+	
+    @Override
+	public void onResume() {
+		super.onResume();
+		this.setListAdapter(null);
 
-		HashMap<String, String> dataMap;
+		Thread thread = new Thread(new Runnable() {
+			public void run() {
 
-		dataMap = new HashMap<String, String>();
-		dataMap.put("Date", "12/25/2009\n11:00 AM");
-		dataMap.put("Search", "CS638-1");
-		dataList.add(dataMap);
+				recentSearches = null;
+				List<Search> searches = model.getRecentSearches();
+				if(searches != null) {
+				
+					// make a copy of the recent searches in case the list is changed 
+					recentSearches = new ArrayList<Search>(searches.size());
+				    for(Search item: searches) {
+				    	recentSearches.add(new Search(item));
+				    }
+				}
+		    
+				runOnUiThread(new Runnable() {
 
-		dataMap = new HashMap<String, String>();
-		dataMap.put("Date", "1/1/2010\n11:00 AM");
-		dataMap.put("Search", "Apples");
-		dataList.add(dataMap);
+					public void run() {
+						SearchArrayAdapter adapter = new SearchArrayAdapter(thisActivity, R.layout.recent_search_list_item, recentSearches);
+						setListAdapter(adapter);/*
+						if (recentSearches == null) {
+							setEmptyText(getString(R.string.recent_error));
+						} else {
+							setEmptyText(getString(R.string.starred_error));
+						}*/
+						
+					}
+				});
+				
+			}
 
-		dataMap = new HashMap<String, String>();
-		dataMap.put("Date", "1/1/2010\n11:00 AM");
-		dataMap.put("Search", "Bananas");
-		dataList.add(dataMap);
+		});
+		thread.start();
 
-		SimpleAdapter adapter = new SimpleAdapter(this, dataList,
-				R.layout.recent_search_list_item, new String[] { "Search",
-						"Date" }, new int[] { R.id.recent_search_text,
-						R.id.recent_search_date });
-
-		setListAdapter(adapter);
 
 	}
 
+	@Override
+    public void onListItemClick(ListView l, View v, int position, long id) {
+
+        // store the data into the application object
+		Search s = (Search) v.getTag();
+        SearchBadgerApplication.pushRecentSearch(s);
+        
+        // switch tab to the search tab
+        if (this.getParent() instanceof MainTabActivity) {
+            MainTabActivity tabView = (MainTabActivity) this.getParent();
+            tabView.getTabHost().setCurrentTab(0);
+        }
+    }
+
+	protected class SearchArrayAdapter extends ArrayAdapter<Search> {
+
+		private List<Search> recentSearches;
+		
+		@Override
+		public int getCount() {
+			if (this.recentSearches == null) {
+				return 0;
+			}
+			return super.getCount();
+		}
+		
+		public SearchArrayAdapter(Context context, int textViewResourceId, List<Search> objects) {
+			super(context, textViewResourceId, objects);
+			recentSearches = objects;
+		}
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+        		if (recentSearches == null) {
+        			return null;
+        		}
+                View v = convertView;
+                if (v == null) {
+                    LayoutInflater vi = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                    v = vi.inflate(R.layout.recent_search_list_item, null);
+                }
+                Search s = recentSearches.get(position);
+                if (s != null) {
+                	// save the contact into the tag
+        			v.setTag(s);
+                	
+                	// add the message
+                	TextView message = (TextView) v.findViewById(R.id.recent_search_text);
+                	if(message != null)
+                		message.setText(s.getText());
+                	
+                	// add the date
+                	TextView date = (TextView) v.findViewById(R.id.recent_search_date);
+                	if(date != null)
+                		date.setText("");
+                	
+                }
+                return v;
+        }
+		
+	}
 }

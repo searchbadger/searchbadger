@@ -19,14 +19,16 @@ import android.widget.TextView;
 
 import com.github.searchbadger.R;
 import com.github.searchbadger.core.SearchBadgerApplication;
+import com.github.searchbadger.core.SearchBadgerController;
+import com.github.searchbadger.core.SearchBadgerController.StarredMessageListener;
 import com.github.searchbadger.util.Message;
 import com.github.searchbadger.util.SearchModel;
 
 public class SearchResultListFragment extends ListFragment {
 
 	private boolean mDualPane;
-    private int mCurCheckPosition = 0;
     private SearchModel model = SearchBadgerApplication.getSearchModel();
+    private SearchBadgerController controller = SearchBadgerController.getInstance();
     private SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
     private List<Message> results;
 	
@@ -36,16 +38,41 @@ public class SearchResultListFragment extends ListFragment {
 		super.onCreate(savedInstanceState);
 
 		results = model.getSearchResults();
-		if(results == null) return;
+		//this.setEmptyText("teset");
 		MessageArrayAdapter adapter = new MessageArrayAdapter(getActivity(), R.layout.search_result_list_item, results);
 		setListAdapter(adapter);
-
 	}
+	 
 	
-
     @Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState) {
+		// TODO Auto-generated method stub
+
+		View retVal = super.onCreateView(inflater, container, savedInstanceState);
+    	
+    	return retVal;
+		
+	}
+    
+
+
+	@Override
+	public void onViewCreated(View view, Bundle savedInstanceState) {
+		// TODO Auto-generated method stub
+		super.onViewCreated(view, savedInstanceState);
+		if (model.getSearchResults() == null) {
+			setEmptyText(getString(R.string.search_error));
+		} else {
+			setEmptyText(getString(R.string.no_results));
+		}
+	}
+
+
+	@Override
     public void onListItemClick(ListView l, View v, int position, long id) {
-        showDetails(position);
+		Message message = (Message) v.getTag();
+        showDetails(position, message);
     }
 
     /**
@@ -53,15 +80,13 @@ public class SearchResultListFragment extends ListFragment {
      * displaying a fragment in-place in the current UI, or starting a
      * whole new activity in which it is displayed.
      */
-    private void showDetails(int index) {
+    private void showDetails(int index, Message message) {
     	
 
 		// Check to see if we have a frame in which to embed the details
         // fragment directly in the containing UI.
         View threadFrame = getActivity().findViewById(R.id.thread_view);
         mDualPane = threadFrame != null && threadFrame.getVisibility() == View.VISIBLE;
-
-        mCurCheckPosition = index;
 
         if (mDualPane) {
 
@@ -75,7 +100,7 @@ public class SearchResultListFragment extends ListFragment {
                     getFragmentManager().findFragmentById(R.id.thread_view);
             if (details == null || details.getShownIndex() != index) {
                 // Make new fragment to show this selection.
-                details = ThreadListFragment.newInstance(index);
+                details = ThreadListFragment.newInstance(index, message);
 
                 // Execute a transaction, replacing any existing fragment
                 // with this one inside the frame.
@@ -90,6 +115,7 @@ public class SearchResultListFragment extends ListFragment {
             // the dialog fragment with selected text.
             Intent intent = new Intent();
             intent.setClass(getActivity(), ThreadActivity.class);
+            intent.putExtra("index", index);
             intent.putExtra("message", results.get(index));
             startActivity(intent);
         }
@@ -107,6 +133,9 @@ public class SearchResultListFragment extends ListFragment {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
+        		if (messages == null) {
+        			return null;
+        		}
                 View v = convertView;
                 if (v == null) {
                     LayoutInflater vi = (LayoutInflater)getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -118,7 +147,7 @@ public class SearchResultListFragment extends ListFragment {
         			v.setTag(m);
                 	
                 	// add the message
-                	TextView message = (TextView) v.findViewById(R.id.search_result_text);
+                	TextView message = (TextView) v.findViewById(R.id.messages_text);
                 	if(message != null)
                 		message.setText(m.getAuthor() + ": " + m.getText());
                 	
@@ -142,12 +171,8 @@ public class SearchResultListFragment extends ListFragment {
                 	}
 
         			// set the click listener for the star button
-        			CheckBox starButton = (CheckBox) v.findViewById(R.id.search_result_checkbox);
-        			starButton.setOnClickListener(new View.OnClickListener() {
-        				public void onClick(View v) {
-        					OnStarSelector(v);
-        				}
-        			});
+        			CheckBox starButton = (CheckBox) v.findViewById(R.id.starred_checkbox);
+        			starButton.setOnClickListener(controller.new StarredMessageListener());
         			// check the star if the message is starred
         			if(model.containsStarredMessage(m))
         				starButton.setChecked(true);
@@ -156,28 +181,15 @@ public class SearchResultListFragment extends ListFragment {
                 }
                 return v;
         }
-		
+
+		@Override
+		public int getCount() {
+			if (this.messages == null) {
+				return 0;
+			}
+			return super.getCount();
+		}
 	}
 	
-	protected void OnStarSelector(View v){
-
-		// get the message object
-		if (!(v.getParent() instanceof View))
-			return;
-		View parentView = (View) v.getParent();
-		if (!(parentView.getTag() instanceof Message))
-			return;
-		Message message = (Message) parentView.getTag();
-
-		// add/remove contact
-		if (!(v instanceof CheckBox))
-			return;
-		CheckBox starButton = (CheckBox) v;
-		if (starButton.isChecked())
-			model.addStarredMessage(message);
-		else
-			model.removeStarredMessage(message);
-
-	}
 	
 }

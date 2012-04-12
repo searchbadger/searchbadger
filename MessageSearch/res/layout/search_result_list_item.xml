@@ -6,7 +6,7 @@
     android:baselineAligned="true" >
 
     <CheckBox
-        android:id="@+id/search_result_checkbox"
+        android:id="@+id/starred_checkbox"
         style="?android:attr/starStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -17,7 +17,7 @@
     </CheckBox>
 
     <TextView
-        android:id="@+id/search_result_text"
+        android:id="@+id/messages_text"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"

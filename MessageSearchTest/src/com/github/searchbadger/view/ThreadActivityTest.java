@@ -1,8 +1,7 @@
 package com.github.searchbadger.view;
 
+import android.content.pm.ActivityInfo;
 import android.test.ActivityInstrumentationTestCase2;
-
-import com.github.searchbadger.view.ThreadActivity;
 
 public class ThreadActivityTest extends
 		ActivityInstrumentationTestCase2<ThreadActivity> {
@@ -19,6 +18,11 @@ public class ThreadActivityTest extends
 	}
 
 	public void testPreconditions() {
+		assertNotNull(testActivity);
+	}
+	
+	public void testLandscape() {
+		testActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 		assertNotNull(testActivity);
 	}
 

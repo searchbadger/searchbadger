@@ -4,10 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -24,13 +28,16 @@ import com.github.searchbadger.util.MessageSource;
 
 public class ContactsActivity extends Activity {
 
-	private List<MessageSource> sources;
-	private List<Contact> selectedContacts;
+	protected List<MessageSource> sources;
+	protected List<Contact> selectedContacts;
+	protected List<Contact> contacts;
+	protected ContactsActivity thisActivity;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
         setContentView(R.layout.contacts_layout);
+        thisActivity = this;
         
 
         // set the click event for the done button
@@ -56,13 +63,42 @@ public class ContactsActivity extends Activity {
         if(selectedContacts == null) return;
 		if(sources.size() != 1) return;
 
-        ListView list = (ListView) findViewById(R.id.listView_contact);
-        List<Contact> contacts = SearchBadgerApplication.getSearchModel().getContacts(sources.get(0));
-        if(contacts == null) return;
-		ListAdapter myadapter = new ContactArrayAdapter(this,
-				R.layout.contacts_list_item,
-				contacts);
-        list.setAdapter(myadapter);
+		
+
+		// show progress bar
+		final ProgressDialog dialog = ProgressDialog.show(this, "", 
+                "Please wait...", true);
+		 
+		Thread thread = new Thread(new Runnable() {
+			public void run() {
+
+				// perform search
+		        contacts = SearchBadgerApplication.getSearchModel().getContacts(sources.get(0)); 
+				
+				runOnUiThread(new Runnable() {
+
+					public void run() {
+						try {
+							// hide the progress bar
+							dialog.dismiss();
+					    } catch (Exception e) {
+					    }
+						
+						if(contacts == null) return;
+				        ListView list = (ListView) findViewById(R.id.listView_contact);
+						ListAdapter myadapter = new ContactArrayAdapter(thisActivity,
+								R.layout.contacts_list_item,
+								contacts);
+				        list.setAdapter(myadapter);
+					}
+				});
+				
+			}
+
+		});
+		thread.start();
+
+		
 
 	}
 	
@@ -113,21 +149,20 @@ public class ContactsActivity extends Activity {
 	protected void OnContactSelector(View v){
 
 		// get the contact object
-		if (!(v.getParent() instanceof View))
-			return;
-		View parentView = (View) v.getParent();
-		if (!(parentView.getTag() instanceof Contact))
-			return;
-		Contact contact = (Contact) parentView.getTag();
-
-		// add/remove contact
-		if (!(v instanceof CheckBox))
-			return;
-		CheckBox checkbox = (CheckBox) v;
-		if (checkbox.isChecked())
-			addContact(contact);
-		else
-			removeContact(contact);
+		if (v.getParent() instanceof View) {
+			View parentView = (View) v.getParent();
+			if (parentView.getTag() instanceof Contact) {
+				Contact contact = (Contact) parentView.getTag();
+				// add/remove contact
+				if (v instanceof CheckBox) {
+					CheckBox checkbox = (CheckBox) v;
+					if (checkbox.isChecked())
+						addContact(contact);
+					else
+						removeContact(contact);
+				}
+			}
+		}
 
 	}
 	
@@ -146,4 +181,45 @@ public class ContactsActivity extends Activity {
 		return selectedContacts;
 	}
 
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater inflater = getMenuInflater();
+	    inflater.inflate(R.menu.default_menu, menu);
+	    return true;
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+	    // Handle item selection
+	    switch (item.getItemId()) {
+	    
+	        case R.id.menu_settings:
+	        	ShowSettings();
+	            return true;
+	        case R.id.menu_help:
+	        	ShowHelp();
+	            return true;
+	        case R.id.menu_about:
+	        	ShowAbout();
+	            return true;
+	            
+	        default:
+	            return super.onOptionsItemSelected(item);
+	    }
+	}
+	
+	public void ShowSettings() {
+		Intent intent = new Intent(this, AccountsActivity.class);
+		startActivity(intent);
+	}
+	
+	public void ShowHelp() {
+		Intent intent = new Intent(this, HelpActivity.class);
+		startActivity(intent);
+	}
+	
+	public void ShowAbout() {
+		Intent intent = new Intent(this, AboutActivity.class);
+		startActivity(intent);
+	}
 }

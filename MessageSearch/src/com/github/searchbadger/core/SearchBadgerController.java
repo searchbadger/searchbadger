@@ -8,8 +8,11 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.view.View;
+import android.view.WindowManager;
+import android.widget.CheckBox;
 
 import com.github.searchbadger.util.Contact;
+import com.github.searchbadger.util.Message;
 import com.github.searchbadger.util.MessageSource;
 import com.github.searchbadger.util.Search;
 import com.github.searchbadger.util.SearchModel;
@@ -60,22 +63,24 @@ public class SearchBadgerController {
 			Thread thread = new Thread(new Runnable() {
 				public void run() {
 
-					// perform search
-					model.search(filter);
-					
-					srchGen.runOnUiThread(new Runnable() {
-
-						public void run() {
-							// hide the progress bar
-							if (dialog.isShowing())
+					try {
+						// perform search
+						model.search(filter);
+						
+						srchGen.runOnUiThread(new Runnable() {
+							public void run() {
+								// hide the progress bar
 								dialog.dismiss();
-							
-							// show search results activity
-							Intent resActIntent = new Intent(srchGen, 
-									SearchResultActivity.class);
-							srchGen.startActivity(resActIntent);
-						}
-					});
+								
+								// show search results activity
+								Intent resActIntent = new Intent(srchGen, 
+										SearchResultActivity.class);
+								srchGen.startActivity(resActIntent);
+							}
+						});
+					
+				    } catch (Exception e) {
+				    }
 				}
 
 			});
@@ -87,11 +92,25 @@ public class SearchBadgerController {
 
 	public final class StarredMessageListener implements View.OnClickListener {
 		public void onClick(View v) {
-		}
-	}
 
-	public final class RecentSearchListener implements View.OnClickListener {
-		public void onClick(View v) {
+			// get the message object
+			if (v.getParent() instanceof View) {
+				View parentView = (View) v.getParent();
+				if (parentView.getTag() instanceof Message) {
+					Message message = (Message) parentView.getTag();
+
+					// add/remove contact
+					if (v instanceof CheckBox) {
+						CheckBox starButton = (CheckBox) v;
+						if (starButton.isChecked())
+							model.addStarredMessage(message);
+						else
+							model.removeStarredMessage(message);
+						
+					}
+				}
+			}
+			
 		}
 	}
 
@@ -117,16 +136,20 @@ public class SearchBadgerController {
 	}
 
 
+	/*
 	// This is currently implemented in ThreadListFragment and SearchResultListFragment
 	public class ResultSelected implements View.OnClickListener {
 		public void onClick(View v) {
 
 		}
 	}
-	
-	
 
-		
-		
+	public final class RecentSearchListener implements View.OnClickListener {
+		public void onClick(View v) {
+		}
+	}
+
+	*/
+
 
 }

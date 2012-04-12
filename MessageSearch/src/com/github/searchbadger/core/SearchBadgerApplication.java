@@ -1,10 +1,14 @@
 package com.github.searchbadger.core;
 
+import java.util.LinkedList;
+import java.util.Queue;
+
 import android.app.Application;
 import android.content.Context;
 import android.util.Log;
 
 import com.github.searchbadger.util.FacebookHelper;
+import com.github.searchbadger.util.Search;
 import com.github.searchbadger.util.SearchModel;
 import com.github.searchbadger.util.TwitterHelper;
 
@@ -14,6 +18,7 @@ public class SearchBadgerApplication extends Application{
     private static SearchModel searchModel;
     private static FacebookHelper facebookHelper;
     private static TwitterHelper twitterHelper;
+    private static Search recentSearchToLoad;  
 
     @Override
 	public void onCreate(){
@@ -60,5 +65,19 @@ public class SearchBadgerApplication extends Application{
     
     public static TwitterHelper getTwitterHelper() {
     	return twitterHelper;
+	}
+    
+    public static void setFacebookHelper(FacebookHelper helper) {
+    	facebookHelper = helper;
+    }
+    
+    public static void pushRecentSearch(Search search) {
+    	recentSearchToLoad = search;
+    }
+    
+    public static Search popRecentSearch() {
+    	Search search = recentSearchToLoad;
+    	recentSearchToLoad = null;
+    	return search;
     }
 }

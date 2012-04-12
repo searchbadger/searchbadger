@@ -7,7 +7,7 @@
 
     <ScrollView
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
+        android:layout_height="0dip"
         android:layout_weight="1" >
 
         <LinearLayout
@@ -356,32 +356,25 @@
                     android:text="@string/empty" />
             </LinearLayout>
 
-            <LinearLayout
-                android:id="@+id/linearFilterSentReceivedOptions"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:paddingLeft="10dp" >
+            <RadioGroup
+                android:id="@+id/radioGroupSentReceived"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
 
-                <RadioGroup
-                    android:id="@+id/radioGroupSentReceived"
+                <RadioButton
+                    android:id="@+id/radioSent"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" >
+                	android:layout_height="44dp"
+                    android:text="@string/sent"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
 
-                    <RadioButton
-                        android:id="@+id/radioSent"
-                        android:layout_width="wrap_content"
-                    	android:layout_height="44dp"
-                        android:text="@string/sent"
-                        android:textAppearance="?android:attr/textAppearanceMedium" />
-
-                    <RadioButton
-                        android:id="@+id/radioReceived"
-                        android:layout_width="wrap_content"
-                    	android:layout_height="44dp"
-                        android:text="@string/received"
-                        android:textAppearance="?android:attr/textAppearanceMedium" />
-                </RadioGroup>
-            </LinearLayout>
+                <RadioButton
+                    android:id="@+id/radioReceived"
+                    android:layout_width="wrap_content"
+                	android:layout_height="44dp"
+                    android:text="@string/received"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+            </RadioGroup>
         </LinearLayout>
     </ScrollView>
 

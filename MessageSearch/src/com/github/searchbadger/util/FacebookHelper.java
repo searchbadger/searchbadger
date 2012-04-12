@@ -31,11 +31,11 @@ public class FacebookHelper {
         void DisplayError(String title, String message);
     }
     
-    private static final String FACEBOOK_APP_ID = "336829723032066"; // this is our facebook app id
+    protected static final String FACEBOOK_APP_ID = "336829723032066"; // this is our facebook app id
     public Facebook facebook = new Facebook(FACEBOOK_APP_ID);
     private String[] permissions = { "read_mailbox" };
-    private static Hashtable<String, String> currentPermissions = new Hashtable<String, String>();
-    private boolean isReady = false;
+    protected Hashtable<String, String> currentPermissions = new Hashtable<String, String>();
+    protected boolean isReady = false;
     private Context context;
     private SearchBadgerPreferences prefs = SearchBadgerPreferences.getInstance();
     public AsyncFacebookRunner asyncRunner = new AsyncFacebookRunner(facebook);
@@ -67,7 +67,6 @@ public class FacebookHelper {
             prefs.saveFacebookToken(null);
             prefs.saveFacebookExpires(0);
             
-            AsyncFacebookRunner asyncRunner = new AsyncFacebookRunner(facebook);
             asyncRunner.logout(context, new LogoutRequestListener());
         }
     }
@@ -91,7 +90,7 @@ public class FacebookHelper {
 		this.updateActivityListener = updateActivityListener;
 	}
 	
-	private void requestPermissions() {
+	protected void requestPermissions() {
 				
         Bundle params = new Bundle();
         params.putString("access_token", facebook.getAccessToken());
@@ -112,9 +111,9 @@ public class FacebookHelper {
 	    public void onMalformedURLException(MalformedURLException e, final Object state) {	    }
 	}
 
-    private final class LoginDialogListener extends BaseDialogListener {
-        @Override
-		public void onComplete(Bundle values) {
+
+	protected class LoginDialogListener extends BaseDialogListener {
+        public void onComplete(Bundle values) {
         	// save the token and expire time
             prefs.saveFacebookToken(facebook.getAccessToken());
             prefs.saveFacebookExpires(facebook.getAccessExpires());
@@ -147,7 +146,7 @@ public class FacebookHelper {
         }
     }
 
-	private class LogoutRequestListener extends BaseRequestListener {
+    protected class LogoutRequestListener extends BaseRequestListener {
 		public void onComplete(String response, Object state) {
 			
             // update the activity if necessary
@@ -166,7 +165,7 @@ public class FacebookHelper {
         }
 	}
 
-	private class PermissionsRequestListener extends BaseRequestListener {
+    protected class PermissionsRequestListener extends BaseRequestListener {
 
         public void onComplete(final String response, final Object state) {
             // parse the permission list
@@ -197,7 +196,7 @@ public class FacebookHelper {
         }
 	}
 	
-	private boolean containsPermissions()
+    protected boolean containsPermissions()
 	{
 		// check if we have all the permissions
 		boolean allFound = true;
