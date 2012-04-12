@@ -58,6 +58,10 @@ public class SearchBadgerApplication extends Application{
     	return facebookHelper;
     }
     
+    public static void setFacebookHelper(FacebookHelper helper) {
+    	facebookHelper = helper;
+    }
+    
     public static void pushRecentSearch(Search search) {
     	recentSearchToLoad = search;
     }

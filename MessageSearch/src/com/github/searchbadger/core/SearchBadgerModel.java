@@ -336,7 +336,7 @@ public class SearchBadgerModel implements SearchModel {
         String thread_id, message_id, author_id, created_time, body;
         JSONArray jsonArray;
         boolean requiresRegexFilter = filter.containsRegEx();
-        Pattern p = Pattern.compile(filter.getJavaRegexText());
+        Pattern p = Pattern.compile(filter.getJavaRegexText(), Pattern.CASE_INSENSITIVE);
 		List<Contact> facebookContacts = getFacebookContacts();
         try {
 			jsonArray = new JSONArray(response);
