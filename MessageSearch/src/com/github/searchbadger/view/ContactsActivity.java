@@ -83,7 +83,7 @@ public class ContactsActivity extends Activity {
 					    } catch (Exception e) {
 					    }
 						
-
+						if(contacts == null) return;
 				        ListView list = (ListView) findViewById(R.id.listView_contact);
 						ListAdapter myadapter = new ContactArrayAdapter(thisActivity,
 								R.layout.contacts_list_item,

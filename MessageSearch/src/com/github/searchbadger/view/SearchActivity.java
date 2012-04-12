@@ -417,7 +417,7 @@ public class SearchActivity extends Activity implements SearchGenerator {
 		searchInputText.setSelection(start + 1);
 	}
 
-	protected void updateSourceSelectionContact() {
+	public void updateSourceSelectionContact() {
 
 		// this will enable/disable the select contact button depending on the sources selected
 		List<MessageSource> sources = getMessageSources();

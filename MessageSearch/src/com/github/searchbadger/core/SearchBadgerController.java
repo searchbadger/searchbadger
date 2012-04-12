@@ -114,11 +114,6 @@ public class SearchBadgerController {
 		}
 	}
 
-	public final class RecentSearchListener implements View.OnClickListener {
-		public void onClick(View v) {
-		}
-	}
-
 	public final class ContactButtonListener implements View.OnClickListener {
 		private SearchActivity srchGen;
 		public ContactButtonListener(SearchActivity gen) {
@@ -141,16 +136,20 @@ public class SearchBadgerController {
 	}
 
 
+	/*
 	// This is currently implemented in ThreadListFragment and SearchResultListFragment
 	public class ResultSelected implements View.OnClickListener {
 		public void onClick(View v) {
 
 		}
 	}
-	
-	
 
-		
-		
+	public final class RecentSearchListener implements View.OnClickListener {
+		public void onClick(View v) {
+		}
+	}
+
+	*/
+
 
 }

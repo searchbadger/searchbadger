@@ -28,10 +28,6 @@ public class SearchBadgerPreferences {
         this.editor = sharedPrefs.edit();
     }
 
-    public SharedPreferences getSharedPrefs() {
-        return sharedPrefs; 
-    }
-
     public void saveFacebookToken(String token) {
         editor.putString(FACEBOOK_TOKEN, token);
         editor.commit();
