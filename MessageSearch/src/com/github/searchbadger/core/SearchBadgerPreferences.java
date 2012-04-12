@@ -1,6 +1,5 @@
 package com.github.searchbadger.core;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -12,6 +11,8 @@ public class SearchBadgerPreferences {
     private static final String SEARCH_RESULT_MAX = "search_result_max";
     private static final String NUM_MESSAGE_PER_THREAD = "num_message_per_thread";
     
+    private static final String TWITTER_TOKEN = "twitter_token";
+    private static final String TWITTER_SECRET = "twitter_secret";
 	
     private SharedPreferences sharedPrefs;
     private Editor editor;
@@ -24,7 +25,7 @@ public class SearchBadgerPreferences {
     private SearchBadgerPreferences()
     {
     	Context context = SearchBadgerApplication.getAppContext();
-        this.sharedPrefs = context.getSharedPreferences(APP_SHARED_PREFS, Activity.MODE_PRIVATE);
+        this.sharedPrefs = context.getSharedPreferences(APP_SHARED_PREFS, Context.MODE_PRIVATE);
         this.editor = sharedPrefs.edit();
     }
 
@@ -48,6 +49,34 @@ public class SearchBadgerPreferences {
     
     public long getFacebookExpires() {
     	return sharedPrefs.getLong(FACEBOOK_EXPIRES, 0);
+    }
+    
+    public void saveTwitterToken(String token){
+    	editor.putString(TWITTER_TOKEN, token);
+    	editor.commit();
+    }
+    
+    public void saveTwitterSecret(String secret){
+    	editor.putString(TWITTER_SECRET, secret);
+    	editor.commit();
+    }
+    
+    public String getTwitterToken(){
+    	return sharedPrefs.getString(TWITTER_TOKEN, null);
+    }
+    
+    public String getTwitterSecret(){
+    	return sharedPrefs.getString(TWITTER_SECRET, null);
+    }
+    
+    public void removeTwitterToken(){
+    	editor.remove(TWITTER_TOKEN);
+    	editor.commit();
+    }
+    
+    public void removeTwitterSecret(){
+    	editor.remove(TWITTER_SECRET);
+    	editor.commit();
     }
 
     public void saveSearchResultMax(long max) {

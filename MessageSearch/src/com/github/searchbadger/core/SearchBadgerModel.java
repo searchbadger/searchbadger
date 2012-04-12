@@ -24,6 +24,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.BaseColumns;
 import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.provider.ContactsContract.Contacts;
 import android.util.Log;
@@ -710,7 +711,7 @@ public class SearchBadgerModel implements SearchModel {
 					do {
 //Contacts.openContactPhotoInputStream(SearchBadgerApplication.getAppContext().getContentResolver(), contactUri)
 						// get the id and name
-						String contactId = cursor.getString(cursor.getColumnIndex(Contacts._ID));
+						String contactId = cursor.getString(cursor.getColumnIndex(BaseColumns._ID));
 						String contactName = cursor.getString(cursor.getColumnIndex(Contacts.DISPLAY_NAME));
 						
 						// get all the number for the contact
@@ -827,7 +828,7 @@ public class SearchBadgerModel implements SearchModel {
 		@Override
 		public void onCreate(SQLiteDatabase db) {
 			ContentValues values = new ContentValues();
-			db.execSQL(this.STARRED_MESSAGE_CREATE);	
+			db.execSQL(SearchBadgerOpenHandler.STARRED_MESSAGE_CREATE);	
 			db.setVersion(2);
 		}
 

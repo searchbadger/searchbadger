@@ -1,7 +1,9 @@
 package com.github.searchbadger.view;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.EditTextPreference;
@@ -9,22 +11,26 @@ import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
+import android.util.Log;
 
 import com.facebook.android.Util;
 import com.github.searchbadger.R;
 import com.github.searchbadger.core.SearchBadgerApplication;
 import com.github.searchbadger.core.SearchBadgerPreferences;
 import com.github.searchbadger.util.FacebookHelper;
+import com.github.searchbadger.util.TwitterHelper;
 
 public class AccountsActivity extends PreferenceActivity {
 	
 	
 	private FacebookHelper facebookHelper = SearchBadgerApplication.getFacebookHelper();
+	private TwitterHelper twitterHelper = SearchBadgerApplication.getTwitterHelper();
     private SearchBadgerPreferences prefs = SearchBadgerPreferences.getInstance();
     
     final static int AUTHORIZE_FACEBOOK_DIALOG = 0;
     
     private Preference facebookConnect;
+    private Preference twitterConnect;
     private Handler handler;
     private EditTextPreference maxResult;
     private EditTextPreference numMessageThread;
@@ -37,12 +43,21 @@ public class AccountsActivity extends PreferenceActivity {
 		handler = new Handler();
 		
 		// setup the facebook preference
-		facebookConnect = (Preference) findPreference("facebookConnect");
+		facebookConnect = findPreference("facebookConnect");
 		FacebookUpdateListner facebookUpdateListner = new FacebookUpdateListner();
 		facebookHelper.setUpdateActivityListener(facebookUpdateListner);
 		FacebookClickListener facebookClickListener = new FacebookClickListener(this);
 		facebookConnect.setOnPreferenceClickListener(facebookClickListener);
 		updateFacebookButton();
+		
+		// setup the twitter preference
+		twitterConnect = findPreference("twitterConnect");
+		//TwitterUpdateListener twitterUpdateListener = new TwitterUpdateListener();
+		//twitterHelper.setUpdateActivityListener(facebookUpdateListner);
+		TwitterClickListener twitterClickListener = new TwitterClickListener(this);
+		twitterConnect.setOnPreferenceClickListener(twitterClickListener);
+		updateTwitterButton();
+		
 		
 		// setup the search max result preference
 		maxResult = (EditTextPreference) findPreference("prefMaxResults");
@@ -69,7 +84,8 @@ public class AccountsActivity extends PreferenceActivity {
 	}
 	
 
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    @Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
   
             case AUTHORIZE_FACEBOOK_DIALOG: {
@@ -88,6 +104,17 @@ public class AccountsActivity extends PreferenceActivity {
     		facebookConnect.setSummary("Connect to Facebook");
     	}
     	
+    }
+    
+    public void updateTwitterButton(){
+    	if (twitterHelper.isSessionValid()){
+    		twitterConnect.setTitle("Log Out");
+    		twitterConnect.setSummary("Disconnect from Twitter");
+    	}
+    	else{
+    		twitterConnect.setTitle("Log In");
+    		twitterConnect.setSummary("Connect to Twitter");
+    	}
     }
     
     public void updateMaxResult() {
@@ -118,6 +145,29 @@ public class AccountsActivity extends PreferenceActivity {
     	
     }
     
+    private class TwitterClickListener implements OnPreferenceClickListener{
+    	
+    	Activity activity;
+    	
+    	public TwitterClickListener(Activity activity){
+    		this.activity = activity;
+    	}
+
+		public boolean onPreferenceClick(Preference preference) {
+			if (twitterHelper.isSessionValid()){
+				twitterHelper.logout(activity);
+			}
+			else{
+				twitterHelper.login(activity);
+			}
+			
+			updateTwitterButton();
+			
+			return false;
+		}
+    	
+    }
+    
     private class FacebookUpdateListner implements FacebookHelper.UpdateActivityListener {
 
 		public void Update() {
@@ -139,8 +189,40 @@ public class AccountsActivity extends PreferenceActivity {
 		}
     	
     }
- 
+    
     private Context getActvityContext() {
     	return this;
+    }
+    
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+
+        Uri uri = intent.getData();
+        
+        //Check if you got NewIntent event due to Twitter callback only
+
+        if (uri != null && uri.toString().startsWith(TwitterHelper.OAUTH_CALLBACK_URL)) {
+            String veriﬁer = uri.getQueryParameter(oauth.signpost.OAuth.OAUTH_VERIFIER);
+
+            try {
+                // this will populate token and token_secret in consumer
+
+                twitterHelper.httpOauthprovider.retrieveAccessToken(twitterHelper.httpOauthConsumer, veriﬁer);
+                String userKey = twitterHelper.httpOauthConsumer.getToken();
+                String userSecret = twitterHelper.httpOauthConsumer.getTokenSecret();
+
+                // Save user_key and user_secret in user preferences
+                
+                prefs.saveTwitterToken(userKey);
+                prefs.saveTwitterSecret(userSecret);
+
+            } catch(Exception e){
+            	Log.d("TWITTER_OAUTH", "Error in processing callback.");
+            }
+        } else {
+            // Do nothing if the callback comes from elsewhere
+        }
+
     }
 }

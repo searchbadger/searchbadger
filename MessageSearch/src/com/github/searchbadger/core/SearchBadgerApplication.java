@@ -6,14 +6,17 @@ import android.util.Log;
 
 import com.github.searchbadger.util.FacebookHelper;
 import com.github.searchbadger.util.SearchModel;
+import com.github.searchbadger.util.TwitterHelper;
 
 public class SearchBadgerApplication extends Application{
 
     private static Context context;
     private static SearchModel searchModel;
     private static FacebookHelper facebookHelper;
+    private static TwitterHelper twitterHelper;
 
-    public void onCreate(){
+    @Override
+	public void onCreate(){
         super.onCreate();
         SearchBadgerApplication.context = getApplicationContext();
         if (this.getApplicationContext() == null) {
@@ -24,9 +27,11 @@ public class SearchBadgerApplication extends Application{
         }
         searchModel = new SearchBadgerModel();
         facebookHelper = new FacebookHelper();
+        twitterHelper = new TwitterHelper();
     }
     
-    protected void attachBaseContext(Context base) {
+    @Override
+	protected void attachBaseContext(Context base) {
     	super.attachBaseContext(base);
     	SearchBadgerApplication.context = this.getApplicationContext();
     	if (this.getApplicationContext() == null) {
@@ -51,5 +56,9 @@ public class SearchBadgerApplication extends Application{
     
     public static FacebookHelper getFacebookHelper() {
     	return facebookHelper;
+    }
+    
+    public static TwitterHelper getTwitterHelper() {
+    	return twitterHelper;
     }
 }

@@ -38,11 +38,13 @@ public class ContactSMS extends Contact implements Parcelable {
 		return str.toString();
 	}
 
+	@Override
 	public int describeContents() {
 		Log.d("Contact","describeContents()");
 		return 0;
 	}
 
+	@Override
 	public void writeToParcel(Parcel dest, int flags) {
 		dest.writeString(id);
 		dest.writeString(source.name());

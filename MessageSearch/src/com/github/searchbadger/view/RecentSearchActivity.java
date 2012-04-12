@@ -8,6 +8,7 @@ import java.util.Map;
 import android.app.ListActivity;
 import android.os.Bundle;
 import android.widget.SimpleAdapter;
+
 import com.github.searchbadger.R;
 
 public class RecentSearchActivity extends ListActivity {

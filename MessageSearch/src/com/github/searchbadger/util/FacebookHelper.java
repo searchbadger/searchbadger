@@ -113,7 +113,8 @@ public class FacebookHelper {
 	}
 
     private final class LoginDialogListener extends BaseDialogListener {
-        public void onComplete(Bundle values) {
+        @Override
+		public void onComplete(Bundle values) {
         	// save the token and expire time
             prefs.saveFacebookToken(facebook.getAccessToken());
             prefs.saveFacebookExpires(facebook.getAccessExpires());
@@ -127,7 +128,8 @@ public class FacebookHelper {
             }
         }
 
-        public void onFacebookError(FacebookError error) {
+        @Override
+		public void onFacebookError(FacebookError error) {
             // update the activity if necessary
             if(updateActivityListener != null) {
             	updateActivityListener.Update();
@@ -135,7 +137,8 @@ public class FacebookHelper {
             }
         }
         
-        public void onError(DialogError error) {
+        @Override
+		public void onError(DialogError error) {
             // update the activity if necessary
             if(updateActivityListener != null) {
             	updateActivityListener.Update();
@@ -153,7 +156,8 @@ public class FacebookHelper {
             }
 		}
 
-        public void onFacebookError(FacebookError error, final Object state) {
+        @Override
+		public void onFacebookError(FacebookError error, final Object state) {
             // update the activity if necessary
             if(updateActivityListener != null) {
             	updateActivityListener.Update();
