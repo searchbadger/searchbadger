@@ -39,14 +39,38 @@ public class SearchResultListFragment extends ListFragment {
 		super.onCreate(savedInstanceState);
 
 		results = model.getSearchResults();
-		if(results == null) return;
+		//this.setEmptyText("teset");
 		MessageArrayAdapter adapter = new MessageArrayAdapter(getActivity(), R.layout.search_result_list_item, results);
 		setListAdapter(adapter);
-
 	}
+	 
 	
-
     @Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState) {
+		// TODO Auto-generated method stub
+
+		View retVal = super.onCreateView(inflater, container, savedInstanceState);
+    	
+    	return retVal;
+		
+	}
+    
+
+
+	@Override
+	public void onViewCreated(View view, Bundle savedInstanceState) {
+		// TODO Auto-generated method stub
+		super.onViewCreated(view, savedInstanceState);
+		if (model.getSearchResults() == null) {
+			setEmptyText(getString(R.string.search_error));
+		} else {
+			setEmptyText(getString(R.string.no_results));
+		}
+	}
+
+
+	@Override
     public void onListItemClick(ListView l, View v, int position, long id) {
 		Message message = (Message) v.getTag();
         showDetails(position, message);
@@ -110,6 +134,9 @@ public class SearchResultListFragment extends ListFragment {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
+        		if (messages == null) {
+        			return null;
+        		}
                 View v = convertView;
                 if (v == null) {
                     LayoutInflater vi = (LayoutInflater)getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -155,7 +182,14 @@ public class SearchResultListFragment extends ListFragment {
                 }
                 return v;
         }
-		
+
+		@Override
+		public int getCount() {
+			if (this.messages == null) {
+				return 0;
+			}
+			return super.getCount();
+		}
 	}
 	
 	

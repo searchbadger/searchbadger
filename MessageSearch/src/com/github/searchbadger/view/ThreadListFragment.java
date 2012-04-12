@@ -65,6 +65,7 @@ public class ThreadListFragment extends ListFragment {
 								try {
 									MessageArrayAdapter adapter = new MessageArrayAdapter(getActivity(), R.layout.search_result_list_item, thread_msg);
 									setListAdapter(adapter);
+									setEmptyText(getString(R.string.thread_error));
 								} catch(Exception e) {
 								}
 							}
@@ -77,7 +78,6 @@ public class ThreadListFragment extends ListFragment {
 
 		});
 		thread.start();
-
 	}
 
 
@@ -117,7 +117,22 @@ public class ThreadListFragment extends ListFragment {
                 }
                 return v;
         }
-		
+
+		@Override
+		public int getCount() {
+			if (this.messages == null) {
+				return 0;
+			}
+			return super.getCount();
+		}	
 	}
+	
+	@Override
+	public void onViewCreated(View view, Bundle savedInstanceState) {
+		// TODO Auto-generated method stub
+		super.onViewCreated(view, savedInstanceState);
+		setEmptyText(getString(R.string.thread_error));
+	}
+
 	
 }

@@ -54,7 +54,6 @@ public class SearchActivity extends Activity implements SearchGenerator {
 
 	protected LinearLayout layoutFilterDate;
 	protected LinearLayout layoutFilterContacts;
-	protected LinearLayout layoutFilterSentReceived;
 	protected LinearLayout layoutButtonSymbols;
 	protected CheckBox checkBoxFilterDate;
 	protected CheckBox checkBoxFilterContacts;
@@ -111,7 +110,6 @@ public class SearchActivity extends Activity implements SearchGenerator {
 
 		layoutFilterDate = (LinearLayout) findViewById(R.id.linearFilterDateOptions);
 		layoutFilterContacts = (LinearLayout) findViewById(R.id.linearFilterContactsOptions);
-		layoutFilterSentReceived = (LinearLayout) findViewById(R.id.linearFilterSentReceivedOptions);
 		layoutButtonSymbols = (LinearLayout) findViewById(R.id.linearLayoutButtonSymbols);
 		checkBoxFilterDate = (CheckBox) findViewById(R.id.checkBoxFilterDate);
 		checkBoxFilterContacts = (CheckBox) findViewById(R.id.checkBoxFilterContacts);
@@ -356,9 +354,9 @@ public class SearchActivity extends Activity implements SearchGenerator {
 
 	protected void toggleFilterSentReceived() {
 		if (checkBoxFilterSentReceived.isChecked())
-			layoutFilterSentReceived.setVisibility(View.VISIBLE);
+			sendReceiveRadioGroup.setVisibility(View.VISIBLE);
 		else
-			layoutFilterSentReceived.setVisibility(View.GONE);
+			sendReceiveRadioGroup.setVisibility(View.GONE);
 	}
 
 	protected void toggleFilterContacts() {

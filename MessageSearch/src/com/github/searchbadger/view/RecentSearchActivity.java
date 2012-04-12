@@ -38,13 +38,9 @@ public class RecentSearchActivity extends ListActivity {
 	
     @Override
 	public void onResume() {
-		super.onResume();	
-		
+		super.onResume();
+		this.setListAdapter(null);
 
-		// show progress bar
-		final ProgressDialog dialog = ProgressDialog.show(this, "", 
-                "Please wait...", true);
-		 
 		Thread thread = new Thread(new Runnable() {
 			public void run() {
 
@@ -52,7 +48,7 @@ public class RecentSearchActivity extends ListActivity {
 				List<Search> searches = model.getRecentSearches();
 				if(searches != null) {
 				
-					// make a copy of the starred message in case the list is changed 
+					// make a copy of the recent searches in case the list is changed 
 					recentSearches = new ArrayList<Search>(searches.size());
 				    for(Search item: searches) {
 				    	recentSearches.add(new Search(item));
@@ -62,15 +58,14 @@ public class RecentSearchActivity extends ListActivity {
 				runOnUiThread(new Runnable() {
 
 					public void run() {
-						try {
-							// hide the progress bar
-							dialog.dismiss();
-					    } catch (Exception e) {
-					    }
-						
-						if(recentSearches == null) return;
 						SearchArrayAdapter adapter = new SearchArrayAdapter(thisActivity, R.layout.recent_search_list_item, recentSearches);
-						setListAdapter(adapter);
+						setListAdapter(adapter);/*
+						if (recentSearches == null) {
+							setEmptyText(getString(R.string.recent_error));
+						} else {
+							setEmptyText(getString(R.string.starred_error));
+						}*/
+						
 					}
 				});
 				
@@ -100,6 +95,14 @@ public class RecentSearchActivity extends ListActivity {
 
 		private List<Search> recentSearches;
 		
+		@Override
+		public int getCount() {
+			if (this.recentSearches == null) {
+				return 0;
+			}
+			return super.getCount();
+		}
+		
 		public SearchArrayAdapter(Context context, int textViewResourceId, List<Search> objects) {
 			super(context, textViewResourceId, objects);
 			recentSearches = objects;
@@ -107,6 +110,9 @@ public class RecentSearchActivity extends ListActivity {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
+        		if (recentSearches == null) {
+        			return null;
+        		}
                 View v = convertView;
                 if (v == null) {
                     LayoutInflater vi = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);

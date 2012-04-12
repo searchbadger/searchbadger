@@ -6,6 +6,9 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TabHost;
@@ -54,14 +57,14 @@ public class MainTabActivity extends TabActivity {
 	        //tabHost.getTabWidget().getChildTabViewAt(2).setEnabled(false);
 	        
 	        // holo seems to hide the icons on the tab so force them to show
-	        if (Build.VERSION.SDK_INT >= 11 /*HONEYCOMB*/) {
+	        if (Build.VERSION.SDK_INT >= 11 /*HONEYCOMB*/ ) {
 	        	View tab;
 	        	ImageView image;
 	        	TextView text;
 
 	        	tab = tabHost.getTabWidget().getChildTabViewAt(0);
 	        	image = (ImageView) tab.findViewById(android.R.id.icon);
-		        if(image.getVisibility() == View.GONE) {
+		        if(image != null && image.getVisibility() == View.GONE) {
 		        	image.setImageDrawable(res.getDrawable(R.drawable.tabicon_search));
 		        	image.setVisibility(View.VISIBLE);
 		        }
@@ -70,7 +73,7 @@ public class MainTabActivity extends TabActivity {
 
 		        tab = tabHost.getTabWidget().getChildTabViewAt(1);
 		        image = (ImageView) tab.findViewById(android.R.id.icon);
-		        if(image.getVisibility() == View.GONE) {
+		        if(image != null && image.getVisibility() == View.GONE) {
 		        	image.setImageDrawable(res.getDrawable(R.drawable.tabicon_recent));
 		        	image.setVisibility(View.VISIBLE);
 		        }
@@ -79,7 +82,7 @@ public class MainTabActivity extends TabActivity {
 
 		        tab = tabHost.getTabWidget().getChildTabViewAt(2);
 		        image = (ImageView) tab.findViewById(android.R.id.icon);
-		        if(image.getVisibility() == View.GONE) {
+		        if(image != null && image.getVisibility() == View.GONE) {
 		        	image.setImageDrawable(res.getDrawable(R.drawable.tabicon_star));
 		        	image.setVisibility(View.VISIBLE);
 		        }
@@ -87,4 +90,45 @@ public class MainTabActivity extends TabActivity {
 		        text.setSingleLine();
 	        }
 	    }
+		@Override
+		public boolean onCreateOptionsMenu(Menu menu) {
+			MenuInflater inflater = getMenuInflater();
+		    inflater.inflate(R.menu.default_menu, menu);
+		    return true;
+		}
+		
+		@Override
+		public boolean onOptionsItemSelected(MenuItem item) {
+		    // Handle item selection
+		    switch (item.getItemId()) {
+		    
+		        case R.id.menu_settings:
+		        	ShowSettings();
+		            return true;
+		        case R.id.menu_help:
+		        	ShowHelp();
+		            return true;
+		        case R.id.menu_about:
+		        	ShowAbout();
+		            return true;
+		            
+		        default:
+		            return super.onOptionsItemSelected(item);
+		    }
+		}
+		
+		public void ShowSettings() {
+			Intent intent = new Intent(this, AccountsActivity.class);
+			startActivity(intent);
+		}
+		
+		public void ShowHelp() {
+			Intent intent = new Intent(this, HelpActivity.class);
+			startActivity(intent);
+		}
+		
+		public void ShowAbout() {
+			Intent intent = new Intent(this, AboutActivity.class);
+			startActivity(intent);
+		}
 }
