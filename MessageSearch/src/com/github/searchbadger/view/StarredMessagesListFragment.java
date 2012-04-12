@@ -44,15 +44,19 @@ public class StarredMessagesListFragment extends ListFragment {
 		super.onResume();
 		
 		List<Message> messages = model.getStarredMessages();
-		if(messages == null) return;
-		
-		// make a copy of the starred message in case the list is changed 
-		results = new ArrayList<Message>(messages.size());
-	    for(Message item: messages) {
-	    	results.add(new Message(item));
-	    }
+		results = null;
+		if (messages != null) {
+			// make a copy of the starred message in case the list is changed 
+			results = new ArrayList<Message>(messages.size());
+			results.addAll(messages);
+		}
 		MessageArrayAdapter adapter = new MessageArrayAdapter(getActivity(), R.layout.starred_messages_list_item, results);
 		setListAdapter(adapter);
+		if (results == null) {
+			setEmptyText(getString(R.string.starred_error));
+		} else {
+			setEmptyText(getString(R.string.no_starred_messages));
+		}
 	}
 
 
@@ -62,6 +66,15 @@ public class StarredMessagesListFragment extends ListFragment {
 		Message message = (Message) v.getTag();
         showDetails(position, message);
     }
+	
+	@Override
+	public void onViewCreated(View view, Bundle savedInstanceState) {
+		if (results == null) {
+			setEmptyText(getString(R.string.starred_error));
+		} else {
+			setEmptyText(getString(R.string.no_starred_messages));
+		}
+	}
 
     /**
      * Helper function to show the details of a selected item, either by
@@ -117,9 +130,12 @@ public class StarredMessagesListFragment extends ListFragment {
 			super(context, textViewResourceId, objects);
 			messages = objects;
 		}
-
+		
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
+        		if (messages == null) {
+        			return null;
+        		}
                 View v = convertView;
                 if (v == null) {
                     LayoutInflater vi = (LayoutInflater)getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -166,7 +182,14 @@ public class StarredMessagesListFragment extends ListFragment {
                 }
                 return v;
         }
-		
+
+		@Override
+		public int getCount() {
+			if (this.messages == null) {
+				return 0;
+			}
+			return super.getCount();
+		}
 	}
 	
 }
