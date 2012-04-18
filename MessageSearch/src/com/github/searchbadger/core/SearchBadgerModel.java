@@ -15,8 +15,29 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import oauth.signpost.OAuthConsumer;
+import oauth.signpost.basic.DefaultOAuthConsumer;
+import oauth.signpost.exception.OAuthCommunicationException;
+import oauth.signpost.exception.OAuthExpectationFailedException;
+import oauth.signpost.exception.OAuthMessageSignerException;
+
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.BasicResponseHandler;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpParams;
+import org.apache.http.params.HttpProtocolParams;
 import org.json.JSONArray;
 import org.json.JSONException;
+
+import twitter4j.DirectMessage;
+import twitter4j.Paging;
+import twitter4j.ResponseList;
+import twitter4j.Twitter;
+import twitter4j.TwitterException;
+import twitter4j.auth.AccessToken;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -38,6 +59,7 @@ import com.github.searchbadger.util.MessageSource;
 import com.github.searchbadger.util.Search;
 import com.github.searchbadger.util.SearchModel;
 import com.github.searchbadger.util.SendReceiveType;
+import com.github.searchbadger.util.TwitterHelper;
 
 public class SearchBadgerModel implements SearchModel {
 	private Search _currentSearch;
@@ -56,10 +78,16 @@ public class SearchBadgerModel implements SearchModel {
 	private final static String RECENT_SEARCH_CONTACTS_TABLE = "RecentSearchContacts";
 	private final static String RECENT_SEARCH_SOURCES_COLS[] = {"id", "RecentSearch_ID", "Src_Name"};
 	private final static String RECENT_SEARCH_SOURCES_TABLE = "RecentSearchSources";
+	
+	private final static String TWITTER_MSGS_COLS[] = {"Msg_Id", "Msg_Text", "Date", "Thread_Id", "Sender_Name"};
+	private final static String TWITTER_MSGS_TABLE = "TwitterMessages";
 
 	protected List<Search> recentSearches = null;
 	protected List<Message> starredMsgs = null;
 	protected SearchBadgerOpenHandler dbOH = new SearchBadgerOpenHandler(SearchBadgerApplication.getAppContext());
+	protected SearchBadgerInMemoryOpenHandler inMemDbOH = new SearchBadgerInMemoryOpenHandler(SearchBadgerApplication.getAppContext());
+	
+	private TwitterHelper twitterHelper = SearchBadgerApplication.getTwitterHelper();
 	
 	public void search(Search filter) {
 		this._currentSearch = filter;
@@ -100,8 +128,6 @@ public class SearchBadgerModel implements SearchModel {
 		List<String> selectionArgList = new LinkedList<String>();
 		String selection = "";
 		String arg = "";
-		
-		
 				
 		// Go through each possible search type, and build SQL query
 		if (filter.getText() != null && filter.getText().length() != 0) {
@@ -376,6 +402,161 @@ public class SearchBadgerModel implements SearchModel {
 	}
 
 	public void searchTwitter(Search filter) {
+		TwitterHelper helper = SearchBadgerApplication.getTwitterHelper();
+		Twitter tt = helper.twitter;
+		
+		//System.out.println("Created Twitter Instance");
+		
+		//System.out.println("Access Token: "+helper.getAccessToken());
+		//System.out.println("Access Secret: "+helper.getAccessSecret());
+		
+		tt.setOAuthConsumer(helper.CONSUMER_KEY, helper.CONSUMER_SECRET);
+		//System.out.println("Set Consumer Tokens");
+		AccessToken at = new AccessToken(helper.getAccessToken(), helper.getAccessSecret());
+		//System.out.println("created token");
+		tt.setOAuthAccessToken(at);
+		//System.out.println("Set Token");
+		
+		Paging page = new Paging(1,200);
+		ResponseList<DirectMessage> allMessages = null;
+		ResponseList<DirectMessage> tempMessages = null;
+		try {
+			tempMessages = tt.getDirectMessages(page);
+		} catch (TwitterException e) {
+			Log.d("SearchBadger", "Error in querying Twitter API");
+		}
+		
+		allMessages = tempMessages;
+		
+		int pageNo = 2;
+		while (tempMessages.size() == 200){
+			page.setPage(pageNo);		
+			try {
+				tempMessages = tt.getDirectMessages(page);
+			} catch (TwitterException e) {
+				Log.d("SearchBadger", "Error in querying Twitter API");
+			}
+			
+			allMessages.addAll(tempMessages);	
+			
+			pageNo++;
+		}
+		
+		// add all direct messages to in-memory DB
+		ContentValues vals = new ContentValues();
+		boolean retRes = false;
+		SQLiteDatabase db = null;
+		
+		try{
+			db = inMemDbOH.getWritableDatabase();
+			for (int i = 0; i < allMessages.size(); i++){
+				DirectMessage msg = allMessages.get(i);
+				vals.clear();
+
+				vals.put("Msg_Id", msg.getId());
+				vals.put("Msg_Text", msg.getText());
+				vals.put("Date", msg.getCreatedAt().getTime());
+				vals.put("Thread_Id", msg.getSenderId());
+				vals.put("Sender_Name", msg.getSender().getName());
+				retRes = ((db.insert(TWITTER_MSGS_TABLE, "Msg_Id", vals)) != -1);
+			}
+			
+		} finally {
+			if (db != null) {
+				db.close();
+			}
+		}
+		
+		List<String> selectionArgList = new LinkedList<String>();
+		String selection = "";
+		String arg = "";
+				
+		// Go through each possible search type, and build SQL query
+		if (filter.getText() != null && filter.getText().length() != 0) {
+			selection += "Msg_Text";
+			
+			// use the glob for any text that contains regex symbols for GLOB and LIKE
+			if (filter.getText().contains("#") || filter.getText().contains("*") || filter.getText().contains("_") || filter.getText().contains("%")){
+				selection += " GLOB ?";
+				arg = filter.getGlobText();				
+			}
+			else{
+				selection += " LIKE ?";
+				arg = "%" + filter.getText() + "%";
+			}
+
+			selectionArgList.add(arg);
+		}
+		if (filter.getContacts() != null){
+			List<Contact> contacts = filter.getContacts();
+			Iterator<Contact> iter = contacts.iterator();
+			if(contacts.size() != 0) {
+				if (selection.length() > 0)
+					selection += " AND ";
+					
+				selection += "(";
+				//boolean firstAddress = true;
+				while (iter.hasNext()){
+					Contact c = iter.next();
+					/*if (c instanceof ContactSMS) {
+						ContactSMS cSMS = (ContactSMS)c;
+						List<String> addresses = cSMS.getAddresses();
+						Iterator<String> iterAddresses = addresses.iterator();
+						while (iterAddresses.hasNext()){
+							if(firstAddress == true)
+								firstAddress = false;
+							else
+								selection += " OR ";
+							String address = iterAddresses.next();
+							selection += "address = ?";
+							selectionArgList.add(address);
+						}
+					}*/
+					selection += "Sender_Name LIKE ?";
+					selectionArgList.add(c.getName());
+					
+					if (iter.hasNext())
+						selection += " OR ";
+					
+				}
+				selection += ")";				
+			}			
+		}
+		
+		if (filter.getBegin() != null){
+			if (selection.length() > 0)
+				selection += " AND ";
+			
+			selection += "date >= ?";
+			arg = ((Long)(filter.getBegin().getTime())).toString();
+			
+			selectionArgList.add(arg);
+		}
+		
+		if (filter.getEnd() != null){
+			if (selection.length() > 0)
+				selection += " AND ";
+			
+			selection += "date <= ?";
+			arg = ((Long)(filter.getEnd().getTime())).toString();
+			
+			selectionArgList.add(arg);
+		}
+		
+		if (filter.getType() != null){
+			if (selection.length() > 0)
+				selection += " AND ";
+			
+			selection += "type = ?";
+			if (filter.getType()==SendReceiveType.SENT) {
+				arg = "2";
+				selectionArgList.add(arg);
+			}
+			else if (filter.getType()==SendReceiveType.RECEIVED) {
+				arg = "1";
+				selectionArgList.add(arg);
+			}
+		}
 		
 	}
 
@@ -1085,7 +1266,29 @@ public class SearchBadgerModel implements SearchModel {
 		return contacts;
 	}
 	
-     
+    protected class SearchBadgerInMemoryOpenHandler extends SQLiteOpenHelper{
+    	public static final int DATABASE_VERSION = 3;
+    	
+    	public static final String TWITTER_MESSAGES_CREATE = "CREATE TABLE " + TWITTER_MSGS_TABLE +
+    			"(Id INTEGER PRIMARY KEY ASC, Msg_Id TEXT, Msg_Text TEXT, "+
+    			"Date BIGINT Date, Thread_Id TEXT, Sender_Name TEXT);";
+    	
+    	public SearchBadgerInMemoryOpenHandler(Context context){
+    		// passing in null (2nd param) as name of DB is what keeps it as in-memory DB
+    		super(context, null, null, DATABASE_VERSION);
+    	}
+    	
+    	@Override
+		public void onCreate(SQLiteDatabase db) {
+			db.execSQL(TWITTER_MESSAGES_CREATE);
+		}
+
+		@Override
+		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+			db.execSQL("DROP TABLE IF EXISTS " + TWITTER_MSGS_TABLE);
+			onCreate(db);
+		}
+    }
 	
 	protected class SearchBadgerOpenHandler extends SQLiteOpenHelper {
 		public static final int DATABASE_VERSION = 3;
