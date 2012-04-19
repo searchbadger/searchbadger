@@ -215,6 +215,7 @@ public class SearchActivity extends Activity implements SearchGenerator {
 			}
 		});
 		
+		/* Disabling since this seem to be to slow if the user types too fast
 		// this will color the regex symbols
 		watcher = new TextWatcher() {
 			public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -229,6 +230,7 @@ public class SearchActivity extends Activity implements SearchGenerator {
 			public void afterTextChanged(Editable s) {}
 		};
 		searchInputText.addTextChangedListener(watcher);
+		*/
 
 		// update the filters
 		radioGroupDate.check(R.id.radioToday);

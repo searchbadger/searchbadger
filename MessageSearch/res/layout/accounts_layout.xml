@@ -25,13 +25,14 @@
     </PreferenceCategory>
 
     <PreferenceCategory android:title="Search Settings" >
-
+<!-- Disabling these unless we decide to implement the settings
         <EditTextPreference
             android:defaultValue="100"
             android:key="prefMaxResults"
             android:summary="Set the max number of results returned"
             android:inputType="number"
             android:maxLength="6"
+            android:visibility="G"
             android:title="Max Results" />
         
         <EditTextPreference
@@ -41,7 +42,7 @@
             android:inputType="number"
             android:maxLength="6"
             android:title="Thread Messages" />
-
+ -->
         <Preference
             android:key="prefClearSearchHistory"
             android:summary="This will clear all the recent search history"
