@@ -38,7 +38,6 @@ public class SearchResultListFragment extends ListFragment {
 		super.onCreate(savedInstanceState);
 
 		results = model.getSearchResults();
-		//this.setEmptyText("teset");
 		MessageArrayAdapter adapter = new MessageArrayAdapter(getActivity(), R.layout.search_result_list_item, results);
 		setListAdapter(adapter);
 	}

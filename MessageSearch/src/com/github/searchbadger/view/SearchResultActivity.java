@@ -1,12 +1,14 @@
 package com.github.searchbadger.view;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 
 import com.github.searchbadger.R;
 
@@ -22,7 +24,7 @@ public class SearchResultActivity extends FragmentActivity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
-	    inflater.inflate(R.menu.default_menu, menu);
+	    inflater.inflate(R.menu.menu_thread, menu);
 	    return true;
 	}
 	
@@ -33,6 +35,9 @@ public class SearchResultActivity extends FragmentActivity {
 	    
 	        case R.id.menu_settings:
 	        	ShowSettings();
+	            return true;
+	        case R.id.menu_word_cloud:
+	        	ShowWordCloud();
 	            return true;
 	        case R.id.menu_help:
 	        	ShowHelp();
@@ -58,6 +63,29 @@ public class SearchResultActivity extends FragmentActivity {
 	
 	public void ShowAbout() {
 		Intent intent = new Intent(this, AboutActivity.class);
+		startActivity(intent);
+	}
+	
+	public void ShowWordCloud() {
+
+		// Check to see if we have a frame in which to embed the details
+        // fragment directly in the containing UI.
+        View threadFrame = findViewById(R.id.thread_view);
+        boolean dualPane = threadFrame != null && threadFrame.getVisibility() == View.VISIBLE;
+        if(dualPane == false) {
+        	AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        	builder.setMessage("You must select a conversation thread in order to generate a Word Cloud.")
+        	       .setNegativeButton("OK", new DialogInterface.OnClickListener() {
+        	           public void onClick(DialogInterface dialog, int id) {
+        	                dialog.cancel();
+        	           }
+        	       });
+        	AlertDialog alert = builder.create();
+        	alert.show();
+        	return;
+        }
+		
+		Intent intent = new Intent(this, WordCloudActivity.class);
 		startActivity(intent);
 	}
 }

@@ -35,7 +35,7 @@ public class ThreadActivity extends FragmentActivity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
-	    inflater.inflate(R.menu.default_menu, menu);
+	    inflater.inflate(R.menu.menu_thread, menu);
 	    return true;
 	}
 	
@@ -46,6 +46,9 @@ public class ThreadActivity extends FragmentActivity {
 	    
 	        case R.id.menu_settings:
 	        	ShowSettings();
+	            return true;
+	        case R.id.menu_word_cloud:
+	        	ShowWordCloud();
 	            return true;
 	        case R.id.menu_help:
 	        	ShowHelp();
@@ -71,6 +74,11 @@ public class ThreadActivity extends FragmentActivity {
 	
 	public void ShowAbout() {
 		Intent intent = new Intent(this, AboutActivity.class);
+		startActivity(intent);
+	}
+	
+	public void ShowWordCloud() {
+		Intent intent = new Intent(this, WordCloudActivity.class);
 		startActivity(intent);
 	}
 }

@@ -44,6 +44,7 @@ public class SearchBadgerModel implements SearchModel {
 	
 	//private Cursor searchResultCursor;
 	private List<Message> searchResultMessages;
+	private List<Message> threadMessages;
 	private final static String projectionList[] = {"_id", "thread_id", "address", "date", "body", "type", "person"};
 	private final static String STARRED_MSGS_COLS[] = {"id", "msg_id", "msg_text", "thread_id", "date", "src_name", "author"};
 	private final static String STARRED_MSGS_DEL_WHERE = "msg_id = ? AND thread_id = ? AND src_name = ?";
@@ -816,6 +817,14 @@ public class SearchBadgerModel implements SearchModel {
 		return null;
 	}
 	
+	public void resetLastThread() {
+		threadMessages = null;
+	}
+	
+	public List<Message> getLastThread() {
+		return threadMessages;
+	}
+	
 	public List<Message> getThreadSMS(Message message) {
 		// SMS content provider uri 
 		Message msgInThread = message;
@@ -830,7 +839,7 @@ public class SearchBadgerModel implements SearchModel {
 		Cursor searchResultCursor = SearchBadgerApplication.getAppContext().getContentResolver().query(uri, projectionList, selection, selectionArgs, "date DESC");
 		
 		List<Contact> contactsSMS = getSMSContacts();
-		List<Message> threadMessages = new LinkedList<Message>();
+		threadMessages = new LinkedList<Message>();
 		if (searchResultCursor != null) {
 			try {
 				int count = searchResultCursor.getCount();
@@ -909,7 +918,7 @@ public class SearchBadgerModel implements SearchModel {
         String thread_id, message_id, author_id, created_time, body;
         JSONArray jsonArray;
 		List<Contact> facebookContacts = getFacebookContacts();
-		List<Message> threadMessages = new LinkedList<Message>();
+		threadMessages = new LinkedList<Message>();
         try {
 			jsonArray = new JSONArray(response);
 	        for(int i = 0; i < jsonArray.length(); i++) {

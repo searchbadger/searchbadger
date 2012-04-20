@@ -132,4 +132,11 @@ public class SearchTestModel implements SearchModel {
 	public void clearRecentSearches() {
 	}
 
+	public List<Message> getLastThread() {
+		return null;
+	}
+
+	public void resetLastThread() {		
+	}
+
 }
