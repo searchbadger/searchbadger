@@ -9,6 +9,6 @@
         class="com.github.searchbadger.view.RecentSearchListFragment"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:id="@+id/message_list" />
+        android:id="@+id/recent_searches_list" />
 
 </merge>
