@@ -152,7 +152,7 @@ public class WordCloudActivity extends Activity {
 	        entries = counter.getAllByFrequency();
 			updateStatus(total);
 	        
-			
+			  
 			// wait for the the view to be created.
 			// TODO there's probably a better way to do this
 			canvasClip = new Rect();

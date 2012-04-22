@@ -4,6 +4,7 @@
           android:icon="@drawable/ic_menu_manage" 
           android:title="@string/settings" />
     <item android:id="@+id/menu_word_cloud"
+          android:icon="@drawable/ic_menu_cloud"
           android:title="@string/word_cloud" />
     <item android:id="@+id/menu_help"
           android:icon="@drawable/ic_menu_help"
