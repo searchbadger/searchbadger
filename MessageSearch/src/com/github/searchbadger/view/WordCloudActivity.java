@@ -92,6 +92,7 @@ public class WordCloudActivity extends Activity {
             progDialog.setProgress(total);
         }
     };
+    
 
     @Override
 	protected void onPause() {
@@ -133,16 +134,20 @@ public class WordCloudActivity extends Activity {
 			// clear the lists in case they are not empty
 			wordRects.clear();
 			wordCloudList.clear();
-			
+
 
 			// count the words
 	        counter = new Counter<String>();
 	        Iterator<Message> iter = messages.iterator();
+	        StringBuilder allMsg = new StringBuilder();
 	        while(iter.hasNext()) {
 	        	Message m = iter.next();
-		        for (final String s : new NGramIterator(1, m.getText().toLowerCase(), Locale.getDefault(), StopWords.English)) {
-		            counter.note(s);
-		        }
+	        	allMsg.append(m.getText().toLowerCase());
+	        	allMsg.append(" ");
+	        }
+	        // TODO seems like the first time this is called is slow
+	        for (final String s : new NGramIterator(1, allMsg.toString(), Locale.getDefault(), StopWords.English)) {
+	            counter.note(s);
 	        }
 	        entries = counter.getAllByFrequency();
 			updateStatus(total);
@@ -150,11 +155,12 @@ public class WordCloudActivity extends Activity {
 			
 			// wait for the the view to be created.
 			// TODO there's probably a better way to do this
+			canvasClip = new Rect();
 			while(state == WAITING || canvasClip.width() == 0) {
 				try {
+                    Log.d("SearchBadger", "Waiting...");
                     Thread.sleep(50);
                     cloudView.getDrawingRect(canvasClip);
-                    Log.d("SearchBadger", "Waiting...");
                 } catch (InterruptedException e) {
                     Log.e("ERROR", "Thread was Interrupted");
                 }
@@ -192,7 +198,6 @@ public class WordCloudActivity extends Activity {
 	        	
 	        	if(state == STOP) return;
 	        	if(progDialog == null) return;
-	        	if(progDialog.isShowing() == false) return;
 	        	
 	        	word = e.getKey();
 	        	count = e.getValue();
