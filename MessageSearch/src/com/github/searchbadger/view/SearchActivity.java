@@ -32,6 +32,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.github.searchbadger.R;
@@ -439,6 +440,12 @@ public class SearchActivity extends Activity implements SearchGenerator {
 		
 		// check if the user needs to login into a source account
 		isFacebookSelectedAndNotReady();
+		
+		// TODO display Twitter is not implemented yet
+		List<MessageSource> sources = getMessageSources();
+		if(sources.contains(MessageSource.TWITTER)) {
+			Toast.makeText(this, "Sorry. Twitter search has not been implemented yet.", Toast.LENGTH_LONG).show();
+		}
 		
 	}
 	
