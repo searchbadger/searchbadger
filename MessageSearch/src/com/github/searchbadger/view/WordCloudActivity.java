@@ -45,6 +45,7 @@ public class WordCloudActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         _this = this;
+        progDialog = null;
 
         // create the custom view
 		cloudView = new CloudView(this);
@@ -61,8 +62,7 @@ public class WordCloudActivity extends Activity {
         progDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         progDialog.setMessage("Initializing. Please wait.");
         progDialog.show();
-        progThread = new ProgressThread(handler);
-        progThread.start();
+        
     }
     
 
@@ -97,9 +97,9 @@ public class WordCloudActivity extends Activity {
     @Override
 	protected void onPause() {
 		super.onPause();
-		// stop the thread
-		progThread.setState(ProgressThread.STOP);
     	try {
+    		// stop the thread
+    		if(progThread != null) progThread.setState(ProgressThread.STOP);
     		progDialog.dismiss();
     	} catch (Exception e) {}
 	}
@@ -109,7 +109,7 @@ public class WordCloudActivity extends Activity {
     private class ProgressThread extends Thread {	
         
         // Class constants defining state of the thread
-        final public static int WAITING = 0;
+        //final public static int WAITING = 0;
         final public static int RUNNING = 1;
         final public static int STOP = 2;
         
@@ -123,7 +123,7 @@ public class WordCloudActivity extends Activity {
         
         @Override
         public void run() {
-            state = WAITING;   
+            state = RUNNING;   
             total = 0;
 			int x = 0;
 			int y = 0;
@@ -153,20 +153,9 @@ public class WordCloudActivity extends Activity {
 			updateStatus(total);
 	        
 			  
-			// wait for the the view to be created.
-			// TODO there's probably a better way to do this
-			canvasClip = new Rect();
-			while(state == WAITING || canvasClip.width() == 0) {
-				try {
-                    Log.d("SearchBadger", "Waiting...");
-                    Thread.sleep(50);
-                    cloudView.getDrawingRect(canvasClip);
-                } catch (InterruptedException e) {
-                    Log.e("ERROR", "Thread was Interrupted");
-                }
-			}
 
 			// get the size of the canvas
+			canvasClip = new Rect();
             cloudView.getDrawingRect(canvasClip);
 			canvasClip.inset(padding, padding); // add padding
 
@@ -429,8 +418,11 @@ public class WordCloudActivity extends Activity {
 			
 			Paint paint = new Paint();
 			
-			// let the thread know that it can start
-			if(progThread != null) progThread.setState(ProgressThread.RUNNING);
+			// start the Word Cloud thread since we now have a canvas
+			if(progThread == null) {
+		        progThread = new ProgressThread(handler);
+		        progThread.start();
+			}
 
 			// make the entire canvas white
 			paint.setStyle(Paint.Style.FILL);
