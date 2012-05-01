@@ -10,6 +10,7 @@ public class Contact implements Parcelable {
 	protected MessageSource source;
 	protected String name;
 	protected Bitmap picture;
+	protected String picture_url;
 
 	public Contact(String id, MessageSource source, String name, Bitmap picture) {
 		this.id = id;
@@ -18,11 +19,20 @@ public class Contact implements Parcelable {
 		this.picture = picture;
 	}
 	
+	public Contact(String id, MessageSource source, String name, Bitmap picture, String picture_url) {
+		this.id = id;
+		this.source = source;
+		this.name = name;
+		this.picture = picture;
+		this.picture_url = picture_url;
+	}
+	
 	public Contact(Parcel in){
 		id = in.readString();
 		source = MessageSource.valueOf(in.readString());
 		name = in.readString();
 		picture = in.readParcelable(Bitmap.class.getClassLoader());
+		picture_url = in.readString();
 		
 	}
 
@@ -40,6 +50,10 @@ public class Contact implements Parcelable {
 
 	public Bitmap getPicture() {
 		return picture;
+	}
+	
+	public String getPictureUrl() {
+		return picture_url;
 	}
 
 	@Override
@@ -72,6 +86,7 @@ public class Contact implements Parcelable {
 		dest.writeString(source.name());
 		dest.writeString(name);
 		dest.writeParcelable(picture, flags);
+		dest.writeString(picture_url);
 	}
 	
 	public static final Parcelable.Creator<Contact> CREATOR =

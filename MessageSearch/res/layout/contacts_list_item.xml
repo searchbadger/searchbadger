@@ -24,5 +24,11 @@
         android:textAppearance="?android:attr/textAppearanceMedium" >
     </TextView>
 
+    <ImageView
+        android:id="@+id/contact_pic"
+		android:layout_width="54dp"
+		android:layout_height="54dp"
+        android:src="@drawable/ic_contact_picture"
+        android:layout_marginRight="6dip" />
 
 </LinearLayout>

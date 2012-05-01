@@ -1070,6 +1070,7 @@ public class SearchBadgerModel implements SearchModel {
         
         long id;
         String name;
+        String pic;
         JSONArray jsonArray;
         try {
 			jsonArray = new JSONArray(response);
@@ -1077,6 +1078,7 @@ public class SearchBadgerModel implements SearchModel {
 	        for(int i = 0; i < jsonArray.length(); i++) {
 	        	id = jsonArray.getJSONObject(i).getLong("uid");
 	        	name = jsonArray.getJSONObject(i).getString("name");
+	        	pic = jsonArray.getJSONObject(i).getString("pic_square");
 	        	
 
 				// add the new contact to the list
@@ -1084,7 +1086,8 @@ public class SearchBadgerModel implements SearchModel {
 						String.valueOf(id),
 						MessageSource.FACEBOOK,
 						name,
-						null);
+						null,
+						pic);
 				contacts.add(contact);
 	        }
 		} catch (JSONException e) {

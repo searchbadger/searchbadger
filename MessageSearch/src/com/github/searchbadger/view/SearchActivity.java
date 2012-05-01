@@ -6,6 +6,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -19,7 +21,6 @@ import android.text.Html;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -90,6 +91,7 @@ public class SearchActivity extends Activity implements SearchGenerator {
 	protected Date toDate;
 	
 	protected TextWatcher watcher;
+	protected Timer timer = new Timer();
 	
 	protected List<Contact> selectedContacts = new ArrayList<Contact>();
 
@@ -216,22 +218,19 @@ public class SearchActivity extends Activity implements SearchGenerator {
 			}
 		});
 		
-		/* Disabling since this seem to be to slow if the user types too fast
+		
 		// this will color the regex symbols
 		watcher = new TextWatcher() {
-			public void onTextChanged(CharSequence s, int start, int before, int count) {
-				searchInputText.removeTextChangedListener(watcher);
-				int startSelection = searchInputText.getSelectionStart();
-				int stopSelection = searchInputText.getSelectionEnd();
-				searchInputText.setText(colorRegexString(searchInputText.getText().toString()));
-				searchInputText.setSelection(startSelection, stopSelection); // restore selection
-				searchInputText.addTextChangedListener(watcher);
-			}
+			public void onTextChanged(CharSequence s, int start, int before, int count) {}
 			public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-			public void afterTextChanged(Editable s) {}
+			public void afterTextChanged(Editable s) {
+				timer.cancel();
+                timer = new Timer();
+				timer.schedule(new updateTextTask(), new Date(new Date().getTime() + 500));
+			}
 		};
 		searchInputText.addTextChangedListener(watcher);
-		*/
+		
 
 		// update the filters
 		radioGroupDate.check(R.id.radioToday);
@@ -838,4 +837,20 @@ public class SearchActivity extends Activity implements SearchGenerator {
 		return false;
 	}
 	
+	// tells activity to run on ui thread
+	class updateTextTask extends TimerTask {
+
+		@Override
+		public void run() {
+			runOnUiThread(new Runnable() {
+
+				public void run() {
+					int startSelection = searchInputText.getSelectionStart();
+					int stopSelection = searchInputText.getSelectionEnd();
+					searchInputText.setText(colorRegexString(searchInputText.getText().toString()));
+					searchInputText.setSelection(startSelection, stopSelection); // restore selection
+				}
+			});
+		}
+	};
 }
