@@ -6,8 +6,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -20,11 +18,12 @@ import android.text.Editable;
 import android.text.Html;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
-import android.text.TextWatcher;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.DatePicker;
@@ -89,10 +88,7 @@ public class SearchActivity extends Activity implements SearchGenerator {
 	protected Date afterDate;
 	protected Date fromDate;
 	protected Date toDate;
-	
-	protected TextWatcher watcher;
-	protected Timer timer = new Timer();
-	
+		
 	protected List<Contact> selectedContacts = new ArrayList<Contact>();
 
 
@@ -220,16 +216,22 @@ public class SearchActivity extends Activity implements SearchGenerator {
 		
 		
 		// this will color the regex symbols
-		watcher = new TextWatcher() {
-			public void onTextChanged(CharSequence s, int start, int before, int count) {}
-			public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-			public void afterTextChanged(Editable s) {
-				timer.cancel();
-                timer = new Timer();
-				timer.schedule(new updateTextTask(), new Date(new Date().getTime() + 500));
+		searchInputText.setOnEditorActionListener( new EditText.OnEditorActionListener() {
+			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+			    if (actionId == EditorInfo.IME_ACTION_SEARCH ||
+			            actionId == EditorInfo.IME_ACTION_DONE ||
+			            event.getAction() == KeyEvent.ACTION_DOWN &&
+			            event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
+			        
+					int startSelection = searchInputText.getSelectionStart();
+					int stopSelection = searchInputText.getSelectionEnd();
+					searchInputText.setText(colorRegexString(searchInputText.getText().toString()));
+					searchInputText.setSelection(startSelection, stopSelection); // restore selection
+			                      
+			    }
+			    return false;
 			}
-		};
-		searchInputText.addTextChangedListener(watcher);
+		});
 		
 
 		// update the filters
@@ -837,20 +839,4 @@ public class SearchActivity extends Activity implements SearchGenerator {
 		return false;
 	}
 	
-	// tells activity to run on ui thread
-	class updateTextTask extends TimerTask {
-
-		@Override
-		public void run() {
-			runOnUiThread(new Runnable() {
-
-				public void run() {
-					int startSelection = searchInputText.getSelectionStart();
-					int stopSelection = searchInputText.getSelectionEnd();
-					searchInputText.setText(colorRegexString(searchInputText.getText().toString()));
-					searchInputText.setSelection(startSelection, stopSelection); // restore selection
-				}
-			});
-		}
-	};
 }

@@ -81,6 +81,14 @@
                     android:layout_height="45dp"
                     android:focusable="false"
                     android:text="@string/symbol_underscore" />
+
+                <TextView
+                    android:id="@+id/textView2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="fill_parent"
+                    android:text="@string/regex_description"
+                    android:textSize="12sp" />
+
             </LinearLayout>
 
             <LinearLayout
