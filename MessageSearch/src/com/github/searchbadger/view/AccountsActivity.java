@@ -221,20 +221,18 @@ public class AccountsActivity extends PreferenceActivity {
 
             try {
                 // this will populate token and token_secret in consumer
-
                 twitterHelper.httpOauthprovider.retrieveAccessToken(twitterHelper.httpOauthConsumer, veriﬁer);
                 String userKey = twitterHelper.httpOauthConsumer.getToken();
                 String userSecret = twitterHelper.httpOauthConsumer.getTokenSecret();
 
-                // Save user_key and user_secret in user preferences
-                
+                // Save user_key and user_secret in user preferences              
                 prefs.saveTwitterToken(userKey);
                 prefs.saveTwitterSecret(userSecret);
                 
         		updateTwitterButton();
 
             } catch(Exception e){
-            	Log.d("TWITTER_OAUTH", "Error in processing callback.");
+            	Log.d("SearchBadger", "Error in processing callback for Twitter.");
             }
         } else {
             // Do nothing if the callback comes from elsewhere

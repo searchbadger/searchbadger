@@ -33,10 +33,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 
 import twitter4j.DirectMessage;
+import twitter4j.IDs;
 import twitter4j.Paging;
 import twitter4j.ResponseList;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
+import twitter4j.User;
 import twitter4j.auth.AccessToken;
 
 import android.content.ContentValues;
@@ -79,7 +81,8 @@ public class SearchBadgerModel implements SearchModel {
 	private final static String RECENT_SEARCH_SOURCES_COLS[] = {"id", "RecentSearch_ID", "Src_Name"};
 	private final static String RECENT_SEARCH_SOURCES_TABLE = "RecentSearchSources";
 	
-	private final static String TWITTER_MSGS_COLS[] = {"Msg_Id", "Msg_Text", "Date", "Thread_Id", "Sender_Name"};
+	private final static String TWITTER_MSGS_COLS[] = {"Msg_Id", "Msg_Text", "Date", "Recipient_Id", "Recipient_Name",
+		"Sender_Id", "Sender_Name", "Thread_Id"};
 	private final static String TWITTER_MSGS_TABLE = "TwitterMessages";
 
 	protected List<Search> recentSearches = null;
@@ -400,22 +403,52 @@ public class SearchBadgerModel implements SearchModel {
 		}
         
 	}
-
-	public void searchTwitter(Search filter) {
+	
+	protected Twitter authenticate(){
 		TwitterHelper helper = SearchBadgerApplication.getTwitterHelper();
 		Twitter tt = helper.twitter;
+
+		// Twitter authentication
+
+		// Check if we have access token - if we do, no need to authenticate in that case
+		AccessToken authenticated = null;
+		try {
+			authenticated = tt.getOAuthAccessToken();
+		} catch (Exception e2) {
+			Log.d("SearchBadger", "Error in returning access token");
+		}
+
+		if (authenticated == null){
+			tt.setOAuthConsumer(helper.CONSUMER_KEY, helper.CONSUMER_SECRET);
+			AccessToken at = new AccessToken(helper.getAccessToken(), helper.getAccessSecret());
+			tt.setOAuthAccessToken(at);
+		}
 		
-		//System.out.println("Created Twitter Instance");
+		return tt;
+	}
+	
+	protected void authenticateAndUpdateTwitterMessages(){
+		// Authenticate
+		TwitterHelper helper =  SearchBadgerApplication.getTwitterHelper();
+		Twitter tt = authenticate();
 		
-		//System.out.println("Access Token: "+helper.getAccessToken());
-		//System.out.println("Access Secret: "+helper.getAccessSecret());
+		boolean retRes = false;
+		SQLiteDatabase db = null;
 		
-		tt.setOAuthConsumer(helper.CONSUMER_KEY, helper.CONSUMER_SECRET);
-		//System.out.println("Set Consumer Tokens");
-		AccessToken at = new AccessToken(helper.getAccessToken(), helper.getAccessSecret());
-		//System.out.println("created token");
-		tt.setOAuthAccessToken(at);
-		//System.out.println("Set Token");
+		// set app user's Twitter id
+		try {
+			if (helper.getUserTwitterId().length() == 0)
+				helper.setUserTwitterId(String.valueOf(tt.getId()));
+			
+		} catch (IllegalStateException e1) {
+			Log.d("SearchBadger", "State exception.");
+		} catch (TwitterException e1) {
+			Log.d("SearchBadger","Twitter id fetch exception.");
+		}
+		
+		// We initially get 200 messages from Twitter.  If the latest msgId of these retrieved messages
+		// do not match the latest msgId in our in-mem DB, we add all new messages we can get from
+		// Twitter to our in-mem DB
 		
 		Paging page = new Paging(1,200);
 		ResponseList<DirectMessage> allMessages = null;
@@ -428,44 +461,66 @@ public class SearchBadgerModel implements SearchModel {
 		
 		allMessages = tempMessages;
 		
-		int pageNo = 2;
-		while (tempMessages.size() == 200){
-			page.setPage(pageNo);		
-			try {
-				tempMessages = tt.getDirectMessages(page);
-			} catch (TwitterException e) {
-				Log.d("SearchBadger", "Error in querying Twitter API");
+		String newestMsgId = String.valueOf(allMessages.get(allMessages.size() - 1).getId());
+		
+		if (!newestMsgId.equals(helper.getMostRecentMsgId())){
+			int pageNo = 2;
+			while (tempMessages.size() == 200){
+				page.setPage(pageNo);		
+				try {
+					tempMessages = tt.getDirectMessages(page);
+				} catch (TwitterException e) {
+					Log.d("SearchBadger", "Error in querying Twitter API");
+				}
+				
+				allMessages.addAll(tempMessages);	
+				
+				pageNo++;
 			}
 			
-			allMessages.addAll(tempMessages);	
+			// add all direct messages to in-memory DB
+			ContentValues vals = new ContentValues();
 			
-			pageNo++;
-		}
-		
-		// add all direct messages to in-memory DB
-		ContentValues vals = new ContentValues();
+			try{
+				db = inMemDbOH.getWritableDatabase();
+				for (int i = 0; i < allMessages.size(); i++){
+					DirectMessage msg = allMessages.get(i);
+					vals.clear();
+					
+					vals.put("Msg_Id", msg.getId());
+					vals.put("Msg_Text", msg.getText());
+					vals.put("Date", msg.getCreatedAt().getTime());
+					vals.put("Recipient_Id", msg.getRecipientId());
+					vals.put("Recipient_Name", msg.getRecipient().getName());
+					vals.put("Sender_Id", msg.getSenderId());
+					vals.put("Sender_Name", msg.getSender().getName());
+					vals.put("Thread_Id", helper.getUserTwitterId()+msg.getSenderId());
+					retRes = ((db.insert(TWITTER_MSGS_TABLE, "Msg_Id", vals)) != -1);
+					
+					// set id of most recent message retrieved
+					if (i == allMessages.size() - 1)
+						helper.setMostRecentMsgId(String.valueOf(msg.getId()));
+				}
+				
+			} finally {
+				if (db != null) {
+					// We do not close the DB bc the data in in-mem DB is gone if it is closed
+					//db.close();
+				}
+			}
+		}	
+
+	}
+
+	public void searchTwitter(Search filter) {
+		TwitterHelper helper = SearchBadgerApplication.getTwitterHelper();
 		boolean retRes = false;
 		SQLiteDatabase db = null;
 		
-		try{
-			db = inMemDbOH.getWritableDatabase();
-			for (int i = 0; i < allMessages.size(); i++){
-				DirectMessage msg = allMessages.get(i);
-				vals.clear();
-
-				vals.put("Msg_Id", msg.getId());
-				vals.put("Msg_Text", msg.getText());
-				vals.put("Date", msg.getCreatedAt().getTime());
-				vals.put("Thread_Id", msg.getSenderId());
-				vals.put("Sender_Name", msg.getSender().getName());
-				retRes = ((db.insert(TWITTER_MSGS_TABLE, "Msg_Id", vals)) != -1);
-			}
-			
-		} finally {
-			if (db != null) {
-				db.close();
-			}
-		}
+		// Authenticate and Update in-mem DB if necessary
+		authenticateAndUpdateTwitterMessages();
+		
+		// Build query for search
 		
 		List<String> selectionArgList = new LinkedList<String>();
 		String selection = "";
@@ -495,23 +550,8 @@ public class SearchBadgerModel implements SearchModel {
 					selection += " AND ";
 					
 				selection += "(";
-				//boolean firstAddress = true;
 				while (iter.hasNext()){
 					Contact c = iter.next();
-					/*if (c instanceof ContactSMS) {
-						ContactSMS cSMS = (ContactSMS)c;
-						List<String> addresses = cSMS.getAddresses();
-						Iterator<String> iterAddresses = addresses.iterator();
-						while (iterAddresses.hasNext()){
-							if(firstAddress == true)
-								firstAddress = false;
-							else
-								selection += " OR ";
-							String address = iterAddresses.next();
-							selection += "address = ?";
-							selectionArgList.add(address);
-						}
-					}*/
 					selection += "Sender_Name LIKE ?";
 					selectionArgList.add(c.getName());
 					
@@ -547,17 +587,60 @@ public class SearchBadgerModel implements SearchModel {
 			if (selection.length() > 0)
 				selection += " AND ";
 			
-			selection += "type = ?";
+			arg = helper.getUserTwitterId();
+			selectionArgList.add(arg);
 			if (filter.getType()==SendReceiveType.SENT) {
-				arg = "2";
-				selectionArgList.add(arg);
+				selection += "Sender_Id = ?";
 			}
 			else if (filter.getType()==SendReceiveType.RECEIVED) {
-				arg = "1";
-				selectionArgList.add(arg);
+				selection += "Recipient_Id = ?";
 			}
 		}
 		
+		// Make query to in-memory DB and store cursor to table returned
+		String[] selectionArgsArray = new String[selectionArgList.size()];
+		selectionArgList.toArray(selectionArgsArray);
+				
+		try{
+			db = inMemDbOH.getWritableDatabase();
+			Cursor searchResultCursor = db.query(TWITTER_MSGS_TABLE, TWITTER_MSGS_COLS, selection, 
+					selectionArgsArray, null, null, "date DESC");
+			
+			if (searchResultCursor != null){
+				try{
+					int count = searchResultCursor.getCount();
+					if (count > 0){
+						searchResultCursor.moveToFirst();
+						do{
+							String columns[] = searchResultCursor.getColumnNames();
+							for (int i = 0; i < columns.length; i++){
+								Log.v("SearchBadger","columns " + i + ": " + columns[i] + ": "
+										+ searchResultCursor.getString(i));
+							}
+							
+							//"Msg_Id", "Msg_Text", "Date", "Thread_Id", "Sender_Name"
+							String messageIdString = searchResultCursor.getString(0);
+							String messageTextString = searchResultCursor.getString(1);
+							long timestamp = searchResultCursor.getLong(2);
+							String author = searchResultCursor.getString(6);
+							String threadIdString = searchResultCursor.getString(7);
+							
+							Message msg = new Message(messageIdString, threadIdString, author, MessageSource.TWITTER, 
+									new Date (timestamp),messageTextString, false);
+							searchResultMessages.add(msg);
+						} while (searchResultCursor.moveToNext() == true);
+					}
+				}finally {
+					searchResultCursor.close();
+				}
+			}
+			
+		}finally {
+			if (db != null) {
+				// We do not close the DB bc the data in in-mem DB is gone if it is closed
+				//db.close();
+			}
+		}
 	}
 
 	public void searchStarred(Search filter) {
@@ -690,6 +773,7 @@ public class SearchBadgerModel implements SearchModel {
 	 * TODO: interface with database for persistent storage of starred msgs
 	 */
 	public List<Message> getStarredMessages() {
+		
 		SQLiteDatabase db = null;
 		try {
 			db = dbOH.getWritableDatabase();
@@ -697,6 +781,7 @@ public class SearchBadgerModel implements SearchModel {
 			if (this.starredMsgs == null) {
 				Cursor starredMsgsCursor = db.query(STARRED_MSGS_TABLE, STARRED_MSGS_COLS, 
 						null, null, null, null, null);//"date");
+				
 				if (starredMsgsCursor != null) {
 					starredMsgs = new ArrayList<Message>();
 					if (starredMsgsCursor.getCount() > 0) {
@@ -723,6 +808,9 @@ public class SearchBadgerModel implements SearchModel {
 						} finally {
 							starredMsgsCursor.close();
 						}
+					}
+					else{
+						starredMsgsCursor.close();
 					}
 				}
 			}
@@ -903,6 +991,9 @@ public class SearchBadgerModel implements SearchModel {
 							recentSearchesCursor.close();
 						}
 					}
+					else{
+						recentSearchesCursor.close();
+					}
 				}
 			}
 		} finally {
@@ -992,6 +1083,8 @@ public class SearchBadgerModel implements SearchModel {
 			return getThreadSMS(message);
 		case FACEBOOK:
 			return getThreadFacebook(message);
+		case TWITTER:
+			return getThreadTwitter(message);
 		}
 		
 		return null;
@@ -1121,6 +1214,65 @@ public class SearchBadgerModel implements SearchModel {
 		return threadMessages;
 	}
 	
+	public List<Message> getThreadTwitter(Message message){
+		Message msgInThread = message;
+		List<Message> threadMessages = new LinkedList<Message>();
+		
+		// Authenticate and update in-mem DB if necessary
+		authenticateAndUpdateTwitterMessages();
+		
+		// Carry out query to find all messages with the desired thread_id
+		String[] selectionArgs = new String[]{msgInThread.getThreadId().toString()};
+		String selection = "thread_id = ?";
+		Log.d("SearchBadger", msgInThread.getThreadId().toString());
+		
+		SQLiteDatabase db = null;
+		
+		try{
+			db = inMemDbOH.getWritableDatabase();
+			Cursor threadResultCursor = db.query(TWITTER_MSGS_TABLE, TWITTER_MSGS_COLS, selection, 
+					selectionArgs, null, null, "date DESC");
+			
+			if (threadResultCursor != null){
+				try{
+					int count = threadResultCursor.getCount();
+					if (count > 0){
+						threadResultCursor.moveToFirst();
+						do{
+							String columns[] = threadResultCursor.getColumnNames();
+							for (int i = 0; i < columns.length; i++){
+								Log.v("SearchBadger","columns " + i + ": " + columns[i] + ": "
+										+ threadResultCursor.getString(i));
+							}
+							
+							//"Msg_Id", "Msg_Text", "Date", "Thread_Id", "Sender_Name"
+							String messageIdString = threadResultCursor.getString(0);
+							String messageTextString = threadResultCursor.getString(1);
+							long timestamp = threadResultCursor.getLong(2);
+							String author = threadResultCursor.getString(6);
+							String threadIdString = threadResultCursor.getString(7);
+							
+							Message msg = new Message(messageIdString, threadIdString, author, MessageSource.TWITTER, 
+									new Date (timestamp),messageTextString, false);
+							threadMessages.add(msg);
+						} while (threadResultCursor.moveToNext() == true);
+					}
+				}finally {
+					threadResultCursor.close();
+				}
+			}
+			
+		}finally {
+			if (db != null) {
+				// We do not close the DB bc the data in in-mem DB is gone if it is closed
+				//db.close();
+			}
+		}
+		
+		return threadMessages;
+		
+	}
+	
 	
 	/*
 	 * Given a message source this gets the contacts for that source.§
@@ -1131,6 +1283,8 @@ public class SearchBadgerModel implements SearchModel {
 			return getSMSContacts();
 		case FACEBOOK:
 			return getFacebookContacts();
+		case TWITTER:
+			return getTwitterContacts();
 		}
 		
 		return null;
@@ -1266,12 +1420,61 @@ public class SearchBadgerModel implements SearchModel {
 		return contacts;
 	}
 	
+	protected List<Contact> getTwitterContacts(){
+		List<Contact> contacts = new LinkedList<Contact>();
+		
+		TwitterHelper helper = SearchBadgerApplication.getTwitterHelper();
+		Twitter tt = authenticate();
+		
+		// Get ids of friends and followers and use that to create Contacts to display in search
+		IDs followerIds = null;
+		IDs friendIds = null;
+		try {
+			followerIds = tt.getFollowersIDs(-1);
+			friendIds = tt.getFriendsIDs(-1);
+			
+			long[] ids;
+			long[] targets = new long[100];
+			
+			// run twice to get all info for followers and people you are following 
+			for (int k = 0; k < 2; k++){
+				if (k == 0)
+					ids = followerIds.getIDs();
+				else
+					ids = friendIds.getIDs();
+			
+				// Twitter api only allows fetching of 100 contact ids at a time
+				int i = 0, len = 0;
+				for (len = ids.length; i < len; i += 100){
+					int endingIndex = Math.min(100, len - i);
+					System.arraycopy(ids, i, targets, 0, endingIndex);
+					List<User> followerList = tt.lookupUsers(targets);
+					for (int j = 0; j < followerList.size(); j++){
+						Contact c = new Contact(String.valueOf(followerList.get(j).getId()),
+								MessageSource.TWITTER,
+								followerList.get(j).getName(),
+								null);
+						contacts.add(c);
+					}
+				}
+			}
+			
+			
+		} catch (TwitterException e) {
+			// TODO Auto-generated catch block
+			Log.d("SearchBadger", "Error in retrieving Twitter contacts.");
+		}
+		
+		return contacts;
+		
+	}
     protected class SearchBadgerInMemoryOpenHandler extends SQLiteOpenHelper{
     	public static final int DATABASE_VERSION = 3;
     	
     	public static final String TWITTER_MESSAGES_CREATE = "CREATE TABLE " + TWITTER_MSGS_TABLE +
     			"(Id INTEGER PRIMARY KEY ASC, Msg_Id TEXT, Msg_Text TEXT, "+
-    			"Date BIGINT Date, Thread_Id TEXT, Sender_Name TEXT);";
+    			"Date BIGINT Date, Recipient_Id TEXT, Recipient_Name TEXT, " +
+    			"Sender_Id TEXT, Sender_Name TEXT, Thread_Id TEXT);";
     	
     	public SearchBadgerInMemoryOpenHandler(Context context){
     		// passing in null (2nd param) as name of DB is what keeps it as in-memory DB

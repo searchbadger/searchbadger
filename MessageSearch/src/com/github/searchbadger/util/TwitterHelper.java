@@ -8,6 +8,7 @@ import com.github.searchbadger.core.SearchBadgerApplication;
 import com.github.searchbadger.core.SearchBadgerPreferences;
 
 import twitter4j.Twitter;
+import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
 import android.app.Activity;
 import android.content.Context;
@@ -35,8 +36,27 @@ public class TwitterHelper {
 	
 	public Twitter twitter = new TwitterFactory().getInstance();
 	
+	private String userTwitterId;
+	private String mostRecentMsgId;
+	
 	public TwitterHelper(){
 		context = SearchBadgerApplication.getAppContext();
+		
+		/*// set user's twitter Id
+		try {
+			setUserTwitterId(String.valueOf(twitter.getId()));
+		} catch (IllegalStateException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (TwitterException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}*/
+		
+		userTwitterId = "";
+		
+		// set most recent msg id to being empty string
+		mostRecentMsgId = "";
 	}
 	
 	public boolean isSessionValid(){
@@ -63,5 +83,29 @@ public class TwitterHelper {
 		} catch (Exception e) {
 		    Log.d("TWITTER_OAUTH", "Error in acquiring request token.");
 		}
+	}
+	
+	public String getAccessToken(){
+		return prefs.getTwitterToken();
+	}
+	
+	public String getAccessSecret(){
+		return prefs.getTwitterSecret();
+	}
+	
+	public void setUserTwitterId(String id){
+		userTwitterId = id;
+	}
+	
+	public String getUserTwitterId(){
+		return userTwitterId;
+	}
+	
+	public void setMostRecentMsgId(String id){
+		mostRecentMsgId = id;
+	}
+	
+	public String getMostRecentMsgId(){
+		return mostRecentMsgId;
 	}
 }
