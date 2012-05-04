@@ -16,6 +16,7 @@ import com.github.searchbadger.R;
 import com.github.searchbadger.core.SearchBadgerApplication;
 import com.github.searchbadger.util.Message;
 import com.github.searchbadger.util.SearchModel;
+import com.github.searchbadger.util.TextViewUtil;
 
 public class ThreadListFragment extends ListFragment {
 
@@ -114,7 +115,7 @@ public class ThreadListFragment extends ListFragment {
                 	// add the message
                 	TextView message = (TextView) v.findViewById(R.id.thread_text);
                 	if(message != null)
-                		message.setText(m.getAuthor() + ": " + m.getText());
+                		message.setText(TextViewUtil.formatMessage(m.getAuthor(), m.getText()));
                 	
                 	
                 }

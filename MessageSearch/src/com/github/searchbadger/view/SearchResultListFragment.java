@@ -5,6 +5,7 @@ import java.util.List;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.ListFragment;
@@ -23,6 +24,7 @@ import com.github.searchbadger.core.SearchBadgerController;
 import com.github.searchbadger.core.SearchBadgerController.StarredMessageListener;
 import com.github.searchbadger.util.Message;
 import com.github.searchbadger.util.SearchModel;
+import com.github.searchbadger.util.TextViewUtil;
 
 public class SearchResultListFragment extends ListFragment {
 
@@ -148,7 +150,7 @@ public class SearchResultListFragment extends ListFragment {
                 	// add the message
                 	TextView message = (TextView) v.findViewById(R.id.messages_text);
                 	if(message != null)
-                		message.setText(m.getAuthor() + ": " + m.getText());
+                		message.setText(TextViewUtil.formatMessage(m.getAuthor(), m.getText()));
                 	
                 	// add the date
                 	TextView date = (TextView) v.findViewById(R.id.search_result_date);
