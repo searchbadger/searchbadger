@@ -31,7 +31,7 @@ public class SearchResultListFragment extends ListFragment {
 	private boolean mDualPane;
     private SearchModel model = SearchBadgerApplication.getSearchModel();
     private SearchBadgerController controller = SearchBadgerController.getInstance();
-    private SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy h:mm:ss a");
     private List<Message> results;
 	
 	@Override
