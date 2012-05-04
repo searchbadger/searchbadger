@@ -841,7 +841,7 @@ public class SearchBadgerModel implements SearchModel {
 		String selection = "thread_id = ?";
 		Log.d("SearchBadger", msgInThread.getThreadId().toString());
 		
-		Cursor searchResultCursor = SearchBadgerApplication.getAppContext().getContentResolver().query(uri, projectionList, selection, selectionArgs, "date DESC");
+		Cursor searchResultCursor = SearchBadgerApplication.getAppContext().getContentResolver().query(uri, projectionList, selection, selectionArgs, "date ASC");
 		
 		List<Contact> contactsSMS = getSMSContacts();
 		threadMessages = new LinkedList<Message>();
@@ -904,7 +904,7 @@ public class SearchBadgerModel implements SearchModel {
 		StringBuilder query = new StringBuilder();
 		query.append("SELECT thread_id, message_id, author_id, created_time, body FROM message WHERE thread_id = ");
 		query.append(msgInThread.getThreadId());
-		query.append(" ORDER BY created_time DESC ");
+		query.append(" ORDER BY created_time ASC ");
 
 		// send the search request for the message search
 		Bundle params = new Bundle();
