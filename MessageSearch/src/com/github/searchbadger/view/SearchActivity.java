@@ -827,6 +827,7 @@ public class SearchActivity extends Activity implements SearchGenerator {
 	            .setNegativeButton("Close",
 	                    new DialogInterface.OnClickListener() {
 	                        public void onClick(DialogInterface dialog, int which) {
+	                        	facebookButton.setChecked(false);
 	                        	dialog.cancel();
 	                        }
 

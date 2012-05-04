@@ -3,6 +3,7 @@ package com.github.searchbadger.core;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -54,6 +55,7 @@ public class SearchBadgerModel implements SearchModel {
 	//private Cursor searchResultCursor;
 	private List<Message> searchResultMessages;
 	private List<Message> threadMessages;
+	private int threadMessageIndex;
 	private final static String projectionList[] = {"_id", "thread_id", "address", "date", "body", "type", "person"};
 	private final static String STARRED_MSGS_COLS[] = {"id", "msg_id", "msg_text", "thread_id", "date", "src_name", "author"};
 	private final static String STARRED_MSGS_DEL_WHERE = "msg_id = ? AND thread_id = ? AND src_name = ?";
@@ -117,6 +119,8 @@ public class SearchBadgerModel implements SearchModel {
 		List<String> selectionArgList = new LinkedList<String>();
 		String selection = "";
 		String arg = "";
+		
+		
 				
 		// Go through each possible search type, and build SQL query
 		if (filter.getText() != null && filter.getText().length() != 0) {
@@ -759,7 +763,6 @@ public class SearchBadgerModel implements SearchModel {
 	 * TODO: interface with database for persistent storage of starred msgs
 	 */
 	public List<Message> getStarredMessages() {
-		
 		SQLiteDatabase db = null;
 		try {
 			db = dbOH.getWritableDatabase();
@@ -767,7 +770,6 @@ public class SearchBadgerModel implements SearchModel {
 			if (this.starredMsgs == null) {
 				Cursor starredMsgsCursor = db.query(STARRED_MSGS_TABLE, STARRED_MSGS_COLS, 
 						null, null, null, null, null);//"date");
-				
 				if (starredMsgsCursor != null) {
 					starredMsgs = new ArrayList<Message>();
 					if (starredMsgsCursor.getCount() > 0) {
@@ -1084,6 +1086,10 @@ public class SearchBadgerModel implements SearchModel {
 		return threadMessages;
 	}
 	
+	public int getLastThreadIndex() {
+		return threadMessageIndex;
+	}
+	
 	public List<Message> getThreadSMS(Message message) {
 		// SMS content provider uri 
 		Message msgInThread = message;
@@ -1095,15 +1101,16 @@ public class SearchBadgerModel implements SearchModel {
 		String selection = "thread_id = ?";
 		Log.d("SearchBadger", msgInThread.getThreadId().toString());
 		
-		Cursor searchResultCursor = SearchBadgerApplication.getAppContext().getContentResolver().query(uri, projectionList, selection, selectionArgs, "date DESC");
+		Cursor searchResultCursor = SearchBadgerApplication.getAppContext().getContentResolver().query(uri, projectionList, selection, selectionArgs, "date ASC");
 		
 		List<Contact> contactsSMS = getSMSContacts();
-		List<Message> threadMessages = new LinkedList<Message>();
+		threadMessages = new LinkedList<Message>();
 		if (searchResultCursor != null) {
 			try {
 				int count = searchResultCursor.getCount();
 				if (count > 0) {
 					searchResultCursor.moveToFirst();
+					int index = 0;
 					do {
 
 						String[] columns = searchResultCursor.getColumnNames();
@@ -1121,7 +1128,7 @@ public class SearchBadgerModel implements SearchModel {
 						String body = searchResultCursor.getString(4);
 						long type = searchResultCursor.getLong(5);
 						long contactId = searchResultCursor.getLong(6);
-						String contactId_string = String.valueOf(contactId);
+						//String contactId_string = String.valueOf(contactId);
 						
 
 						// convert address to author
@@ -1133,6 +1140,9 @@ public class SearchBadgerModel implements SearchModel {
 						Message msg = new Message(messageId_string, threadId_string, author, MessageSource.SMS, new Date (timestamp),
 								body, false);
 						threadMessages.add(msg);
+						
+						if(msg.equals(message)) threadMessageIndex = index;
+						index++;
 
 					} while (searchResultCursor.moveToNext() == true);
 
@@ -1154,7 +1164,7 @@ public class SearchBadgerModel implements SearchModel {
 		StringBuilder query = new StringBuilder();
 		query.append("SELECT thread_id, message_id, author_id, created_time, body FROM message WHERE thread_id = ");
 		query.append(msgInThread.getThreadId());
-		query.append(" ORDER BY created_time DESC ");
+		query.append(" ORDER BY created_time ASC ");
 
 		// send the search request for the message search
 		Bundle params = new Bundle();
@@ -1177,7 +1187,7 @@ public class SearchBadgerModel implements SearchModel {
         String thread_id, message_id, author_id, created_time, body;
         JSONArray jsonArray;
 		List<Contact> facebookContacts = getFacebookContacts();
-		List<Message> threadMessages = new LinkedList<Message>();
+		threadMessages = new LinkedList<Message>();
         try {
 			jsonArray = new JSONArray(response);
 	        for(int i = 0; i < jsonArray.length(); i++) {
@@ -1199,6 +1209,8 @@ public class SearchBadgerModel implements SearchModel {
 				Message msg = new Message(message_id, thread_id, author, MessageSource.FACEBOOK, new Date (timestamp),
 						body, false);
 				threadMessages.add(msg);
+				
+				if(msg.equals(message)) threadMessageIndex = i;
 
 	        }
 		} catch (JSONException e) {
@@ -1269,7 +1281,7 @@ public class SearchBadgerModel implements SearchModel {
 	
 	
 	/*
-	 * Given a message source this gets the contacts for that source.Ã
+	 * Given a message source this gets the contacts for that source.�
 	 */
 	public List<Contact> getContacts(MessageSource source) {
 		switch(source) {
@@ -1390,7 +1402,7 @@ public class SearchBadgerModel implements SearchModel {
         
         long id;
         String name;
-         String pic;
+        String pic;
         JSONArray jsonArray;
         try {
 			jsonArray = new JSONArray(response);

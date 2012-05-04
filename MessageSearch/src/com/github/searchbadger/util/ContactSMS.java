@@ -50,6 +50,7 @@ public class ContactSMS extends Contact implements Parcelable {
 		dest.writeString(source.name());
 		dest.writeString(name);
 		dest.writeParcelable(picture, flags);
+		dest.writeString(picture_url);
 		dest.writeStringList(addresses);
 	}
 	
@@ -66,10 +67,14 @@ public class ContactSMS extends Contact implements Parcelable {
 
 	@Override
 	public boolean contains(String address) {
+		address = address.replace(" ", "");
+		address = address.replace("-", "");
 		if(addresses == null) return false;
 		Iterator<String> itr = addresses.iterator();
 		while(itr.hasNext()) {
 			String contactAddress = itr.next();
+			contactAddress = contactAddress.replace(" ", "");
+			contactAddress = contactAddress.replace("-", "");
 			if(contactAddress.equals(address))
 				return true;
 		}

@@ -3,13 +3,14 @@ package com.github.searchbadger.view;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.json.JSONException;
-
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -19,6 +20,8 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.EditText;
+import android.widget.Filter;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -36,6 +39,8 @@ public class ContactsActivity extends Activity {
 	protected List<Contact> selectedContacts;
 	protected List<Contact> contacts;
 	protected ContactsActivity thisActivity;
+	protected EditText filterText;
+	protected ListAdapter adapter;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +53,7 @@ public class ContactsActivity extends Activity {
         Button buttonDone = (Button) findViewById(R.id.buttonDone);
         buttonDone.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
+				filterText.removeTextChangedListener(filterTextWatcher); 
 				Intent intent = new Intent();
 				intent.putParcelableArrayListExtra("selectedContacts", (ArrayList<Contact>)selectedContacts);
 				setResult(RESULT_OK, intent);
@@ -67,7 +73,9 @@ public class ContactsActivity extends Activity {
         if(selectedContacts == null) return;
 		if(sources.size() != 1) return;
 
-		
+		// add filter listener
+		filterText = (EditText) findViewById(R.id.filter_box);
+	    filterText.addTextChangedListener(filterTextWatcher);
 
 		// show progress bar
 		final ProgressDialog dialog = ProgressDialog.show(this, "", 
@@ -90,10 +98,10 @@ public class ContactsActivity extends Activity {
 						
 						if(contacts == null) return;
 				        ListView list = (ListView) findViewById(R.id.listView_contact);
-						ListAdapter myadapter = new ContactArrayAdapter(thisActivity,
+						adapter = new ContactArrayAdapter(thisActivity,
 								R.layout.contacts_list_item,
 								contacts);
-				        list.setAdapter(myadapter);
+				        list.setAdapter(adapter);
 					}
 				});
 				
@@ -105,13 +113,35 @@ public class ContactsActivity extends Activity {
 		
 	}
 	
+	
+	
+	@Override
+	protected void onDestroy() {
+		filterText.removeTextChangedListener(filterTextWatcher); 
+		super.onDestroy();
+	}
+
+
+
+	private TextWatcher filterTextWatcher = new TextWatcher() {
+	    public void afterTextChanged(Editable s) {}
+	    public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+	    public void onTextChanged(CharSequence s, int start, int before, int count) {
+	    	// filter the contacts 
+	    	((ContactArrayAdapter) adapter).getFilter().filter(s);
+	    }
+	};
+	
 	protected class ContactArrayAdapter extends ArrayAdapter<Contact> {
 
 		private List<Contact> contacts;
+		private List<Contact> contactsFiltered;
+		private Filter filter;
 		protected FriendsGetProfilePics friendsGetProfilePics;
 		
 		public ContactArrayAdapter(Context context, int textViewResourceId, List<Contact> objects) {
 			super(context, textViewResourceId, objects);
+			contactsFiltered = objects;
 			contacts = objects;
 			friendsGetProfilePics = new FriendsGetProfilePics();
 			friendsGetProfilePics.setListener(this);
@@ -124,7 +154,7 @@ public class ContactsActivity extends Activity {
                     LayoutInflater vi = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                     v = vi.inflate(R.layout.contacts_list_item, null);
                 }
-                Contact c = contacts.get(position);
+                Contact c = contactsFiltered.get(position);
                 if (c != null) {
                 	// save the contact into the tag
         			v.setTag(c);
@@ -158,8 +188,59 @@ public class ContactsActivity extends Activity {
                 
                 return v;
         }
-		
+        
+        @Override
+		public int getCount() {
+			return contactsFiltered.size();
+		}
+
+		@Override
+        public Filter getFilter() {
+            if (filter == null){
+              filter  = new ContactFilter();
+            }
+            return filter;
+        }
+
+    	private class ContactFilter extends Filter{
+    	
+    	    @Override
+    	    protected void publishResults(CharSequence prefix,
+    	                                  FilterResults results) {
+    	    	contactsFiltered = (ArrayList<Contact>)results.values;
+    	        notifyDataSetChanged();
+    	    }
+    	
+    	    protected FilterResults performFiltering(CharSequence prefix) {
+    	          
+				// perform the filter
+				FilterResults results = new FilterResults();
+				ArrayList<Contact> filterList = new ArrayList<Contact>();
+
+				if (prefix != null && prefix.toString().length() > 0) {
+
+					for (int index = 0; index < contacts.size(); index++) {
+						Contact c = contacts.get(index);
+						if (c.getName().toLowerCase().contains(prefix.toString().toLowerCase())) {
+							filterList.add(c);
+						}
+					}
+					results.values = filterList;
+					results.count = filterList.size();
+				} else {
+					synchronized (contacts) {
+						results.values = contacts;
+						results.count = contacts.size();
+					}
+				}  
+
+				return results;
+    	    }
+    	 }     
+    	
 	}
+	
+
 	
 	protected void OnContactSelector(View v){
 

@@ -23,13 +23,14 @@ import com.github.searchbadger.core.SearchBadgerApplication;
 import com.github.searchbadger.core.SearchBadgerController;
 import com.github.searchbadger.util.Message;
 import com.github.searchbadger.util.SearchModel;
+import com.github.searchbadger.util.TextViewUtil;
 
 public class StarredMessagesListFragment extends ListFragment {
 
 	private boolean mDualPane;
     private SearchModel model = SearchBadgerApplication.getSearchModel();
     private SearchBadgerController controller = SearchBadgerController.getInstance();
-    private SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy h:mm:ss a");
     private List<Message> results;
 	
 	@Override
@@ -150,7 +151,7 @@ public class StarredMessagesListFragment extends ListFragment {
                 	// add the message
                 	TextView message = (TextView) v.findViewById(R.id.messages_text);
                 	if(message != null)
-                		message.setText(m.getAuthor() + ": " + m.getText());
+                		message.setText(TextViewUtil.formatMessage(m.getAuthor(), m.getText()));
                 	
                 	// add the date
                 	TextView date = (TextView) v.findViewById(R.id.search_result_date);

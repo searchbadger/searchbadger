@@ -10,6 +10,7 @@ public interface SearchModel {
 	public Search getCurrentSearch();
 	public List<Message> getThread(Message message);
 	public List<Message> getLastThread();
+	public int getLastThreadIndex();
 	public void resetLastThread();
 	public List<Search> getRecentSearches();
 	public List<Message> getStarredMessages();

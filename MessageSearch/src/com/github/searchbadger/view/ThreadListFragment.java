@@ -3,24 +3,30 @@ package com.github.searchbadger.view;
 import java.util.List;
 
 import android.content.Context;
+import android.graphics.Point;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.github.searchbadger.R;
 import com.github.searchbadger.core.SearchBadgerApplication;
 import com.github.searchbadger.util.Message;
 import com.github.searchbadger.util.SearchModel;
+import com.github.searchbadger.util.TextViewUtil;
 
 public class ThreadListFragment extends ListFragment {
 
 	private SearchModel model = SearchBadgerApplication.getSearchModel();
 	private List<Message> thread_msg;
+	private int thread_index = 0;
+	
 	 /**
      * Create a new instance of DetailsFragment, initialized to
      * show the text at 'index'.
@@ -65,12 +71,22 @@ public class ThreadListFragment extends ListFragment {
 									setEmptyText(getString(R.string.thread_error));
 									return;
 								}
+								thread_index = model.getLastThreadIndex();
 								try {
 									MessageArrayAdapter adapter = new MessageArrayAdapter(getActivity(), R.layout.search_result_list_item, thread_msg);
 									setListAdapter(adapter);
 									setEmptyText(getString(R.string.thread_error));
+
+									Display display = getActivity().getWindowManager().getDefaultDisplay();
+									int height = display.getHeight();
+									
+									// make the selected message visible
+									ListView listView = getListView();
+									listView.setSelectionFromTop(thread_index, height / 2 - 60);
 								} catch(Exception e) {
 								}
+								
+								
 							}
 						});
 					} catch(Exception e) {
@@ -113,8 +129,12 @@ public class ThreadListFragment extends ListFragment {
                 	
                 	// add the message
                 	TextView message = (TextView) v.findViewById(R.id.thread_text);
-                	if(message != null)
-                		message.setText(m.getAuthor() + ": " + m.getText());
+                	if(message != null) {
+                		if(position == thread_index)
+                			message.setText(TextViewUtil.formatMessageSelected(m.getAuthor(), m.getText()));                		
+                		else
+                			message.setText(TextViewUtil.formatMessage(m.getAuthor(), m.getText()));
+                	}
                 	
                 	
                 }
