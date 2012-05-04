@@ -45,6 +45,7 @@ public class SearchBadgerModel implements SearchModel {
 	//private Cursor searchResultCursor;
 	private List<Message> searchResultMessages;
 	private List<Message> threadMessages;
+	private int threadMessageIndex;
 	private final static String projectionList[] = {"_id", "thread_id", "address", "date", "body", "type", "person"};
 	private final static String STARRED_MSGS_COLS[] = {"id", "msg_id", "msg_text", "thread_id", "date", "src_name", "author"};
 	private final static String STARRED_MSGS_DEL_WHERE = "msg_id = ? AND thread_id = ? AND src_name = ?";
@@ -825,6 +826,10 @@ public class SearchBadgerModel implements SearchModel {
 		return threadMessages;
 	}
 	
+	public int getLastThreadIndex() {
+		return threadMessageIndex;
+	}
+	
 	public List<Message> getThreadSMS(Message message) {
 		// SMS content provider uri 
 		Message msgInThread = message;
@@ -845,6 +850,7 @@ public class SearchBadgerModel implements SearchModel {
 				int count = searchResultCursor.getCount();
 				if (count > 0) {
 					searchResultCursor.moveToFirst();
+					int index = 0;
 					do {
 
 						String[] columns = searchResultCursor.getColumnNames();
@@ -862,7 +868,7 @@ public class SearchBadgerModel implements SearchModel {
 						String body = searchResultCursor.getString(4);
 						long type = searchResultCursor.getLong(5);
 						long contactId = searchResultCursor.getLong(6);
-						String contactId_string = String.valueOf(contactId);
+						//String contactId_string = String.valueOf(contactId);
 						
 
 						// convert address to author
@@ -874,6 +880,9 @@ public class SearchBadgerModel implements SearchModel {
 						Message msg = new Message(messageId_string, threadId_string, author, MessageSource.SMS, new Date (timestamp),
 								body, false);
 						threadMessages.add(msg);
+						
+						if(msg.equals(message)) threadMessageIndex = index;
+						index++;
 
 					} while (searchResultCursor.moveToNext() == true);
 
@@ -940,6 +949,8 @@ public class SearchBadgerModel implements SearchModel {
 				Message msg = new Message(message_id, thread_id, author, MessageSource.FACEBOOK, new Date (timestamp),
 						body, false);
 				threadMessages.add(msg);
+				
+				if(msg.equals(message)) threadMessageIndex = i;
 
 	        }
 		} catch (JSONException e) {

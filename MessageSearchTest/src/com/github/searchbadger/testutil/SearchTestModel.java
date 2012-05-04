@@ -139,4 +139,8 @@ public class SearchTestModel implements SearchModel {
 	public void resetLastThread() {		
 	}
 
+	public int getLastThreadIndex() {
+		return 0;
+	}
+
 }
