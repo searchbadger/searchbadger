@@ -50,6 +50,7 @@ public class ContactSMS extends Contact implements Parcelable {
 		dest.writeString(source.name());
 		dest.writeString(name);
 		dest.writeParcelable(picture, flags);
+		dest.writeString(picture_url);
 		dest.writeStringList(addresses);
 	}
 	
