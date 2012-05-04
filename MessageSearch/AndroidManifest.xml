@@ -75,6 +75,10 @@
         </activity>
         
         
+        <activity android:name=".view.WordCloudActivity"
+            android:label="@string/word_cloud">
+        </activity>
+        
     </application>
 
 </manifest>

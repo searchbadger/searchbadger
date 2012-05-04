@@ -61,7 +61,10 @@ public class ThreadListFragment extends ListFragment {
 					try {
 						getActivity().runOnUiThread(new Runnable() {
 							public void run() {
-								if(thread_msg == null) return;
+								if(thread_msg == null) {
+									setEmptyText(getString(R.string.thread_error));
+									return;
+								}
 								try {
 									MessageArrayAdapter adapter = new MessageArrayAdapter(getActivity(), R.layout.search_result_list_item, thread_msg);
 									setListAdapter(adapter);

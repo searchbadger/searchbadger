@@ -44,4 +44,6 @@
     <string name="starred_error">An error occurred retriving the starred messages.\n\nPlease report this at\nhttp://www.github.com/searchbadger/searchbadger/issues</string>
     <string name="recent_error">An error occurred retriving recent searches.\n\nPlease report this at\nhttp://www.github.com/searchbadger/searchbadger/issues</string>
     <string name="no_recent_searches">No Recent Searches\nWhy don\'t you perform a search?</string>
+    <string name="word_cloud">Word Cloud</string>
+    <string name="regex_description">RegEx symbols for advance searching (see Help Menu)</string>
 </resources>

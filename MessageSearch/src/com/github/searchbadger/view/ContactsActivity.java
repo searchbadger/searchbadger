@@ -3,6 +3,8 @@ package com.github.searchbadger.view;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.json.JSONException;
+
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -17,6 +19,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -24,6 +27,7 @@ import android.widget.TextView;
 import com.github.searchbadger.R;
 import com.github.searchbadger.core.SearchBadgerApplication;
 import com.github.searchbadger.util.Contact;
+import com.github.searchbadger.util.FriendsGetProfilePics;
 import com.github.searchbadger.util.MessageSource;
 
 public class ContactsActivity extends Activity {
@@ -99,16 +103,18 @@ public class ContactsActivity extends Activity {
 		thread.start();
 
 		
-
 	}
 	
 	protected class ContactArrayAdapter extends ArrayAdapter<Contact> {
 
 		private List<Contact> contacts;
+		protected FriendsGetProfilePics friendsGetProfilePics;
 		
 		public ContactArrayAdapter(Context context, int textViewResourceId, List<Contact> objects) {
 			super(context, textViewResourceId, objects);
 			contacts = objects;
+			friendsGetProfilePics = new FriendsGetProfilePics();
+			friendsGetProfilePics.setListener(this);
 		}
 
         @Override
@@ -141,6 +147,15 @@ public class ContactsActivity extends Activity {
         			else
         				checkbox.setChecked(false);
                 }
+                
+                ImageView imageView = (ImageView) v.findViewById(R.id.contact_pic);
+                switch(sources.get(0)) {
+                case FACEBOOK:
+                	imageView.setImageBitmap(friendsGetProfilePics.getImage(
+                    			c.getId(), c.getPictureUrl()));
+                    break;
+                }
+                
                 return v;
         }
 		

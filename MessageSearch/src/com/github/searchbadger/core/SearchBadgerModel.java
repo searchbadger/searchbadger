@@ -3,7 +3,6 @@ package com.github.searchbadger.core;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -15,20 +14,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import oauth.signpost.OAuthConsumer;
-import oauth.signpost.basic.DefaultOAuthConsumer;
-import oauth.signpost.exception.OAuthCommunicationException;
-import oauth.signpost.exception.OAuthExpectationFailedException;
-import oauth.signpost.exception.OAuthMessageSignerException;
-
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.BasicResponseHandler;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpParams;
-import org.apache.http.params.HttpProtocolParams;
 import org.json.JSONArray;
 import org.json.JSONException;
 
@@ -68,6 +53,7 @@ public class SearchBadgerModel implements SearchModel {
 	
 	//private Cursor searchResultCursor;
 	private List<Message> searchResultMessages;
+	private List<Message> threadMessages;
 	private final static String projectionList[] = {"_id", "thread_id", "address", "date", "body", "type", "person"};
 	private final static String STARRED_MSGS_COLS[] = {"id", "msg_id", "msg_text", "thread_id", "date", "src_name", "author"};
 	private final static String STARRED_MSGS_DEL_WHERE = "msg_id = ? AND thread_id = ? AND src_name = ?";
@@ -1090,6 +1076,14 @@ public class SearchBadgerModel implements SearchModel {
 		return null;
 	}
 	
+	public void resetLastThread() {
+		threadMessages = null;
+	}
+	
+	public List<Message> getLastThread() {
+		return threadMessages;
+	}
+	
 	public List<Message> getThreadSMS(Message message) {
 		// SMS content provider uri 
 		Message msgInThread = message;
@@ -1275,7 +1269,7 @@ public class SearchBadgerModel implements SearchModel {
 	
 	
 	/*
-	 * Given a message source this gets the contacts for that source.�
+	 * Given a message source this gets the contacts for that source.Ã
 	 */
 	public List<Contact> getContacts(MessageSource source) {
 		switch(source) {
@@ -1396,6 +1390,7 @@ public class SearchBadgerModel implements SearchModel {
         
         long id;
         String name;
+         String pic;
         JSONArray jsonArray;
         try {
 			jsonArray = new JSONArray(response);
@@ -1403,6 +1398,7 @@ public class SearchBadgerModel implements SearchModel {
 	        for(int i = 0; i < jsonArray.length(); i++) {
 	        	id = jsonArray.getJSONObject(i).getLong("uid");
 	        	name = jsonArray.getJSONObject(i).getString("name");
+	        	pic = jsonArray.getJSONObject(i).getString("pic_square");
 	        	
 
 				// add the new contact to the list
@@ -1410,7 +1406,8 @@ public class SearchBadgerModel implements SearchModel {
 						String.valueOf(id),
 						MessageSource.FACEBOOK,
 						name,
-						null);
+						null,
+						pic);
 				contacts.add(contact);
 	        }
 		} catch (JSONException e) {
@@ -1492,8 +1489,8 @@ public class SearchBadgerModel implements SearchModel {
 			onCreate(db);
 		}
     }
-	
-	protected class SearchBadgerOpenHandler extends SQLiteOpenHelper {
+    
+    protected class SearchBadgerOpenHandler extends SQLiteOpenHelper {
 		public static final int DATABASE_VERSION = 3;
 		public static final String DATABASE_NAME = "searchbadger";
 		

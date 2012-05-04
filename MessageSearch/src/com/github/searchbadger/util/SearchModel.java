@@ -9,6 +9,8 @@ public interface SearchModel {
 	public List<Message> getSearchResults();
 	public Search getCurrentSearch();
 	public List<Message> getThread(Message message);
+	public List<Message> getLastThread();
+	public void resetLastThread();
 	public List<Search> getRecentSearches();
 	public List<Message> getStarredMessages();
 	public boolean addStarredMessage(Message msg);

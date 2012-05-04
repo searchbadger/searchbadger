@@ -45,7 +45,10 @@ public class RecentSearchActivityTest extends
 		testActivity = this.getActivity();
 		assertNotNull(testActivity);
 		
-		ListView listView = testActivity.getListView();
+		RecentSearchListFragment listFragment = (RecentSearchListFragment) testActivity
+				.getSupportFragmentManager()
+				.findFragmentById(R.id.recent_searches_list);
+		ListView listView = listFragment.getListView();
 		assertEquals("Check the listview count", 3, listView.getCount());
 		View v = listView.getChildAt(0);
 		TouchUtils.clickView(this, v);

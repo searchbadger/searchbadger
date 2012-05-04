@@ -18,12 +18,12 @@ import android.text.Editable;
 import android.text.Html;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
-import android.text.TextWatcher;
-import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.DatePicker;
@@ -32,6 +32,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.github.searchbadger.R;
@@ -87,9 +88,7 @@ public class SearchActivity extends Activity implements SearchGenerator {
 	protected Date afterDate;
 	protected Date fromDate;
 	protected Date toDate;
-	
-	protected TextWatcher watcher;
-	
+		
 	protected List<Contact> selectedContacts = new ArrayList<Contact>();
 
 
@@ -215,20 +214,25 @@ public class SearchActivity extends Activity implements SearchGenerator {
 			}
 		});
 		
+		
 		// this will color the regex symbols
-		watcher = new TextWatcher() {
-			public void onTextChanged(CharSequence s, int start, int before, int count) {
-				searchInputText.removeTextChangedListener(watcher);
-				int startSelection = searchInputText.getSelectionStart();
-				int stopSelection = searchInputText.getSelectionEnd();
-				searchInputText.setText(colorRegexString(searchInputText.getText().toString()));
-				searchInputText.setSelection(startSelection, stopSelection); // restore selection
-				searchInputText.addTextChangedListener(watcher);
+		searchInputText.setOnEditorActionListener( new EditText.OnEditorActionListener() {
+			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+			    if (actionId == EditorInfo.IME_ACTION_SEARCH ||
+			            actionId == EditorInfo.IME_ACTION_DONE ||
+			            event.getAction() == KeyEvent.ACTION_DOWN &&
+			            event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
+			        
+					int startSelection = searchInputText.getSelectionStart();
+					int stopSelection = searchInputText.getSelectionEnd();
+					searchInputText.setText(colorRegexString(searchInputText.getText().toString()));
+					searchInputText.setSelection(startSelection, stopSelection); // restore selection
+			                      
+			    }
+			    return false;
 			}
-			public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-			public void afterTextChanged(Editable s) {}
-		};
-		searchInputText.addTextChangedListener(watcher);
+		});
+		
 
 		// update the filters
 		radioGroupDate.check(R.id.radioToday);
@@ -437,6 +441,12 @@ public class SearchActivity extends Activity implements SearchGenerator {
 		
 		// check if the user needs to login into a source account
 		isFacebookSelectedAndNotReady();
+		
+		// TODO display Twitter is not implemented yet
+		List<MessageSource> sources = getMessageSources();
+		if(sources.contains(MessageSource.TWITTER)) {
+			Toast.makeText(this, "Sorry. Twitter search has not been implemented yet.", Toast.LENGTH_LONG).show();
+		}
 		
 	}
 	

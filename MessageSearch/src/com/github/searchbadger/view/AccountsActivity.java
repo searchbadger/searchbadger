@@ -34,8 +34,10 @@ public class AccountsActivity extends PreferenceActivity {
     protected Preference facebookConnect;
     protected Preference twitterConnect;
     protected Handler handler;
+	/* TODO Disabling these unless we decide to implement the features
     protected EditTextPreference maxResult;
     protected EditTextPreference numMessageThread;
+    */
     protected Preference clearSearchButton;
 
 	
@@ -62,7 +64,7 @@ public class AccountsActivity extends PreferenceActivity {
 		twitterConnect.setOnPreferenceClickListener(twitterClickListener);
 		updateTwitterButton();
 		
-		
+		/* TODO Disabling these unless we decide to implement the features
 		// setup the search max result preference
 		maxResult = (EditTextPreference) findPreference("prefMaxResults");
 		maxResult.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
@@ -84,6 +86,7 @@ public class AccountsActivity extends PreferenceActivity {
 			}
 		});
 		updateNumMessageThread();
+		*/
 		
 		// setup the clear searches preference
 		clearSearchButton = (Preference) findPreference("prefClearSearchHistory");
@@ -130,6 +133,8 @@ public class AccountsActivity extends PreferenceActivity {
     	}
     }
     
+
+	/* TODO Disabling these unless we decide to implement the features
     public void updateMaxResult() {
 		maxResult.setTitle("Max Results: " + prefs.getSearchResultMax());
     }
@@ -137,6 +142,7 @@ public class AccountsActivity extends PreferenceActivity {
     public void updateNumMessageThread() {
     	numMessageThread.setTitle("Thread Messages: " + prefs.getNumMessagePerThread());
     }
+    */
     
     protected class FacebookClickListener implements OnPreferenceClickListener {
 
@@ -217,11 +223,12 @@ public class AccountsActivity extends PreferenceActivity {
         //Check if you got NewIntent event due to Twitter callback only
 
         if (uri != null && uri.toString().startsWith(TwitterHelper.OAUTH_CALLBACK_URL)) {
-            String veriﬁer = uri.getQueryParameter(oauth.signpost.OAuth.OAUTH_VERIFIER);
+            String verifier = uri.getQueryParameter(oauth.signpost.OAuth.OAUTH_VERIFIER);
 
             try {
                 // this will populate token and token_secret in consumer
-                twitterHelper.httpOauthprovider.retrieveAccessToken(twitterHelper.httpOauthConsumer, veriﬁer);
+                twitterHelper.httpOauthprovider.retrieveAccessToken(twitterHelper.httpOauthConsumer, verifier);
+
                 String userKey = twitterHelper.httpOauthConsumer.getToken();
                 String userSecret = twitterHelper.httpOauthConsumer.getTokenSecret();
 
