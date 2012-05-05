@@ -895,7 +895,7 @@ public class SearchBadgerModel implements SearchModel {
 	 * even if the user shuts off their phone
 	 */
 	public List<Search> getRecentSearches() {
-		SQLiteDatabase db = null;
+		SQLiteDatabase db = null; 
 		try {
 			db = dbOH.getWritableDatabase();
 		
@@ -984,7 +984,10 @@ public class SearchBadgerModel implements SearchModel {
 					}
 				}
 			}
-		} finally {
+		} catch (Exception e) {
+			
+		}
+		finally {
 			if (db != null) {
 				db.close();
 			}
