@@ -3,14 +3,14 @@
     android:id="@+id/LinearLayoutRecentSearchListItem"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:baselineAligned="true" >
-
+    android:baselineAligned="true"
+    android:orientation="vertical" >
+
     <TextView
         android:id="@+id/thread_text"
-        android:layout_width="0dp"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:paddingBottom="8dp"
+        android:paddingBottom="0dp"
         android:paddingLeft="5dp"
         android:paddingTop="8dp"
         android:text="@string/sample_message"
@@ -18,6 +18,13 @@
 
     </TextView>
 
-
+	<TextView
+	    android:id="@+id/thread_date"
+	    android:layout_width="wrap_content"
+	    android:layout_height="fill_parent"
+	    android:layout_gravity="right"
+	    android:text="@string/date"
+	    android:textColor="#999999"  
+	    android:textSize="10sp" />
 
 </LinearLayout>
