@@ -29,49 +29,78 @@ public class RecentSearchListFragment extends ListFragment {
 		super.onResume();
 		this.setListAdapter(null);
 		
-		// show progress bar since the first get might be slow 
-		final ProgressDialog dialog = ProgressDialog.show(getActivity(), "", 
-                "Loading. Please wait...", true);
 		
-		Thread thread = new Thread(new Runnable() {
-			public void run() {
-
-				recentSearches = null;
-				List<Search> searches = model.getRecentSearches();
-				if(searches != null) {
-				
-					// make a copy of the recent searches in case the list is changed 
-					recentSearches = new ArrayList<Search>(searches.size());
-				    for(Search item: searches) {
-				    	recentSearches.add(new Search(item));
-				    }
-				}
-		    
-				getActivity().runOnUiThread(new Runnable() {
-
-					public void run() {
-						SearchArrayAdapter adapter = new SearchArrayAdapter(getActivity(), R.layout.recent_search_list_item, recentSearches);
-						setListAdapter(adapter);
-						if (recentSearches == null) {
-							setEmptyText(getString(R.string.recent_error));
-						} else {							
-							if(recentSearches.size() == 0)
-								setEmptyText(getString(R.string.no_recent_searches));
-						}
-
-						try {
-							// hide the progress bar
-							dialog.dismiss();
-						}
-						catch(Exception e) {}
+		if(!model.hasRecentSearchesBeenLoaded()) {
+			
+			// if this is the first time, run in separate thread and
+			// show progress bar since the first get might be slow 
+			final ProgressDialog dialog = ProgressDialog.show(getActivity(), "", 
+	                "Loading. Please wait...", true);
+			
+			Thread thread = new Thread(new Runnable() {
+				public void run() {
+	
+					recentSearches = null;
+					List<Search> searches = model.getRecentSearches();
+					if(searches != null) {
+					
+						// make a copy of the recent searches in case the list is changed 
+						recentSearches = new ArrayList<Search>(searches.size());
+					    for(Search item: searches) {
+					    	recentSearches.add(new Search(item));
+					    }
 					}
-				});
-				
+			    
+					getActivity().runOnUiThread(new Runnable() {
+	
+						public void run() {
+							SearchArrayAdapter adapter = new SearchArrayAdapter(getActivity(), R.layout.recent_search_list_item, recentSearches);
+							setListAdapter(adapter);
+							if (recentSearches == null) {
+								setEmptyText(getString(R.string.recent_error));
+							} else {							
+								if(recentSearches.size() == 0)
+									setEmptyText(getString(R.string.no_recent_searches));
+							}
+	
+							try {
+								// hide the progress bar
+								dialog.dismiss();
+							}
+							catch(Exception e) {}
+						}
+					});
+					
+				}
+	
+			});
+			thread.start();
+
+		}
+		else {
+
+			// not first time so just load 
+			recentSearches = null;
+			List<Search> searches = model.getRecentSearches();
+			if(searches != null) {
+			
+				// make a copy of the recent searches in case the list is changed 
+				recentSearches = new ArrayList<Search>(searches.size());
+			    for(Search item: searches) {
+			    	recentSearches.add(new Search(item));
+			    }
 			}
 
-		});
-		thread.start();
+			SearchArrayAdapter adapter = new SearchArrayAdapter(getActivity(), R.layout.recent_search_list_item, recentSearches);
+			setListAdapter(adapter);
+			if (recentSearches == null) {
+				setEmptyText(getString(R.string.recent_error));
+			} else {							
+				if(recentSearches.size() == 0)
+					setEmptyText(getString(R.string.no_recent_searches));
+			}
 
+		}
 
 	}
 

@@ -887,6 +887,12 @@ public class SearchBadgerModel implements SearchModel {
 		return false;
 	} 
 
+	
+	public boolean hasRecentSearchesBeenLoaded(){
+		if (this.recentSearches == null) return false;
+		return true;
+	}
+	
 	/*
 	 * A list of recent searches is returned. 
 	 * Note: not messages, these are actual searches.
