@@ -901,7 +901,7 @@ public class SearchBadgerModel implements SearchModel {
 		
 			if (this.recentSearches == null) {
 				Cursor recentSearchesCursor = db.query(RECENT_SEARCH_TABLE, RECENT_SEARCH_COLS, 
-						null, null, null, null, "id DESC");
+						null, null, null, null, "id DESC LIMIT 20"); // TODO hard coded limit here. probably want to move this
 				if (recentSearchesCursor != null) {
 					recentSearches = new ArrayList<Search>();
 					if (recentSearchesCursor.getCount() > 0) {
@@ -1003,6 +1003,11 @@ public class SearchBadgerModel implements SearchModel {
 			this.getRecentSearches();
 		}
 		recentSearches.add(0, search);
+		
+		// TODO limiting searches to last 20
+		while(recentSearches.size() > 20) {
+			recentSearches.remove(20);
+		}
 		
 		SQLiteDatabase db = null;
 		try {
