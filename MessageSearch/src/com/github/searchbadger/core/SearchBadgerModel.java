@@ -217,11 +217,13 @@ public class SearchBadgerModel implements SearchModel {
 					searchResultCursor.moveToFirst();
 					do {
 
+						/*
 						String[] columns = searchResultCursor.getColumnNames();
 						for (int i=0; i<columns.length; i++) {
 						Log.v("SearchBadger","columns " + i + ": " + columns[i] + ": "
 								+ searchResultCursor.getString(i));
 						}
+						*/
 
 						long messageId = searchResultCursor.getLong(0);
 						String messageId_string = String.valueOf(messageId);
@@ -602,11 +604,13 @@ public class SearchBadgerModel implements SearchModel {
 					if (count > 0){
 						searchResultCursor.moveToFirst();
 						do{
+							/*
 							String columns[] = searchResultCursor.getColumnNames();
 							for (int i = 0; i < columns.length; i++){
 								Log.v("SearchBadger","columns " + i + ": " + columns[i] + ": "
 										+ searchResultCursor.getString(i));
 							}
+							*/
 							
 							//"Msg_Id", "Msg_Text", "Date", "Thread_Id", "Sender_Name"
 							String messageIdString = searchResultCursor.getString(0);
@@ -712,11 +716,13 @@ public class SearchBadgerModel implements SearchModel {
 						searchResultCursor.moveToFirst();
 						do {
 
+							/*
 							String[] columns = searchResultCursor.getColumnNames();
 							for (int i=0; i<columns.length; i++) {
 							Log.v("SearchBadger","columns " + i + ": " + columns[i] + ": "
 									+ searchResultCursor.getString(i));
 							}
+							*/
 
 							//"id", "msg_id", "msg_text", "thread_id", "date", "src_name", "author"	
 							String messageId_string = searchResultCursor.getString(1);
@@ -1127,11 +1133,13 @@ public class SearchBadgerModel implements SearchModel {
 					int index = 0;
 					do {
 
+						/*
 						String[] columns = searchResultCursor.getColumnNames();
 						for (int i=0; i<columns.length; i++) {
 						Log.v("SearchBadger","columns " + i + ": " + columns[i] + ": "
 								+ searchResultCursor.getString(i));
 						}
+						*/
 						
 						long messageId = searchResultCursor.getLong(0);
 						String messageId_string = String.valueOf(messageId);
@@ -1259,11 +1267,13 @@ public class SearchBadgerModel implements SearchModel {
 					if (count > 0){
 						threadResultCursor.moveToFirst();
 						do{
+							/*
 							String columns[] = threadResultCursor.getColumnNames();
 							for (int i = 0; i < columns.length; i++){
 								Log.v("SearchBadger","columns " + i + ": " + columns[i] + ": "
 										+ threadResultCursor.getString(i));
 							}
+							*/
 							
 							//"Msg_Id", "Msg_Text", "Date", "Thread_Id", "Sender_Name"
 							String messageIdString = threadResultCursor.getString(0);
