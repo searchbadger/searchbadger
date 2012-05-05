@@ -169,6 +169,9 @@ public class StarredMessagesListFragment extends ListFragment {
                 		case FACEBOOK:
                     		icon.setImageResource(R.drawable.facebook_selected);
                 			break;
+                		case TWITTER:
+                    		icon.setImageResource(R.drawable.twitter_selected);
+                			break;
                 		}
                 	}
 

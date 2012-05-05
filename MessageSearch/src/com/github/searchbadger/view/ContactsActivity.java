@@ -181,6 +181,7 @@ public class ContactsActivity extends Activity {
                 ImageView imageView = (ImageView) v.findViewById(R.id.contact_pic);
                 switch(sources.get(0)) {
                 case FACEBOOK:
+                case TWITTER:
                 	imageView.setImageBitmap(friendsGetProfilePics.getImage(
                     			c.getId(), c.getPictureUrl()));
                     break;

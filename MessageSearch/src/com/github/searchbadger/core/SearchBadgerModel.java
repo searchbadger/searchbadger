@@ -1462,8 +1462,10 @@ public class SearchBadgerModel implements SearchModel {
 						Contact c = new Contact(String.valueOf(followerList.get(j).getId()),
 								MessageSource.TWITTER,
 								followerList.get(j).getName(),
-								null);
-						contacts.add(c);
+								null,
+								followerList.get(j).getProfileImageURL().toString());
+						if(!contacts.contains(c))
+							contacts.add(c);
 					}
 				}
 			}
