@@ -46,4 +46,5 @@
     <string name="no_recent_searches">No Recent Searches\nWhy don\'t you perform a search?</string>
     <string name="word_cloud">Word Cloud</string>
     <string name="regex_description">RegEx symbols for advance searching (see Help Menu)</string>
+    <string name="save_word_cloud">Save Word Cloud to SD</string>
 </resources>

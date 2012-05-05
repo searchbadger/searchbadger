@@ -1,5 +1,10 @@
 package com.github.searchbadger.view;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -8,19 +13,26 @@ import java.util.Locale;
 import java.util.Map.Entry;
 import java.util.Random;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
-import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 
+import com.github.searchbadger.R;
 import com.github.searchbadger.core.SearchBadgerApplication;
 import com.github.searchbadger.util.Message;
 
@@ -451,6 +463,64 @@ public class WordCloudActivity extends Activity {
 				}
 			}
 
+		}
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater inflater = getMenuInflater();
+	    inflater.inflate(R.menu.menu_word_cloud, menu);
+	    return true;
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+	    // Handle item selection
+	    switch (item.getItemId()) {
+	    
+	        case R.id.menu_save:
+	        	SaveWordCloud();
+	            return true;
+	            
+	        default:
+	            return super.onOptionsItemSelected(item);
+	    }
+	}
+	
+	public void SaveWordCloud() {
+		// get path and create SearchBadger folder
+		File directory = Environment.getExternalStorageDirectory();
+		String image_path = directory + "/SearchBadger/";
+		File searchBadgerFile = new File(image_path);
+		searchBadgerFile.mkdirs();
+		Pattern pattern = Pattern.compile("\\d+");
+		
+		// construct unique filename by using next highest number
+		int maxNumber = 0;
+		File[] files = searchBadgerFile.listFiles();
+		for (File inFile : files) {
+			Matcher matcher = pattern.matcher(inFile.getName());
+			if(matcher.find()) {
+			    int number = Integer.parseInt(matcher.group());
+			    if(number > 0) maxNumber = number;
+			}
+		}
+		maxNumber++;
+		String image_name = "world_could " + maxNumber + ".png";
+
+		// save image
+		OutputStream outStream = null;
+		File file = new File(image_path, image_name);
+		try {
+			outStream = new FileOutputStream(file);
+
+			Bitmap bitmap = Bitmap.createBitmap(cloudView.getWidth(),
+					cloudView.getHeight(), Bitmap.Config.ARGB_8888);
+			Canvas canvas = new Canvas(bitmap);
+			cloudView.draw(canvas);
+			bitmap.compress(Bitmap.CompressFormat.PNG, 100, outStream);
+		} catch (IOException e) {
+			// TODO add some error message
 		}
 	}
 
