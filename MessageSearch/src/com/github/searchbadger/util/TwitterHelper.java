@@ -42,17 +42,6 @@ public class TwitterHelper {
 	public TwitterHelper(){
 		context = SearchBadgerApplication.getAppContext();
 		
-		/*// set user's twitter Id
-		try {
-			setUserTwitterId(String.valueOf(twitter.getId()));
-		} catch (IllegalStateException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (TwitterException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}*/
-		
 		userTwitterId = "";
 		
 		// set most recent msg id to being empty string

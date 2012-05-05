@@ -45,6 +45,7 @@ import com.github.searchbadger.util.Search;
 import com.github.searchbadger.util.SearchGenerator;
 import com.github.searchbadger.util.SearchModel;
 import com.github.searchbadger.util.SendReceiveType;
+import com.github.searchbadger.util.TwitterHelper;
 
 public class SearchActivity extends Activity implements SearchGenerator {
 
@@ -439,15 +440,11 @@ public class SearchActivity extends Activity implements SearchGenerator {
 		// clear the selected list once the source has changed
 		selectedContacts.clear();
 		
-		// check if the user needs to login into a source account
+		// check if the user needs to login into facebook account
 		isFacebookSelectedAndNotReady();
 		
-		// TODO display Twitter is not implemented yet
-		List<MessageSource> sources = getMessageSources();
-		if(sources.contains(MessageSource.TWITTER)) {
-			Toast.makeText(this, "Sorry. Twitter search has not been implemented yet.", Toast.LENGTH_LONG).show();
-		}
-		
+		// check if user needs to login into twitter account
+		isTwitterSelectedAndNotReady();
 	}
 	
 	@Override
@@ -805,6 +802,36 @@ public class SearchActivity extends Activity implements SearchGenerator {
 	public void ShowAbout() {
 		Intent intent = new Intent(this, AboutActivity.class);
 		startActivity(intent);
+	}
+	
+	public boolean isTwitterSelectedAndNotReady(){
+		List<MessageSource> sources = getMessageSources();
+		if (sources.contains(MessageSource.TWITTER)){
+			TwitterHelper twitterHelper = SearchBadgerApplication.getTwitterHelper();
+			if (!twitterHelper.isSessionValid()){
+				new AlertDialog.Builder(this)
+	            .setTitle("Twitter Login Required")
+	            .setMessage("You need to log into Twitter in order to search Twitter direct messages. In addition, you need to give this app the required permission to access your messages. Please go into the Settings Menu to log in.")
+	            .setPositiveButton("Open Settings",
+	                    new DialogInterface.OnClickListener() {
+	                        public void onClick(DialogInterface dialog, int which) {
+	                        	ShowSettings();
+	                        }
+
+	                    })
+	            .setNegativeButton("Close",
+	                    new DialogInterface.OnClickListener() {
+	                        public void onClick(DialogInterface dialog, int which) {
+	                        	twitterButton.setChecked(false);
+	                        	dialog.cancel();
+	                        }
+
+	                    }).show();
+				return true;
+			}
+		}
+		
+		return false;
 	}
 	
 	public boolean isFacebookSelectedAndNotReady() {
