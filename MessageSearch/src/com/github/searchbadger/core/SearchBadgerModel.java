@@ -1259,7 +1259,7 @@ public class SearchBadgerModel implements SearchModel {
 		try{
 			db = inMemDbOH.getWritableDatabase();
 			Cursor threadResultCursor = db.query(TWITTER_MSGS_TABLE, TWITTER_MSGS_COLS, selection, 
-					selectionArgs, null, null, "date DESC");
+					selectionArgs, null, null, "date ASC");
 			
 			if (threadResultCursor != null){
 				try{
