@@ -1,16 +1,22 @@
 package com.github.searchbadger.view;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -117,7 +123,9 @@ public class ContactsActivity extends Activity {
 	
 	@Override
 	protected void onDestroy() {
-		filterText.removeTextChangedListener(filterTextWatcher); 
+		try {
+			filterText.removeTextChangedListener(filterTextWatcher); 
+		} catch (Exception e) {}
 		super.onDestroy();
 	}
 
@@ -185,6 +193,10 @@ public class ContactsActivity extends Activity {
                 	imageView.setImageBitmap(friendsGetProfilePics.getImage(
                     			c.getId(), c.getPictureUrl()));
                     break;
+                    
+                case SMS:
+                	Bitmap img = loadContactPhoto(Integer.parseInt(c.getId()));
+                	if(img != null) imageView.setImageBitmap(img);
                 }
                 
                 return v;
@@ -278,6 +290,18 @@ public class ContactsActivity extends Activity {
 		return selectedContacts;
 	}
 
+	public static Bitmap loadContactPhoto(long id) {
+		ContentResolver contentResolver = SearchBadgerApplication.getAppContext().getContentResolver();
+		Uri uri = ContentUris.withAppendedId(
+				ContactsContract.Contacts.CONTENT_URI, id);
+		InputStream input = ContactsContract.Contacts
+				.openContactPhotoInputStream(contentResolver, uri);
+		if (input == null) {
+			return null;
+		}
+		return BitmapFactory.decodeStream(input);
+	}
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
