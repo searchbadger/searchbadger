@@ -39,7 +39,8 @@ public class SearchResultListFragment extends ListFragment {
 		
 		super.onCreate(savedInstanceState);
 
-		pattern = Pattern.compile(model.getCurrentSearch().getJavaRegexText(), Pattern.CASE_INSENSITIVE);
+		if(model.getCurrentSearch() != null)
+			pattern = Pattern.compile(model.getCurrentSearch().getJavaRegexText(), Pattern.CASE_INSENSITIVE);
 		results = model.getSearchResults();
 		MessageArrayAdapter adapter = new MessageArrayAdapter(getActivity(), R.layout.search_result_list_item, results);
 		setListAdapter(adapter);

@@ -20,6 +20,7 @@ public class TextViewUtil {
 	static public String bodyRegexColor = SearchBadgerApplication.getAppContext().getResources().getString(R.color.yellow);
 
 	static public Editable formatMessage(String author, String message) {
+		if(author == null || message == null) return null;
 		SpannableStringBuilder editable = new SpannableStringBuilder();
 		Spanned spanned = Html.fromHtml("<font color='#" + authorTextColor.substring(3) + "'>" + author + ": </font>");
 		editable.append(spanned);
@@ -28,6 +29,7 @@ public class TextViewUtil {
 	}
 	
 	static public Editable formatMessageSelected(String author, String message) {
+		if(author == null || message == null) return null;
 		SpannableStringBuilder editable = new SpannableStringBuilder();
 		Spanned spanned = Html.fromHtml("<font color='#" + authorTextColor.substring(3) + "'>" + author + ": </font>");
 		editable.append(spanned);
@@ -37,6 +39,7 @@ public class TextViewUtil {
 	}
 	
 	static public Editable formatMessageSearch(String author, String message, Pattern pattern) {
+		if(author == null || message == null || pattern == null) return null;
 		SpannableStringBuilder editable = new SpannableStringBuilder();
 		Spanned spanned = Html.fromHtml("<font color='#" + authorTextColor.substring(3) + "'>" + author + ": </font>");
 		editable.append(spanned);

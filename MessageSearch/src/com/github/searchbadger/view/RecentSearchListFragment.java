@@ -50,26 +50,29 @@ public class RecentSearchListFragment extends ListFragment {
 					    	recentSearches.add(new Search(item));
 					    }
 					}
-			    
-					getActivity().runOnUiThread(new Runnable() {
-	
-						public void run() {
-							SearchArrayAdapter adapter = new SearchArrayAdapter(getActivity(), R.layout.recent_search_list_item, recentSearches);
-							setListAdapter(adapter);
-							if (recentSearches == null) {
-								setEmptyText(getString(R.string.recent_error));
-							} else {							
-								if(recentSearches.size() == 0)
-									setEmptyText(getString(R.string.no_recent_searches));
+
+					try {
+						getActivity().runOnUiThread(new Runnable() {
+		
+							public void run() {
+								SearchArrayAdapter adapter = new SearchArrayAdapter(getActivity(), R.layout.recent_search_list_item, recentSearches);
+								setListAdapter(adapter);
+								if (recentSearches == null) {
+									setEmptyText(getString(R.string.recent_error));
+								} else {							
+									if(recentSearches.size() == 0)
+										setEmptyText(getString(R.string.no_recent_searches));
+								}
+		
+								try {
+									// hide the progress bar
+									dialog.dismiss();
+								}
+								catch(Exception e) {}
 							}
-	
-							try {
-								// hide the progress bar
-								dialog.dismiss();
-							}
-							catch(Exception e) {}
-						}
-					});
+						});
+					}
+					catch(Exception e) {}
 					
 				}
 	
