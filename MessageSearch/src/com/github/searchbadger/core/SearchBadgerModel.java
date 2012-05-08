@@ -217,11 +217,13 @@ public class SearchBadgerModel implements SearchModel {
 					searchResultCursor.moveToFirst();
 					do {
 
+						/*
 						String[] columns = searchResultCursor.getColumnNames();
 						for (int i=0; i<columns.length; i++) {
 						Log.v("SearchBadger","columns " + i + ": " + columns[i] + ": "
 								+ searchResultCursor.getString(i));
 						}
+						*/
 
 						long messageId = searchResultCursor.getLong(0);
 						String messageId_string = String.valueOf(messageId);
@@ -675,11 +677,13 @@ public class SearchBadgerModel implements SearchModel {
 					if (count > 0){
 						searchResultCursor.moveToFirst();
 						do{
+							/*
 							String columns[] = searchResultCursor.getColumnNames();
 							for (int i = 0; i < columns.length; i++){
 								Log.v("SearchBadger","columns " + i + ": " + columns[i] + ": "
 										+ searchResultCursor.getString(i));
 							}
+							*/
 							
 							//"Msg_Id", "Msg_Text", "Date", "Thread_Id", "Sender_Name"
 							String messageIdString = searchResultCursor.getString(0);
@@ -785,11 +789,13 @@ public class SearchBadgerModel implements SearchModel {
 						searchResultCursor.moveToFirst();
 						do {
 
+							/*
 							String[] columns = searchResultCursor.getColumnNames();
 							for (int i=0; i<columns.length; i++) {
 							Log.v("SearchBadger","columns " + i + ": " + columns[i] + ": "
 									+ searchResultCursor.getString(i));
 							}
+							*/
 
 							//"id", "msg_id", "msg_text", "thread_id", "date", "src_name", "author"	
 							String messageId_string = searchResultCursor.getString(1);
@@ -960,6 +966,12 @@ public class SearchBadgerModel implements SearchModel {
 		return false;
 	} 
 
+	
+	public boolean hasRecentSearchesBeenLoaded(){
+		if (this.recentSearches == null) return false;
+		return true;
+	}
+	
 	/*
 	 * A list of recent searches is returned. 
 	 * Note: not messages, these are actual searches.
@@ -968,13 +980,13 @@ public class SearchBadgerModel implements SearchModel {
 	 * even if the user shuts off their phone
 	 */
 	public List<Search> getRecentSearches() {
-		SQLiteDatabase db = null;
+		SQLiteDatabase db = null; 
 		try {
 			db = dbOH.getWritableDatabase();
 		
 			if (this.recentSearches == null) {
 				Cursor recentSearchesCursor = db.query(RECENT_SEARCH_TABLE, RECENT_SEARCH_COLS, 
-						null, null, null, null, "id DESC");
+						null, null, null, null, "id DESC LIMIT 20"); // TODO hard coded limit here. probably want to move this
 				if (recentSearchesCursor != null) {
 					recentSearches = new ArrayList<Search>();
 					if (recentSearchesCursor.getCount() > 0) {
@@ -1057,7 +1069,10 @@ public class SearchBadgerModel implements SearchModel {
 					}
 				}
 			}
-		} finally {
+		} catch (Exception e) {
+			
+		}
+		finally {
 			if (db != null) {
 				db.close();
 			}
@@ -1073,6 +1088,11 @@ public class SearchBadgerModel implements SearchModel {
 			this.getRecentSearches();
 		}
 		recentSearches.add(0, search);
+		
+		// TODO limiting searches to last 20
+		while(recentSearches.size() > 20) {
+			recentSearches.remove(20);
+		}
 		
 		SQLiteDatabase db = null;
 		try {
@@ -1186,11 +1206,13 @@ public class SearchBadgerModel implements SearchModel {
 					int index = 0;
 					do {
 
+						/*
 						String[] columns = searchResultCursor.getColumnNames();
 						for (int i=0; i<columns.length; i++) {
 						Log.v("SearchBadger","columns " + i + ": " + columns[i] + ": "
 								+ searchResultCursor.getString(i));
 						}
+						*/
 						
 						long messageId = searchResultCursor.getLong(0);
 						String messageId_string = String.valueOf(messageId);
@@ -1310,7 +1332,7 @@ public class SearchBadgerModel implements SearchModel {
 		try{
 			db = inMemDbOH.getWritableDatabase();
 			Cursor threadResultCursor = db.query(TWITTER_MSGS_TABLE, TWITTER_MSGS_COLS, selection, 
-					selectionArgs, null, null, "date DESC");
+					selectionArgs, null, null, "date ASC");
 			
 			if (threadResultCursor != null){
 				try{
@@ -1318,11 +1340,13 @@ public class SearchBadgerModel implements SearchModel {
 					if (count > 0){
 						threadResultCursor.moveToFirst();
 						do{
+							/*
 							String columns[] = threadResultCursor.getColumnNames();
 							for (int i = 0; i < columns.length; i++){
 								Log.v("SearchBadger","columns " + i + ": " + columns[i] + ": "
 										+ threadResultCursor.getString(i));
 							}
+							*/
 							
 							//"Msg_Id", "Msg_Text", "Date", "Thread_Id", "Sender_Name"
 							String messageIdString = threadResultCursor.getString(0);
@@ -1535,8 +1559,10 @@ public class SearchBadgerModel implements SearchModel {
 						Contact c = new Contact(String.valueOf(followerList.get(j).getId()),
 								MessageSource.TWITTER,
 								followerList.get(j).getName(),
-								null);
-						contacts.add(c);
+								null,
+								followerList.get(j).getProfileImageURL().toString());
+						if(!contacts.contains(c))
+							contacts.add(c);
 					}
 				}
 			}

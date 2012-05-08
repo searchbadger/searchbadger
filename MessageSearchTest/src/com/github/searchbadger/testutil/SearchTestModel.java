@@ -143,4 +143,8 @@ public class SearchTestModel implements SearchModel {
 		return 0;
 	}
 
+	public boolean hasRecentSearchesBeenLoaded() {
+		return false;
+	}
+
 }

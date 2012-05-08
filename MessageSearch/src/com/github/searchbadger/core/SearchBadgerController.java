@@ -69,8 +69,11 @@ public class SearchBadgerController {
 						
 						srchGen.runOnUiThread(new Runnable() {
 							public void run() {
-								// hide the progress bar
-								dialog.dismiss();
+								try {
+									// hide the progress bar
+									dialog.dismiss();
+							    } catch (Exception e) {
+							    }
 								
 								// show search results activity
 								Intent resActIntent = new Intent(srchGen, 

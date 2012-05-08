@@ -3,20 +3,21 @@ package com.github.searchbadger.view;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.github.searchbadger.R;
-import com.github.searchbadger.core.SearchBadgerApplication;
-import com.github.searchbadger.util.Search;
-import com.github.searchbadger.util.SearchModel;
-
+import android.app.ProgressDialog;
 import android.content.Context;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.ListFragment;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import com.github.searchbadger.R;
+import com.github.searchbadger.core.SearchBadgerApplication;
+import com.github.searchbadger.util.Search;
+import com.github.searchbadger.util.SearchModel;
 
 public class RecentSearchListFragment extends ListFragment {
 	private List<Search> recentSearches;
@@ -27,40 +28,82 @@ public class RecentSearchListFragment extends ListFragment {
 	public void onResume() {
 		super.onResume();
 		this.setListAdapter(null);
-
-		Thread thread = new Thread(new Runnable() {
-			public void run() {
-
-				recentSearches = null;
-				List<Search> searches = model.getRecentSearches();
-				if(searches != null) {
-				
-					// make a copy of the recent searches in case the list is changed 
-					recentSearches = new ArrayList<Search>(searches.size());
-				    for(Search item: searches) {
-				    	recentSearches.add(new Search(item));
-				    }
-				}
-		    
-				getActivity().runOnUiThread(new Runnable() {
-
-					public void run() {
-						SearchArrayAdapter adapter = new SearchArrayAdapter(getActivity(), R.layout.recent_search_list_item, recentSearches);
-						setListAdapter(adapter);
-						if (recentSearches == null) {
-							setEmptyText(getString(R.string.recent_error));
-						} else {
-							setEmptyText(getString(R.string.no_recent_searches));
-						}
-						
+		
+		
+		if(!model.hasRecentSearchesBeenLoaded()) {
+			
+			// if this is the first time, run in separate thread and
+			// show progress bar since the first get might be slow 
+			final ProgressDialog dialog = ProgressDialog.show(getActivity(), "", 
+	                "Loading. Please wait...", true);
+			
+			Thread thread = new Thread(new Runnable() {
+				public void run() {
+	
+					recentSearches = null;
+					List<Search> searches = model.getRecentSearches();
+					if(searches != null) {
+					
+						// make a copy of the recent searches in case the list is changed 
+						recentSearches = new ArrayList<Search>(searches.size());
+					    for(Search item: searches) {
+					    	recentSearches.add(new Search(item));
+					    }
 					}
-				});
-				
+
+					try {
+						getActivity().runOnUiThread(new Runnable() {
+		
+							public void run() {
+								SearchArrayAdapter adapter = new SearchArrayAdapter(getActivity(), R.layout.recent_search_list_item, recentSearches);
+								setListAdapter(adapter);
+								if (recentSearches == null) {
+									setEmptyText(getString(R.string.recent_error));
+								} else {							
+									if(recentSearches.size() == 0)
+										setEmptyText(getString(R.string.no_recent_searches));
+								}
+		
+								try {
+									// hide the progress bar
+									dialog.dismiss();
+								}
+								catch(Exception e) {}
+							}
+						});
+					}
+					catch(Exception e) {}
+					
+				}
+	
+			});
+			thread.start();
+
+		}
+		else {
+
+			// not first time so just load 
+			recentSearches = null;
+			List<Search> searches = model.getRecentSearches();
+			if(searches != null) {
+			
+				// make a copy of the recent searches in case the list is changed 
+				recentSearches = new ArrayList<Search>(searches.size());
+			    for(Search item: searches) {
+			    	recentSearches.add(new Search(item));
+			    }
 			}
 
-		});
-		thread.start();
+			SearchArrayAdapter adapter = new SearchArrayAdapter(getActivity(), R.layout.recent_search_list_item, recentSearches);
+			setListAdapter(adapter);
+			if (recentSearches == null) {
+				setEmptyText(getString(R.string.recent_error));
+			} else {							
+				if(recentSearches.size() == 0)
+					setEmptyText(getString(R.string.no_recent_searches));
+			}
 
+		}
 
 	}
 
@@ -112,8 +155,12 @@ public class RecentSearchListFragment extends ListFragment {
                 	
                 	// add the message
                 	TextView message = (TextView) v.findViewById(R.id.recent_search_text);
-                	if(message != null)
-                		message.setText(s.getText());
+                	if(message != null){
+                		if(s.getText().length() == 0)
+                			message.setText(Html.fromHtml("<i>blank</i>"));
+                		else
+                			message.setText(s.getText());
+                	}
                 	
                 	// add the date
                 	TextView date = (TextView) v.findViewById(R.id.recent_search_date);

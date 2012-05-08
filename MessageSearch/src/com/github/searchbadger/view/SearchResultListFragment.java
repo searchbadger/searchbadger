@@ -2,10 +2,10 @@ package com.github.searchbadger.view;
 
 import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.ListFragment;
@@ -21,7 +21,6 @@ import android.widget.TextView;
 import com.github.searchbadger.R;
 import com.github.searchbadger.core.SearchBadgerApplication;
 import com.github.searchbadger.core.SearchBadgerController;
-import com.github.searchbadger.core.SearchBadgerController.StarredMessageListener;
 import com.github.searchbadger.util.Message;
 import com.github.searchbadger.util.SearchModel;
 import com.github.searchbadger.util.TextViewUtil;
@@ -33,12 +32,15 @@ public class SearchResultListFragment extends ListFragment {
     private SearchBadgerController controller = SearchBadgerController.getInstance();
     private SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy h:mm:ss a");
     private List<Message> results;
+    private Pattern pattern;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		
 		super.onCreate(savedInstanceState);
 
+		if(model.getCurrentSearch() != null)
+			pattern = Pattern.compile(model.getCurrentSearch().getJavaRegexText(), Pattern.CASE_INSENSITIVE);
 		results = model.getSearchResults();
 		MessageArrayAdapter adapter = new MessageArrayAdapter(getActivity(), R.layout.search_result_list_item, results);
 		setListAdapter(adapter);
@@ -150,7 +152,7 @@ public class SearchResultListFragment extends ListFragment {
                 	// add the message
                 	TextView message = (TextView) v.findViewById(R.id.messages_text);
                 	if(message != null)
-                		message.setText(TextViewUtil.formatMessage(m.getAuthor(), m.getText()));
+                		message.setText(TextViewUtil.formatMessageSearch(m.getAuthor(), m.getText(), pattern));
                 	
                 	// add the date
                 	TextView date = (TextView) v.findViewById(R.id.search_result_date);
@@ -167,6 +169,9 @@ public class SearchResultListFragment extends ListFragment {
                 			break;
                 		case FACEBOOK:
                     		icon.setImageResource(R.drawable.facebook_selected);
+                			break;
+                		case TWITTER:
+                    		icon.setImageResource(R.drawable.twitter_selected);
                 			break;
                 		}
                 	}

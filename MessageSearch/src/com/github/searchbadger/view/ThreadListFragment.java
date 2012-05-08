@@ -1,5 +1,6 @@
 package com.github.searchbadger.view;
 
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 import android.content.Context;
@@ -26,6 +27,7 @@ public class ThreadListFragment extends ListFragment {
 	private SearchModel model = SearchBadgerApplication.getSearchModel();
 	private List<Message> thread_msg;
 	private int thread_index = 0;
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy h:mm:ss a");
 	
 	 /**
      * Create a new instance of DetailsFragment, initialized to
@@ -135,7 +137,12 @@ public class ThreadListFragment extends ListFragment {
                 		else
                 			message.setText(TextViewUtil.formatMessage(m.getAuthor(), m.getText()));
                 	}
-                	
+
+                	// add the message date
+                	TextView date = (TextView) v.findViewById(R.id.thread_date);
+                	if(date != null) {
+                		date.setText(dateFormat.format(m.getDate()));
+                	}
                 	
                 }
                 return v;

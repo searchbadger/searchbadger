@@ -13,6 +13,7 @@ public interface SearchModel {
 	public int getLastThreadIndex();
 	public void resetLastThread();
 	public List<Search> getRecentSearches();
+	public boolean hasRecentSearchesBeenLoaded();
 	public List<Message> getStarredMessages();
 	public boolean addStarredMessage(Message msg);
 	public boolean removeStarredMessage(Message msg) ;

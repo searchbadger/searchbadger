@@ -268,7 +268,7 @@ public class SearchActivity extends Activity implements SearchGenerator {
 	protected void loadRecentSearch(Search search) {
 		
 		// load the search text
-		searchInputText.setText(search.getText());
+		searchInputText.setText(colorRegexString(search.getText()));
 		List<MessageSource> sources = search.getSources();
 		
 		// load the source
