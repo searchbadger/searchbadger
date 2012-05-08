@@ -42,6 +42,7 @@
                     android:layout_alignLeft="@+id/editTextSearch"
                     android:layout_marginLeft="7dip"
                     android:layout_marginTop="7dip"
+                    android:contentDescription="@string/search"
                     android:background="@drawable/search" >
                 </ImageButton>
 
@@ -52,6 +53,7 @@
                     android:layout_alignRight="@+id/editTextSearch"
                     android:layout_marginRight="8dip"
                     android:layout_marginTop="10dip"
+                    android:contentDescription="@string/clear"
                     android:background="@drawable/button_type_close" >
                 </ImageButton>
             </RelativeLayout>
@@ -80,8 +82,7 @@
                     android:layout_width="45dp"
                     android:layout_height="45dp"
                     android:focusable="false"
-                    android:text="@string/symbol_underscore" />
-
+                    android:text="@string/symbol_underscore" />
                 <TextView
                     android:id="@+id/textView2"
                     android:layout_width="wrap_content"
