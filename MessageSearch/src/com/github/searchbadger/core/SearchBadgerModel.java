@@ -449,12 +449,11 @@ public class SearchBadgerModel implements SearchModel {
 			Log.d("SearchBadger", "Error in querying Twitter API");
 		}
 		
-		allMessages = tempMessages;
-		
-		String newestMsgId = String.valueOf(allMessages.get(allMessages.size() - 1).getId());
+		String newestMsgId = String.valueOf(tempMessages.get(tempMessages.size() - 1).getId());
 		
 		if (!newestMsgId.equals(helper.getMostRecentMsgId())){
 			int pageNo = 2;
+			
 			while (tempMessages.size() == 200){
 				page.setPage(pageNo);		
 				try {
@@ -463,10 +462,18 @@ public class SearchBadgerModel implements SearchModel {
 					Log.d("SearchBadger", "Error in querying Twitter API");
 				}
 				
-				allMessages.addAll(tempMessages);	
-				
+				if (allMessages == null)
+					allMessages = tempMessages;
+				else
+					allMessages.addAll(tempMessages);
+					
 				pageNo++;
 			}
+			
+			if (allMessages == null)
+				allMessages = tempMessages;
+			else
+				allMessages.addAll(tempMessages);
 			
 			// add all direct messages to in-memory DB
 			ContentValues vals = new ContentValues();
@@ -484,7 +491,7 @@ public class SearchBadgerModel implements SearchModel {
 					vals.put("Recipient_Name", msg.getRecipient().getName());
 					vals.put("Sender_Id", msg.getSenderId());
 					vals.put("Sender_Name", msg.getSender().getName());
-					vals.put("Thread_Id", helper.getUserTwitterId()+msg.getSenderId());
+					vals.put("Thread_Id", msg.getSenderId()+msg.getRecipientId());
 					retRes = ((db.insert(TWITTER_MSGS_TABLE, "Msg_Id", vals)) != -1);
 					
 					// set id of most recent message retrieved
@@ -499,7 +506,73 @@ public class SearchBadgerModel implements SearchModel {
 				}
 			}
 		}	
-
+		
+		// Do the same for sent messages
+		page = new Paging(1,200);
+		allMessages = null;
+		tempMessages = null;
+		try {
+			tempMessages = tt.getSentDirectMessages(page);
+		} catch (TwitterException e) {
+			Log.d("SearchBadger", "Error in querying Twitter API");
+		}
+		
+		newestMsgId = String.valueOf(tempMessages.get(tempMessages.size() - 1).getId());
+		
+		if (!newestMsgId.equals(helper.getMostRecentSentMsgId())){
+			int pageNo = 2;
+			while (tempMessages.size() == 200){
+				page.setPage(pageNo);		
+				try {
+					tempMessages = tt.getSentDirectMessages(page);
+				} catch (TwitterException e) {
+					Log.d("SearchBadger", "Error in querying Twitter API");
+				}
+				
+				if (allMessages == null)
+					allMessages = tempMessages;
+				else
+					allMessages.addAll(tempMessages);
+					
+				pageNo++;
+			}
+			
+			if (allMessages == null)
+				allMessages = tempMessages;
+			else
+				allMessages.addAll(tempMessages);
+			
+			// add all direct messages to in-memory DB
+			ContentValues vals = new ContentValues();
+			
+			try{
+				db = inMemDbOH.getWritableDatabase();
+				for (int i = 0; i < allMessages.size(); i++){
+					DirectMessage msg = allMessages.get(i);
+					vals.clear();
+					
+					vals.put("Msg_Id", msg.getId());
+					vals.put("Msg_Text", msg.getText());
+					vals.put("Date", msg.getCreatedAt().getTime());
+					vals.put("Recipient_Id", msg.getRecipientId());
+					vals.put("Recipient_Name", msg.getRecipient().getName());
+					vals.put("Sender_Id", msg.getSenderId());
+					vals.put("Sender_Name", msg.getSender().getName());
+					vals.put("Thread_Id", msg.getSenderId()+msg.getRecipientId());
+					retRes = ((db.insert(TWITTER_MSGS_TABLE, "Msg_Id", vals)) != -1);
+					
+					// set id of most recent sent message retrieved
+					if (i == allMessages.size() - 1)
+						helper.setMostRecentSentMsgId(String.valueOf(msg.getId()));
+				}
+				
+			} finally {
+				if (db != null) {
+					// We do not close the DB bc the data in in-mem DB is gone if it is closed
+					//db.close();
+				}
+			}
+		}	
 	}
 
 	public void searchTwitter(Search filter) {

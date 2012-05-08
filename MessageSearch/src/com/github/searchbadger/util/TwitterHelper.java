@@ -38,6 +38,7 @@ public class TwitterHelper {
 	
 	private String userTwitterId;
 	private String mostRecentMsgId;
+	private String mostRecentSentMsgId;
 	
 	public TwitterHelper(){
 		context = SearchBadgerApplication.getAppContext();
@@ -46,6 +47,8 @@ public class TwitterHelper {
 		
 		// set most recent msg id to being empty string
 		mostRecentMsgId = "";
+		
+		mostRecentSentMsgId = "";
 	}
 	
 	public boolean isSessionValid(){
@@ -96,5 +99,13 @@ public class TwitterHelper {
 	
 	public String getMostRecentMsgId(){
 		return mostRecentMsgId;
+	}
+	
+	public void setMostRecentSentMsgId(String id){
+		mostRecentSentMsgId = id;
+	}
+	
+	public String getMostRecentSentMsgId(){
+		return mostRecentSentMsgId;
 	}
 }
